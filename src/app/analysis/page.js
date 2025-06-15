@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import ReactMarkdown from 'react-markdown';
 
 export default function AnalysisPage() {
   const [analysis, setAnalysis] = useState(null);
@@ -18,15 +19,16 @@ export default function AnalysisPage() {
   const router = useRouter();
   const { user } = useAuth();
   const brandName = searchParams.get('brand');
+  const intervalRef = useRef(null);
 
-  const loadingStages = [
+  const loadingStages = useMemo(() => [
     'Initializing analysis...',
     'Analyzing domain availability...',
     'AI analyzing competitors...',
     'AI evaluating SEO difficulty...',
     'Generating strategic insights...',
     'Finalizing AI recommendations...'
-  ];
+  ], []);
 
   useEffect(() => {
     const analyzeBrand = async () => {
@@ -44,7 +46,7 @@ export default function AnalysisPage() {
       setLoadingStage(0);
 
       // Start loading stage progression
-      const stageInterval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setLoadingStage(prev => {
           if (prev < loadingStages.length - 1) {
             return prev + 1;
@@ -60,11 +62,17 @@ export default function AnalysisPage() {
         }
 
         const data = await response.json();
-        clearInterval(stageInterval);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         setAnalysis(data);
       } catch (err) {
         console.error('Analysis error:', err);
-        clearInterval(stageInterval);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         setError('Failed to analyze brand name. Please try again.');
       } finally {
         setLoading(false);
@@ -72,7 +80,15 @@ export default function AnalysisPage() {
     };
 
     analyzeBrand();
-  }, [brandName]);
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [brandName, loadingStages.length]);
 
   if (loading || isSearching) {
     return (
@@ -180,8 +196,14 @@ export default function AnalysisPage() {
     setIsSearching(true);
     setLoadingStage(0);
     
+    // Clear any existing interval before starting a new one
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
     // Start loading stage progression
-    const stageInterval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setLoadingStage(prev => {
         if (prev < loadingStages.length - 1) {
           return prev + 1;
@@ -195,10 +217,14 @@ export default function AnalysisPage() {
   };
 
   const handleDeepScan = async () => {
-    if (!brandName || isDeepScanning) return;
+    // Guard clause: make sure the data exists before trying to use it
+    if (!analysis?.detailedAnalysis?.googleCompetition?.topResults || isDeepScanning) return;
     
     setIsDeepScanning(true);
     setDeepScanError(null);
+    
+    // Extract the competitor URLs
+    const competitorUrls = analysis.detailedAnalysis.googleCompetition.topResults.map(r => r.link);
     
     try {
       const response = await fetch('/api/deep-scan', {
@@ -206,7 +232,8 @@ export default function AnalysisPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ brandName }),
+        // Send the URLs and brand name in the body
+        body: JSON.stringify({ competitorUrls, brandName }),
       });
       
       const result = await response.json();
@@ -253,7 +280,7 @@ export default function AnalysisPage() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl font-bold text-white mb-2">Brand Analysis & Verdict</h1>
-              <p className="text-gray-300">Comprehensive analysis for "{brandName}"</p>
+              <p className="text-gray-300">Comprehensive analysis for &ldquo;{brandName}&rdquo;</p>
             </div>
             
             {/* Search Box */}
@@ -381,15 +408,16 @@ export default function AnalysisPage() {
               </h2>
               <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed">
                 {analysis.recommendation ? (
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: analysis.recommendation
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-                        .replace(/\n\n/g, '</p><p class="mt-4">')
-                        .replace(/^/, '<p>')
-                        .replace(/$/, '</p>')
+                  <ReactMarkdown
+                    components={{
+                      // Custom styling for elements
+                      strong: ({node, ...props}) => <strong className="text-white font-semibold" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-xl font-bold text-purple-400 mt-8 mb-4 border-l-4 border-purple-400 pl-4" {...props} />,
+                      li: ({node, ...props}) => <li className="flex items-start mb-2 ml-4"><span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2 flex-shrink-0"></span><span {...props} /></li>
                     }}
-                  />
+                  >
+                    {analysis.recommendation}
+                  </ReactMarkdown>
                 ) : (
                   <p>AI analysis is being generated. Please check back in a moment.</p>
                 )}
@@ -612,16 +640,18 @@ export default function AnalysisPage() {
                       </h4>
                     </div>
                     <div className="p-6">
-                      <div 
-                        className="prose prose-invert max-w-none text-gray-300 leading-relaxed"
-                        dangerouslySetInnerHTML={{ 
-                          __html: deepScanData.comparativeAnalysis
-                            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-                            .replace(/##\s(.*?)$/gm, '<h2 class="text-xl font-bold text-purple-400 mt-8 mb-4 border-l-4 border-purple-400 pl-4">$1</h2>')
-                            .replace(/\*\s(.*?)$/gm, '<li class="flex items-start mb-2 ml-4"><span class="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2 flex-shrink-0"></span><span>$1</span></li>')
-                            .replace(/\n/g, '<br />')
-                        }}
-                      />
+                      <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed">
+                        <ReactMarkdown
+                          components={{
+                            // Custom styling for elements
+                            strong: ({node, ...props}) => <strong className="text-white font-semibold" {...props} />,
+                            h2: ({node, ...props}) => <h2 className="text-xl font-bold text-purple-400 mt-8 mb-4 border-l-4 border-purple-400 pl-4" {...props} />,
+                            li: ({node, ...props}) => <li className="flex items-start mb-2 ml-4"><span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2 flex-shrink-0"></span><span {...props} /></li>
+                          }}
+                        >
+                          {deepScanData.comparativeAnalysis}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   </div>
                 )}

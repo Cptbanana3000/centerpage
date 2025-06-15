@@ -7,6 +7,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
 import { Features } from '@/components/home/Features';
 import { PricingSection } from '@/components/pricing/PricingSection';
+import ReactMarkdown from 'react-markdown';
 
 // --- Reusable UI Sub-Components (A Best Practice in React) ---
 const MetricCircle = ({ score, label }) => {
@@ -35,16 +36,6 @@ const KeyInsightCard = ({ insight }) => {
 };
 
 const DeepScanResults = ({ data }) => {
-    // Helper function to format the AI analysis text into HTML
-    const formatAIAnalysis = (analysis) => {
-        if (!analysis) return '';
-        return analysis
-            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900">$1</strong>')
-            .replace(/###\s(.*?)$/gm, '<h3 class="text-lg font-bold text-slate-800 mt-6 mb-3 border-l-4 border-purple-500 pl-4">$1</h3>')
-            .replace(/•\s(.*?)$/gm, '<li class="flex items-start mb-2"><span class="w-2 h-2 bg-purple-500 rounded-full mr-3 mt-2 flex-shrink-0"></span><span class="text-slate-700">$1</span></li>')
-            .replace(/\n/g, '<br />');
-    };
-
     return (
         <div className="space-y-8">
             <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
@@ -59,7 +50,18 @@ const DeepScanResults = ({ data }) => {
             {data.aiAnalyses?.map((analysisItem) => (
                 <div key={analysisItem.competitorUrl || Math.random()} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6"><h4 className="text-xl font-bold flex items-center"><i className="fas fa-robot mr-3"></i>AI Strategic Analysis for: <a href={analysisItem.competitorUrl} target="_blank" rel="noopener noreferrer" className="ml-2 hover:underline">{new URL(analysisItem.competitorUrl).hostname}</a></h4></div>
-                    <div className="p-6 space-y-4" dangerouslySetInnerHTML={{ __html: formatAIAnalysis(analysisItem.analysis) }}></div>
+                    <div className="p-6 space-y-4">
+                        <ReactMarkdown
+                            components={{
+                                // Custom styling for elements
+                                strong: ({node, ...props}) => <strong className="text-slate-900" {...props} />,
+                                h3: ({node, ...props}) => <h3 className="text-lg font-bold text-slate-800 mt-6 mb-3 border-l-4 border-purple-500 pl-4" {...props} />,
+                                li: ({node, ...props}) => <li className="flex items-start mb-2"><span className="w-2 h-2 bg-purple-500 rounded-full mr-3 mt-2 flex-shrink-0"></span><span className="text-slate-700" {...props} /></li>
+                            }}
+                        >
+                            {analysisItem.analysis}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             ))}
         </div>
