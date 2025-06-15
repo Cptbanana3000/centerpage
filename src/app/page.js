@@ -77,6 +77,6 @@ export default function Home() {
       <Hero />
       <Features />
       <PricingSection />
-    </main>
+      </main>
   );
 }

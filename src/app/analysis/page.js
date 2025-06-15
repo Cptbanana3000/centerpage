@@ -1,3 +1,4 @@
+// src/app/analysis/page.js - v2.3 
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -10,6 +11,7 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newBrandName, setNewBrandName] = useState('');
+  const [newCategory, setNewCategory] = useState('tech & saas');
   const [isSearching, setIsSearching] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [deepScanData, setDeepScanData] = useState(null);
@@ -19,7 +21,21 @@ export default function AnalysisPage() {
   const router = useRouter();
   const { user } = useAuth();
   const brandName = searchParams.get('brand');
+  const category = searchParams.get('category') || 'tech & saas';
   const intervalRef = useRef(null);
+
+  const categories = [
+    { value: 'tech & saas', label: '🖥️ Tech & SaaS' },
+    { value: 'e-commerce & retail', label: '🛒 E-commerce & Retail' },
+    { value: 'health & wellness', label: '🏥 Health & Wellness' },
+    { value: 'creative & design', label: '🎨 Creative & Design' },
+    { value: 'games & entertainment', label: '🎮 Games & Entertainment' },
+    { value: 'finance & fintech', label: '💰 Finance & Fintech' },
+    { value: 'food & beverage', label: '🍕 Food & Beverage' },
+    { value: 'travel & hospitality', label: '✈️ Travel & Hospitality' },
+    { value: 'education & e-learning', label: '📚 Education & E-learning' },
+    { value: 'professional services', label: '🏢 Professional Services' }
+  ];
 
   const loadingStages = useMemo(() => [
     'Initializing analysis...',
@@ -56,7 +72,7 @@ export default function AnalysisPage() {
       }, 1500); // Change stage every 1.5 seconds
 
       try {
-        const response = await fetch(`/api/analyze?brandName=${encodeURIComponent(brandName)}`);
+        const response = await fetch(`/api/analyze?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`);
         if (!response.ok) {
           throw new Error('Failed to analyze brand name');
         }
@@ -88,7 +104,7 @@ export default function AnalysisPage() {
         intervalRef.current = null;
       }
     };
-  }, [brandName, loadingStages.length]);
+  }, [brandName, category, loadingStages.length]);
 
   if (loading || isSearching) {
     return (
@@ -213,7 +229,7 @@ export default function AnalysisPage() {
     }, 1500);
     
     // Navigate immediately, let the page handle the loading
-    router.push(`/analysis?brand=${encodeURIComponent(newBrandName.trim())}`);
+    router.push(`/analysis?brand=${encodeURIComponent(newBrandName.trim())}&category=${encodeURIComponent(newCategory)}`);
   };
 
   const handleDeepScan = async () => {
@@ -232,8 +248,8 @@ export default function AnalysisPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Send the URLs and brand name in the body
-        body: JSON.stringify({ competitorUrls, brandName }),
+        // Send the URLs, brand name, and category in the body
+        body: JSON.stringify({ competitorUrls, brandName, category }),
       });
       
       const result = await response.json();
@@ -283,23 +299,46 @@ export default function AnalysisPage() {
               <p className="text-gray-300">Comprehensive analysis for &ldquo;{brandName}&rdquo;</p>
             </div>
             
-            {/* Search Box */}
-            <div className="flex gap-2 max-w-md">
-              <input
-                type="text"
-                value={newBrandName}
-                onChange={(e) => setNewBrandName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleNewSearch()}
-                placeholder="Search another brand..."
-                className="flex-1 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent"
-              />
-              <button
-                onClick={handleNewSearch}
-                disabled={isSearching || !newBrandName.trim()}
-                className="px-4 py-2 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-lg hover:from-[#5a6fd6] hover:to-[#6a3f9e] focus:outline-none focus:ring-2 focus:ring-[#667eea] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
-              >
-                <i className="fas fa-search"></i>
-              </button>
+            {/* Enhanced Search Box with Category */}
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <div className="flex gap-2">
+                <select
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="px-3 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent appearance-none cursor-pointer text-sm"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: 'right 0.5rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1.2em 1.2em'
+                  }}
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.value} value={cat.value} className="bg-gray-800 text-white">
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleNewSearch()}
+                  placeholder="Search another brand..."
+                  className="flex-1 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent"
+                />
+                <button
+                  onClick={handleNewSearch}
+                  disabled={isSearching || !newBrandName.trim()}
+                  className="px-4 py-2 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-lg hover:from-[#5a6fd6] hover:to-[#6a3f9e] focus:outline-none focus:ring-2 focus:ring-[#667eea] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
+                >
+                  <i className="fas fa-search"></i>
+                </button>
+              </div>
+              {/* Current Analysis Category Display */}
+              <div className="text-sm text-gray-400">
+                Current analysis: <span className="text-[#667eea] font-medium">{categories.find(c => c.value === category)?.label || category}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -453,23 +492,21 @@ export default function AnalysisPage() {
               
               <div className="space-y-4 overflow-y-auto pr-2 flex-grow">
                 {analysis.detailedAnalysis.googleCompetition.topResults && analysis.detailedAnalysis.googleCompetition.topResults.length > 0 ? (
-                  analysis.detailedAnalysis.googleCompetition.topResults.slice(0, 4).map((result, index) => {
-                    // Check if this competitor has the exact domain match (e.g., netflix.com, netflix.org)
-                    const extractDomain = (url) => {
-                      try {
-                        const urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
-                        return urlObj.hostname.replace('www.', '');
-                      } catch {
-                        return url.replace('www.', '');
-                      }
+                  analysis.detailedAnalysis.googleCompetition.topResults.slice(0, 5).map((result, index) => {
+                    // --- FIXED: More accurate "Direct Competitor" logic ---
+                    const extractRootDomain = (url) => {
+                        try {
+                            const hostname = new URL(url).hostname;
+                            // Extracts 'reddit' from 'www.reddit.com' or 'reddit.co.uk'
+                            const parts = hostname.replace(/^www\./, '').split('.');
+                            return parts.length > 1 ? parts[0] : parts[0];
+                        } catch {
+                            return null; // Return null for invalid URLs
+                        }
                     };
                     
-                    const domain = extractDomain(result.link);
-                    const brandNameLower = brandName.toLowerCase();
-                    
-                    // Check if domain starts with exact brand name followed by a dot (e.g., netflix.com, netflix.org)
-                    const isDirectCompetitor = domain.toLowerCase().startsWith(brandNameLower + '.') && 
-                                             !domain.toLowerCase().includes('.' + brandNameLower + '.');
+                    const rootDomain = extractRootDomain(result.link);
+                    const isDirectCompetitor = rootDomain?.toLowerCase() === brandName.toLowerCase();
                     
                     return (
                       <div key={index} className="p-4 rounded-lg hover:bg-white/10 transition-colors">

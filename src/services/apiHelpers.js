@@ -7,7 +7,7 @@ const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY;
 const GOOGLE_SEARCH_CX = process.env.GOOGLE_SEARCH_CX;
 const GODADDY_BASE_URL = process.env.GODADDY_ENV === 'PRODUCTION' ? 'https://api.godaddy.com' : 'https://api.ote-godaddy.com';
 
-// This function is copied directly from your server.js
+// This function is correct and remains unchanged.
 export async function getDomainAvailability(domains) {
   const results = [];
   for (const domain of domains) {
@@ -23,15 +23,25 @@ export async function getDomainAvailability(domains) {
   return results;
 }
 
-// This function is copied directly from your server.js
-export async function getGoogleResults(keyword) {
+/**
+ * FIXED: Performs a Google search with optional exact phrase matching.
+ * @param {string} keyword - The search term.
+ * @param {boolean} [exactMatch=false] - Whether to wrap the keyword in quotes for an exact search.
+ * @returns {Promise<Array>} - An array of search results.
+ */
+export async function getGoogleResults(keyword, exactMatch = false) {
     if (!GOOGLE_SEARCH_API_KEY || !GOOGLE_SEARCH_CX) return [];
-    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_SEARCH_API_KEY}&cx=${GOOGLE_SEARCH_CX}&q="${keyword}"`;
+    
+    // Conditionally wrap the keyword in quotes for an exact phrase search
+    const searchQuery = exactMatch ? `"${keyword}"` : keyword;
+    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_SEARCH_API_KEY}&cx=${GOOGLE_SEARCH_CX}&q=${encodeURIComponent(searchQuery)}`;
+    
     try {
         const response = await axios.get(url);
+        // Ensure we always return an array
         return response.data.items || [];
     } catch(error) {
-        console.error('Google API Error:', error.response?.data?.error?.message || error.message);
+        console.error(`Google API Error for keyword "${keyword}":`, error.response?.data?.error?.message || error.message);
         return [];
     }
 }

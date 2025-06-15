@@ -69,7 +69,7 @@ export function PricingSection() {
                 </li>
                 <li className="flex items-start">
                   <svg className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  <span><span className="font-semibold">10</span> Pro Reports</span>
+                  <span><span className="font-semibold">10</span> Deep Scan Reports</span>
                 </li>
               </ul>
             </div>
@@ -95,7 +95,7 @@ export function PricingSection() {
                 </li>
                 <li className="flex items-start">
                   <svg className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  <span><span className="font-semibold">50</span> Pro Reports</span>
+                  <span><span className="font-semibold">50</span> Deep Scan Reports</span>
                 </li>
               </ul>
             </div>

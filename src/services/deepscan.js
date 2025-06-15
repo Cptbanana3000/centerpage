@@ -1,11 +1,11 @@
-// Enhanced Deep Scan Service - v2.8 (AI-Powered Detection)
-// Removed the unreliable Renifler API and reverted to a robust,
-// AI-driven technology detection module. This is the most stable free option.
+// Enhanced Deep Scan Service - v2.9 (Category-Aware)
+// This version integrates the 'category' context into the Deep Scan analysis,
+// making the AI reports significantly more specialized and insightful.
 
 // --- Core Dependencies ---
 import OpenAI from 'openai';
 import puppeteer from 'puppeteer';
-import * as  cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { getDomain } from 'tldts';
 
 class DeepScanService {
@@ -20,16 +20,18 @@ class DeepScanService {
   }
 
   /**
-   * Performs a comprehensive analysis of a single competitor URL.
+   * Performs a comprehensive analysis of a single competitor URL, now with category context.
    * @param {string} competitorUrl - The URL of the competitor's website.
-   * @param {string} userBrandName - The user's brand name for context in the AI analysis.
+   * @param {string} userBrandName - The user's brand name for context.
+   * @param {string} category - The industry category for tailored analysis.
    * @returns {Promise<object>} - An object containing the scan results.
    */
-  async performDeepScan(competitorUrl, userBrandName) {
+  async performDeepScan(competitorUrl, userBrandName, category = 'General') {
     try {
-      console.log(`🔍 Starting Enhanced Deep Scan for: ${competitorUrl}`);
+      console.log(`🔍 Starting Enhanced Deep Scan for: ${competitorUrl} in category: ${category}`);
       const analyzedData = await this.analyzeWebsite(competitorUrl);
-      const analysis = await this.generateAIAnalysis(analyzedData, userBrandName);
+      // Pass the category to the AI analysis function
+      const analysis = await this.generateAIAnalysis(analyzedData, userBrandName, category);
       
       return {
         success: true,
@@ -50,15 +52,15 @@ class DeepScanService {
   }
 
   /**
-   * Analyzes a website using Puppeteer to render JavaScript, capture metrics, and extract data.
+   * Analyzes a website using Puppeteer. (No changes needed here for category).
    * @param {string} url - The URL to analyze.
    * @returns {Promise<object>} - A detailed object of website data.
    */
   async analyzeWebsite(url) {
     if (!/^(https?:\/\/)/i.test(url)) {
-      url = 'https://' + url;
-    }
-    
+        url = 'https://' + url;
+      }
+
     console.log(`📡 Launching headless browser to analyze: ${url}`);
     let browser;
     try {
@@ -72,7 +74,6 @@ class DeepScanService {
       const htmlContent = await page.content();
       const $ = cheerio.load(htmlContent);
 
-      // --- AI-Powered Technology Stack Detection ---
       const techClues = this.extractTechClues($);
       const technologies = await this.detectTechnologiesAI(techClues, finalUrl);
       
@@ -120,8 +121,6 @@ class DeepScanService {
 
   /**
    * Extracts clues from the HTML for the AI to analyze.
-   * @param {cheerio.CheerioAPI} $ - The Cheerio instance.
-   * @returns {object} - An object containing arrays of script sources and link hrefs.
    */
   extractTechClues($) {
     const scripts = [];
@@ -141,24 +140,13 @@ class DeepScanService {
 
   /**
    * Uses AI to detect technologies based on HTML clues.
-   * @param {object} techClues - The clues extracted from the page.
-   * @param {string} url - The URL being analyzed, for context.
-   * @returns {Promise<Array<string>>} - An array of detected technology names.
    */
   async detectTechnologiesAI(techClues, url) {
     console.log(`🤖 Detecting technologies with AI for: ${url}`);
     const prompt = `
       You are a web technology expert. Based on the following list of JavaScript files, CSS files, and generator tags from the website ${url}, identify the key technologies being used.
-
-      Clues:
-      \`\`\`json
-      ${JSON.stringify(techClues, null, 2)}
-      \`\`\`
-
-      Focus on identifying major frameworks (e.g., React, Vue), platforms (e.g., Shopify, WordPress, Webflow), and important analytics or marketing tools (e.g., Google Analytics, Hotjar, HubSpot).
-
-      Return your answer ONLY as a JSON array of strings.
-      Example: { "technologies": ["React", "Shopify", "Google Analytics", "Hotjar"] }
+      Focus on major frameworks, platforms, and analytics tools.
+      Return ONLY as a JSON array of strings. Example: { "technologies": ["React", "Shopify"] }
     `;
 
     try {
@@ -175,8 +163,6 @@ class DeepScanService {
          console.log(`[AI Tech Detection] Detected: ${techArray.join(', ') || 'None'}`);
          return techArray;
       }
-      
-      console.warn('[AI Tech Detection] AI returned unexpected format.');
       return [];
     } catch (error) {
       console.error("[AI Tech Detection] Failed:", error.message);
@@ -185,27 +171,50 @@ class DeepScanService {
   }
 
   /**
-   * Generates a sophisticated AI analysis for a single competitor's data.
+   * ENHANCED: Generates a sophisticated AI analysis tailored to a specific industry category.
+   * @param {object} analyzedData - The data from analyzeWebsite.
+   * @param {string} userBrandName - The user's brand for context.
+   * @param {string} category - The industry category for tailored analysis.
+   * @returns {Promise<string>} - The AI-generated analysis text.
    */
-  async generateAIAnalysis(analyzedData, userBrandName) {
-    console.log(`🧠 Generating AI insights for ${analyzedData.url}...`);
+  async generateAIAnalysis(analyzedData, userBrandName, category) {
+    console.log(`🧠 Generating category-aware AI insights for ${analyzedData.url}...`);
     const domain = new URL(analyzedData.url).hostname;
 
     const prompt = `
-      You are "Aura," an expert-level SEO and Digital Marketing Strategist. Your analysis is brutally honest, data-driven, and focused on providing a decisive competitive edge.
+      You are "Aura," an expert-level Digital Marketing Strategist specializing in the **"${category}"** industry. Your analysis is brutally honest, data-driven, and focused on providing a decisive competitive edge.
+
       **Your Client's Brand Name:** "${userBrandName}"
       **Competitor Being Analyzed:** "${domain}"
-      **Raw Data:**
-      \`\`\`json
-      ${JSON.stringify(analyzedData, null, 2)}
-      \`\`\`
-      **Task:** Generate a DEEP SCAN ANALYSIS report based *only* on the raw data.
-      **Report Structure:** 1. ## Executive Summary, 2. ## Technical SEO & Performance, 3. ## Content Strategy Analysis, 4. ## Competitive Vulnerabilities & Opportunities, 5. ## Actionable Battle Plan.`;
+      **Competitor's Industry:** "${category}"
+
+      **Raw Competitor Data:**
+\`\`\`json
+${JSON.stringify(analyzedData, null, 2)}
+\`\`\`
+
+      **Your Task:**
+      Generate a DEEP SCAN ANALYSIS report. As an expert in the "${category}" space, focus on the most critical factors for this industry.
+      
+      **Industry-Specific Focus Areas:**
+      - If "Tech & SaaS": Analyze scalability, API mentions, and the modernity of the technologyStack.
+      - If "E-commerce & Retail": Focus on user experience signals, product schema, and conversion-oriented language.
+      - If "Games & Entertainment": Look for signs of community engagement, rich media, and event-based content.
+      - If "Health & Wellness": Assess trustworthiness signals, certifications, and the clarity of information.
+      - If "Blog / Content Site": Word count, heading structure (h2/h3), and performance are paramount.
+
+      **Report Structure:**
+      1.  **## Executive Summary:** Your overall assessment of this competitor *within their industry*.
+      2.  **## Technical Analysis:** Evaluate their technical foundation based on your industry focus. Are they technically strong *for a ${category} company*?
+      3.  **## Content & Marketing Strategy:** Analyze their content's depth, focus, and effectiveness *for their target market*.
+      4.  **## Key Vulnerabilities:** Identify 3-4 specific weaknesses for "${userBrandName}" to exploit, tailored to the industry.
+      5.  **## Actionable Battle Plan:** Provide concrete actions for "${userBrandName}" to outperform this competitor in the "${category}" market.
+    `;
 
     try {
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4.1-mini",
-        messages: [{ role: "system", content: "You are Aura, an expert SEO and digital marketing strategist." }, { role: "user", content: prompt }],
+        model: "gpt-4.1-mini", // Using mini for speed in deep scans
+        messages: [{ role: "system", content: `You are Aura, an expert marketing strategist for the ${category} industry.` }, { role: "user", content: prompt }],
         max_tokens: 2000,
         temperature: 0.4,
       });
@@ -217,16 +226,20 @@ class DeepScanService {
       throw new Error(`Failed to generate AI analysis: ${error.message}`);
     }
   }
-  
-  // --- Multi-scan and Helper Functions (no changes needed below this line) ---
-  
-  async performMultipleDeepScan(competitorUrls, brandName) {
-    console.log(`🚀 Starting multi-competitor deep scan for: ${brandName}`);
+
+  /**
+   * Performs a multi-competitor scan, now with category context.
+   * @param {string[]} competitorUrls - An array of competitor URLs.
+   * @param {string} brandName - The user's brand name.
+   * @param {string} category - The industry category for tailored analysis.
+   */
+  async performMultipleDeepScan(competitorUrls, brandName, category = 'General') {
+    console.log(`🚀 Starting multi-competitor deep scan for brand: ${brandName} in category: ${category}`);
     try {
       const uniqueCompetitors = this.deduplicateByDomain(competitorUrls);
       console.log(`🎯 Analyzing ${uniqueCompetitors.length} unique competitors...`);
       const urlsToProcess = uniqueCompetitors.slice(0, 5);
-
+      
       const analysisPromises = urlsToProcess.map(url => this.analyzeWebsite(url));
       const settledResults = await Promise.allSettled(analysisPromises);
       
@@ -244,9 +257,10 @@ class DeepScanService {
       }
       
       console.log(`✅ Successfully analyzed ${successfulAnalyses.length} competitors.`);
-      console.log(`🤖 Generating strategic AI comparison...`);
-      const comparativeAnalysis = await this.generateComparativeAIReport(successfulAnalyses, brandName);
-
+      console.log(`🤖 Generating category-aware strategic AI comparison...`);
+      // Pass the category to the comparative report generator
+      const comparativeAnalysis = await this.generateComparativeAIReport(successfulAnalyses, brandName, category);
+      
       return {
         success: true,
         data: {
@@ -262,17 +276,34 @@ class DeepScanService {
     }
   }
 
-  async generateComparativeAIReport(competitorsData, userBrandName) {
+  /**
+   * ENHANCED: Generates a comparative report tailored to the specific industry category.
+   */
+  async generateComparativeAIReport(competitorsData, userBrandName, category) {
     const prompt = `
-      You are "Aura," a Chief Marketing Strategist. Briefing your client, "${userBrandName}", on the competitive landscape.
-      **Competitors' Data:** \`\`\`json ${JSON.stringify(competitorsData, null, 2)} \`\`\`
-      **Task:** Synthesize this data into a high-level STRATEGIC BATTLE PLAN.
-      **Structure:** 1. ## Market Overview, 2. ## Competitor Tier List (Top Threat, Primary Target), 3. ## The Decisive Advantage, 4. ## Immediate Quick Wins (Next 30 Days).`;
+      You are "Aura," a Chief Marketing Strategist specializing in the **"${category}"** industry. You are briefing your client, "${userBrandName}", on the competitive landscape.
+
+      **Competitors' Data:**
+      \`\`\`json
+      ${JSON.stringify(competitorsData, null, 2)}
+      \`\`\`
+
+      **Your Task:**
+      Synthesize this data into a high-level STRATEGIC BATTLE PLAN tailored for a company entering the "${category}" market.
+      
+      **Report Structure:**
+      1.  **## Market Overview:** Summarize the competitive landscape. What are the common trends, strengths, and weaknesses for **${category}** companies in this space?
+      2.  **## Competitor Tier List:**
+          * **Top Threat:** Identify the strongest competitor and explain why they are dominant *in this industry*.
+          * **Primary Target:** Identify the most vulnerable competitor and detail their primary weaknesses.
+      3.  **## The Decisive Advantage for a "${category}" Brand:** What is the single most important strategic advantage "${userBrandName}" must build to win in this specific market?
+      4.  **## Immediate Quick Wins:** List 3 "quick win" actions based on common flaws you observed.
+    `;
 
     try {
         const completion = await this.openai.chat.completions.create({
             model: "gpt-4.1-mini",
-            messages: [{ role: "system", content: "You are Aura, a Chief Marketing Strategist." }, { role: "user", content: prompt }],
+            messages: [{ role: "system", content: `You are Aura, a Chief Marketing Strategist for the ${category} industry.` }, { role: "user", content: prompt }],
             max_tokens: 2000,
             temperature: 0.5,
         });
@@ -283,6 +314,7 @@ class DeepScanService {
     }
   }
 
+  // --- Helper Functions (no changes needed) ---
   estimateWordCount(text) {
     if (!text) return 0;
     return text.trim().split(/\s+/).filter(Boolean).length;
