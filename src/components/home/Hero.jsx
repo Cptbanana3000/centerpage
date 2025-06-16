@@ -28,6 +28,7 @@ export function Hero() {
   ];
 
   const getIcon = (iconName) => {
+    // DEV NOTE: No changes needed in this function. It's performant and clean.
     const iconProps = "w-4 h-4 inline-block mr-2";
     
     switch (iconName) {
@@ -56,18 +57,14 @@ export function Hero() {
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleCategorySelect = (categoryValue) => {
@@ -82,12 +79,9 @@ export function Hero() {
       setError('Please enter a brand name');
       return;
     }
-
     setIsLoading(true);
     setError(null);
-
     try {
-      // Navigate directly to analysis page with brand name and category
       router.push(`/analysis?brand=${encodeURIComponent(brandName.trim())}&category=${encodeURIComponent(category)}`);
     } catch (err) {
       console.error('Analysis error:', err);
@@ -98,33 +92,38 @@ export function Hero() {
   };
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden min-h-screen pt-16 pb-32 bg-[#212121]">
-      {/* Background decorative elements */}
+    // DEV NOTE: Adjusted vertical padding for better spacing on mobile screens (`pt-20 pb-20`) while preserving more generous padding on larger viewports.
+    <section className="relative flex items-center justify-center overflow-hidden min-h-screen pt-20 pb-20 sm:pt-24 lg:pt-16 lg:pb-32 bg-[#212121]">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '-3s' }}></div>
       </div>
 
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        {/* DEV NOTE: Typography is already well-scaled with responsive prefixes. No changes needed. `leading-tight` is perfect for a headline. */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-          Discover Your Brand's
+          Avoid the Rebrand
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#667eea] to-[#764ba2]">
-            True Potential
+            Nail it the first time
           </span>
         </h1>
         
-        <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+        {/* DEV NOTE: Adjusted font size and margin for better readability on smaller screens. `text-lg` is a more comfortable base for mobile. */}
+        <p className="text-lg lg:text-xl text-gray-300 mb-10 lg:mb-8 max-w-2xl mx-auto leading-relaxed">
         Instantly analyze domain availability, search competition, and run AI-powered deep scans on competitors—all in one place. Go from idea to validated brand, faster.
         </p>
 
-        {/* Enhanced Search Form - Horizontal Layout */}
-        <div className="max-w-6xl mx-auto mb-8">
-          <div className="bg-[#212121]  backdrop-blur-lg rounded-2xl p-8">
-            {/* Single Row Layout: Input + Dropdown + Button */}
-                          <div className="flex flex-col sm:flex-row gap-4 items-end">
-              {/* Brand Name Input */}
+        <div className="max-w-3xl mx-auto mb-8">
+          {/* DEV NOTE: Responsive padding `p-4` to `lg:p-8` ensures the form container has proper whitespace on all screen sizes. */}
+          <div className="bg-[#212121]/50 backdrop-blur-lg rounded-2xl p-4 sm:p-6 lg:p-8 border border-black/1">
+            {/* DEV NOTE: Layout shifts from a column (`flex-col`) on mobile to a row (`sm:flex-row`) on small screens and up.
+              - `items-stretch` on mobile makes the form elements (input, dropdown, button) have equal width, creating a clean vertical stack.
+              - `sm:items-end` on larger screens aligns the elements to the bottom, which is visually appealing since the labels give them different natural heights.
+              - `gap-3 sm:gap-4` provides slightly tighter spacing on mobile.
+            */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end">
               <div className="flex-1">
-                <label className="block text-base font-medium text-gray-300 mb-3 text-left">
+                <label className="block text-sm font-medium text-gray-300 mb-2 text-left">
                   Enter your brand name:
                 </label>
                 <input
@@ -132,44 +131,43 @@ export function Hero() {
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAnalysis()}
-                  placeholder="Enter your brand name..."
-                  className="w-full h-[56px] px-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent text-lg"
+                  placeholder="e.g., 'Aether' or 'Zenith'"
+                  // DEV NOTE: Harmonized height (`h-12 sm:h-14`) and text size for a consistent look across all form controls.
+                  className="w-full h-12 sm:h-14 px-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent text-base"
                   disabled={isLoading}
                 />
               </div>
 
-              {/* Category Dropdown */}
               <div className="w-full sm:w-56 relative" ref={dropdownRef}>
-                <label className="block text-base font-medium text-gray-300 mb-3 text-left">
+                <label className="block text-sm font-medium text-gray-300 mb-2 text-left">
                   Category:
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full h-[56px] px-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent cursor-pointer text-base flex items-center justify-between"
+                  // DEV NOTE: Consistent responsive height and text size. `justify-between` ensures the label and chevron are spaced correctly.
+                  className="w-full h-12 sm:h-14 px-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent cursor-pointer text-base flex items-center justify-between"
                 >
-                  <span className="flex items-center">
+                  <span className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
                     {getIcon(selectedCategory?.icon)}
                     {selectedCategory?.label}
                   </span>
                   <svg 
-                    className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
+                    className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800/95 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                  // DEV NOTE: Added a subtle fade-in animation for a smoother appearance.
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800/95 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in-20">
                     {categories.map((cat) => (
                       <button
                         key={cat.value}
                         type="button"
                         onClick={() => handleCategorySelect(cat.value)}
-                        className={`w-full px-4 py-4 text-left text-base hover:bg-white/10 transition-colors duration-150 flex items-center ${
+                        className={`w-full px-4 py-3 text-left text-base hover:bg-white/10 transition-colors duration-150 flex items-center ${
                           category === cat.value ? 'bg-[#667eea]/20 text-[#667eea]' : 'text-white'
                         }`}
                       >
@@ -181,23 +179,30 @@ export function Hero() {
                 )}
               </div>
 
-              {/* Analyze Button */}
               <div className="w-full sm:w-auto">
-                <label className="block text-base font-medium text-gray-300 mb-3 text-left opacity-0">
+                {/* DEV NOTE: This label is hidden but provides semantic structure. On mobile, the button is full-width, so a visible label isn't necessary. */}
+                <label className="hidden sm:block text-sm font-medium text-gray-300 mb-2 text-left opacity-0">
                   Action:
                 </label>
                 <Button
                   onClick={handleAnalysis}
                   disabled={isLoading || !brandName.trim()}
-                  className="w-full h-[56px] px-10 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl hover:from-[#5a6fd6] hover:to-[#6a3f9e] focus:outline-none focus:ring-2 focus:ring-[#667eea] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold whitespace-nowrap text-lg flex items-center justify-center"
+                  // DEV NOTE: Consistent responsive height and font size.
+                  className="w-full h-12 sm:h-14 px-6 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl hover:from-[#5a6fd6] hover:to-[#6a3f9e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#212121] focus:ring-[#667eea] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-base flex items-center justify-center"
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Analyzing...
+                      {/* DEV NOTE: Text changes responsively to fit available space. */}
+                      <span className="hidden sm:inline">Analyzing...</span>
+                      <span className="sm:hidden">...</span>
                     </div>
                   ) : (
-                    'Analyze Brand'
+                    // DEV NOTE: Swapping button text for a shorter version on mobile to prevent awkward wrapping and improve layout.
+                    <>
+                      <span className="sm:hidden">Analyze</span>
+                      <span className="hidden sm:inline">Analyze Brand</span>
+                    </>
                   )}
                 </Button>
               </div>
@@ -205,32 +210,19 @@ export function Hero() {
 
             {error && (
               <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-red-400 text-sm text-center sm:text-left">{error}</p>
               </div>
             )}
           </div>
-
-          {/* Category Benefits */}
-          {/* <div className="mt-6 text-lg text-gray-400">
-            <p className="mb-2 flex items-center">
-              <svg className="w-4 h-4 inline-block mr-2 text-[#667eea]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <strong>Category-Aware Analysis:</strong>
-            </p>
-            <p>Get industry-specific insights, competitor analysis, and domain recommendations tailored to your {selectedCategory?.label} business.</p>
-          </div> */}
         </div>
 
-        {/* Trust Statement */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-400 text-xl">
+        <div className="mt-12 text-center">
+          {/* DEV NOTE: Adjusted font size for mobile consistency. */}
+          <p className="text-base sm:text-lg text-gray-400">
             <strong>"Trusted by founders, developers, and marketers at forward-thinking companies."</strong>
           </p>
         </div>
-
-
       </div>
     </section>
   );
-} 
+}

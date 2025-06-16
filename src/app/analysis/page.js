@@ -4,6 +4,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAnalysisHistory } from '@/contexts/AnalysisHistoryContext';
+import { Navbar } from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import ReactMarkdown from 'react-markdown';
 
 export default function AnalysisPage() {
@@ -20,6 +23,7 @@ export default function AnalysisPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { triggerHistoryRefresh } = useAnalysisHistory();
   const brandName = searchParams.get('brand');
   const category = searchParams.get('category') || 'tech & saas';
   const intervalRef = useRef(null);
@@ -72,7 +76,13 @@ export default function AnalysisPage() {
       }, 1500); // Change stage every 1.5 seconds
 
       try {
-        const response = await fetch(`/api/analyze?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`);
+        // Build the API URL with userId if user is logged in
+        let apiUrl = `/api/analyze?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`;
+        if (user?.uid) {
+          apiUrl += `&userId=${encodeURIComponent(user.uid)}`;
+        }
+        
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error('Failed to analyze brand name');
         }
@@ -83,6 +93,11 @@ export default function AnalysisPage() {
           intervalRef.current = null;
         }
         setAnalysis(data);
+        
+        // Trigger history refresh if user is logged in (analysis was saved)
+        if (user?.uid) {
+          triggerHistoryRefresh();
+        }
       } catch (err) {
         console.error('Analysis error:', err);
         if (intervalRef.current) {
@@ -104,7 +119,7 @@ export default function AnalysisPage() {
         intervalRef.current = null;
       }
     };
-  }, [brandName, category, loadingStages.length]);
+  }, [brandName, category, loadingStages.length, user?.uid, triggerHistoryRefresh]);
 
   if (loading || isSearching) {
     return (
@@ -268,10 +283,12 @@ export default function AnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen text-gray-200 antialiased pt-16" style={{
-      backgroundColor: '#1a202c',
-      backgroundImage: 'linear-gradient(to top right, #1a202c, #2d3748)'
-    }}>
+    <>
+      <Navbar />
+      <div className="min-h-screen text-gray-200 antialiased pt-16" style={{
+        backgroundColor: '#1a202c',
+        backgroundImage: 'linear-gradient(to top right, #1a202c, #2d3748)'
+      }}>
       <style jsx>{`
         .hybrid-card {
           background: rgba(255, 255, 255, 0.05);
@@ -290,13 +307,13 @@ export default function AnalysisPage() {
         }
       `}</style>
       
-             <div className="w-full p-4 lg:p-8 pt-48">
+             <div className="w-full p-4 lg:p-8 pt-20 lg:pt-48">
         {/* Header with Search */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-white mb-2">Brand Analysis & Verdict</h1>
-              <p className="text-gray-300">Comprehensive analysis for &ldquo;{brandName}&rdquo;</p>
+              <h1 className="text-xl lg:text-2xl font-bold text-white mb-2">Brand Analysis & Verdict</h1>
+              <p className="text-sm lg:text-base text-gray-300">Comprehensive analysis for &ldquo;{brandName}&rdquo;</p>
             </div>
             
             {/* Enhanced Search Box with Category */}
@@ -343,16 +360,16 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 h-full">
           {/* Left Column: Domain */}
-          <div className="lg:col-span-1 xl:col-span-1">
-            <div className="hybrid-card p-6 h-full flex flex-col">
-              <h2 className="text-xl font-bold mb-4 text-white">Domain</h2>
+          <div className="lg:col-span-1 xl:col-span-1 order-2 lg:order-1">
+            <div className="hybrid-card p-4 lg:p-6 h-full flex flex-col">
+              <h2 className="text-lg lg:text-xl font-bold mb-4 text-white">Domain</h2>
               <ul className="space-y-2 text-gray-300">
                 {analysis.detailedAnalysis.domainAvailability.map((domain, index) => (
-                  <li key={index} className="flex items-center justify-between gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <span>{domain.domain}</span>
-                    <span className={`text-xs ${domain.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
+                  <li key={index} className="flex items-center justify-between gap-3 p-2 hover:bg-white/10 rounded-lg transition-colors text-sm lg:text-base">
+                    <span className="truncate">{domain.domain}</span>
+                    <span className={`text-xs flex-shrink-0 ${domain.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
                       {domain.isAvailable ? '✓' : '✗'}
                     </span>
                   </li>
@@ -362,10 +379,10 @@ export default function AnalysisPage() {
           </div>
 
           {/* Middle Column: Metrics & Insights */}
-          <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-6">
+          <div className="lg:col-span-2 xl:col-span-2 flex flex-col gap-4 lg:gap-6 order-1 lg:order-2">
             {/* Overall Score with Animated Circle */}
-            <div className="hybrid-card p-6 flex flex-col items-center justify-center">
-              <div className="relative w-40 h-40">
+            <div className="hybrid-card p-4 lg:p-6 flex flex-col items-center justify-center">
+              <div className="relative w-32 h-32 lg:w-40 lg:h-40">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   {/* Background circle */}
                   <circle
@@ -395,12 +412,12 @@ export default function AnalysisPage() {
                 </svg>
                 {/* Score text in center */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className={`text-5xl font-bold ${getScoreColor(analysis.overallScore)}`}>
+                  <span className={`text-3xl lg:text-5xl font-bold ${getScoreColor(analysis.overallScore)}`}>
                     {analysis.overallScore}
                   </span>
                 </div>
               </div>
-              <p className="mt-4 text-lg font-semibold text-gray-300">{getRecommendationText(analysis.overallScore)}</p>
+              <p className="mt-4 text-base lg:text-lg font-semibold text-gray-300 text-center">{getRecommendationText(analysis.overallScore)}</p>
               
               {/* AI-Powered Recommendation */}
               <div className="mt-4 text-center">
@@ -486,9 +503,9 @@ export default function AnalysisPage() {
           </div>
 
           {/* Right Column: Google Search Competitors */}
-          <div className="lg:col-span-1 xl:col-span-2">
-            <div className="hybrid-card p-6 h-full flex flex-col">
-              <h2 className="text-xl font-bold mb-4 text-white">Google Search Competitors</h2>
+          <div className="lg:col-span-1 xl:col-span-2 order-3">
+            <div className="hybrid-card p-4 lg:p-6 h-full flex flex-col">
+              <h2 className="text-lg lg:text-xl font-bold mb-4 text-white">Google Search Competitors</h2>
               
               <div className="space-y-4 overflow-y-auto pr-2 flex-grow">
                 {analysis.detailedAnalysis.googleCompetition.topResults && analysis.detailedAnalysis.googleCompetition.topResults.length > 0 ? (
@@ -698,5 +715,7 @@ export default function AnalysisPage() {
         )}
       </div>
     </div>
+    <Footer />
+    </>
   );
 } 

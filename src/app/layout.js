@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { AnalysisHistoryProvider } from '@/contexts/AnalysisHistoryContext';
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -9,6 +10,12 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'VeritoLab - Brand Name Viability Analysis',
   description: 'Analyze your brand name\'s viability with comprehensive domain, competition, and SEO analysis.',
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }) {
@@ -25,9 +32,9 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <AnalysisHistoryProvider>
+            {children}
+          </AnalysisHistoryProvider>
         </AuthProvider>
       </body>
     </html>

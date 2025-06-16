@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { SignInDialog } from '@/components/auth/SignInDialog';
 import { SignUpDialog } from '@/components/auth/SignUpDialog';
 import { Navbar } from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { Hero } from '@/components/home/Hero';
 import { Features } from '@/components/home/Features';
 import { HowItWorks } from '@/components/home/HowItWorks';
@@ -74,13 +75,16 @@ const DeepScanResults = ({ data }) => {
 // --- Main Page Component ---
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <>
       <Navbar />
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <WhyChooseUs />
-      <PricingSection />
+      <main className="min-h-screen">
+        <Hero />
+        <Features />
+        <HowItWorks />
+        <WhyChooseUs />
+        <PricingSection />
       </main>
+      <Footer />
+    </>
   );
 }

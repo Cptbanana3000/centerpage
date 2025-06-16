@@ -46,11 +46,11 @@ export function PricingSection() {
                 </li>
               </ul>
             </div>
-            <SignUpDialog>
-              <Button className="mt-8 w-full bg-indigo-600 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-indigo-500">
-                Start Exploring
+            
+              <Button className="mt-8 w-full bg-indigo-600 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-indigo-500 cursor-pointer">
+                Try it for free
               </Button>
-            </SignUpDialog>
+            
           </div>
 
           {/* Tier 2: Starter Pack */}
@@ -73,7 +73,7 @@ export function PricingSection() {
                 </li>
               </ul>
             </div>
-            <Button className="mt-8 w-full bg-teal-600 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-teal-500">
+            <Button className="mt-8 w-full bg-teal-600 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-teal-500 cursor-pointer  ">
               Buy Starter Pack
             </Button>
           </div>
@@ -99,7 +99,7 @@ export function PricingSection() {
                 </li>
               </ul>
             </div>
-            <Button className="mt-8 w-full bg-pink-500 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-pink-400">
+            <Button className="mt-8 w-full bg-pink-500 text-white font-bold py-3 rounded-lg transition-all duration-300 hover:bg-pink-400 cursor-pointer">
               Buy Pro Pack
             </Button>
           </div>
