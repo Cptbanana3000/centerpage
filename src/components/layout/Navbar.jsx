@@ -44,12 +44,12 @@ export function Navbar() {
 
           <div className="flex items-center space-x-4">
             <SignInDialog>
-              <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10 cursor-pointer">
                 Sign In
               </Button>
             </SignInDialog>
             <SignUpDialog>
-              <Button className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white hover:from-[#5a6fd6] hover:to-[#6a3f9e]">
+              <Button className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white hover:from-[#5a6fd6] hover:to-[#6a3f9e] cursor-pointer">
                 Get Started
               </Button>
             </SignUpDialog>

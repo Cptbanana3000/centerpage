@@ -5,7 +5,7 @@ import { SignUpDialog } from '@/components/auth/SignUpDialog';
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="min-h-screen bg-[#212121] text-white py-20 relative overflow-hidden">
+    <section id="pricing" className="min-h-screen bg-[#212121] text-white py-32 relative overflow-hidden">
       {/* Background decorative blobs */}
       <div className="blob blob-1"></div>
       <div className="blob blob-2"></div>

@@ -6,6 +6,8 @@ import { SignUpDialog } from '@/components/auth/SignUpDialog';
 import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
 import { Features } from '@/components/home/Features';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { PricingSection } from '@/components/pricing/PricingSection';
 import ReactMarkdown from 'react-markdown';
 
@@ -76,6 +78,8 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Features />
+      <HowItWorks />
+      <WhyChooseUs />
       <PricingSection />
       </main>
   );

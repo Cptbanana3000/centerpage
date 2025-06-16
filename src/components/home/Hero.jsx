@@ -98,7 +98,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden min-h-screen pt-16 bg-[#212121]">
+    <section className="relative flex items-center justify-center overflow-hidden min-h-screen pt-16 pb-32 bg-[#212121]">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
@@ -114,7 +114,7 @@ export function Hero() {
         </h1>
         
         <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Get AI-powered insights on domain availability, competition analysis, and strategic recommendations for your brand name.
+        Instantly analyze domain availability, search competition, and run AI-powered deep scans on competitors—all in one place. Go from idea to validated brand, faster.
         </p>
 
         {/* Enhanced Search Form - Horizontal Layout */}
@@ -211,7 +211,7 @@ export function Hero() {
           </div>
 
           {/* Category Benefits */}
-          <div className="mt-6 text-sm text-gray-400">
+          {/* <div className="mt-6 text-lg text-gray-400">
             <p className="mb-2 flex items-center">
               <svg className="w-4 h-4 inline-block mr-2 text-[#667eea]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -219,7 +219,14 @@ export function Hero() {
               <strong>Category-Aware Analysis:</strong>
             </p>
             <p>Get industry-specific insights, competitor analysis, and domain recommendations tailored to your {selectedCategory?.label} business.</p>
-          </div>
+          </div> */}
+        </div>
+
+        {/* Trust Statement */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-400 text-xl">
+            <strong>"Trusted by founders, developers, and marketers at forward-thinking companies."</strong>
+          </p>
         </div>
 
 
