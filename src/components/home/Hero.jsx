@@ -7,10 +7,11 @@ import { SignUpDialog } from '@/components/auth/SignUpDialog';
 
 export function Hero() {
   const [brandName, setBrandName] = useState('');
-  const [category, setCategory] = useState('tech & saas'); // Default category
+  const [category, setCategory] = useState(''); // No default category - starts empty
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [categoryError, setCategoryError] = useState(false); // Track category validation error
   const dropdownRef = useRef(null);
   const router = useRouter();
 
@@ -70,17 +71,30 @@ export function Hero() {
   const handleCategorySelect = (categoryValue) => {
     setCategory(categoryValue);
     setIsDropdownOpen(false);
+    setCategoryError(false); // Clear error when category is selected
   };
 
   const selectedCategory = categories.find(cat => cat.value === category);
 
   const handleAnalysis = async () => {
+    // Reset errors
+    setError(null);
+    setCategoryError(false);
+
+    // Validate brand name
     if (!brandName.trim()) {
       setError('Please enter a brand name');
       return;
     }
+
+    // Validate category selection
+    if (!category) {
+      setCategoryError(true);
+      setError('Please select a category');
+      return;
+    }
+
     setIsLoading(true);
-    setError(null);
     try {
       router.push(`/analysis?brand=${encodeURIComponent(brandName.trim())}&category=${encodeURIComponent(category)}`);
     } catch (err) {
@@ -145,12 +159,19 @@ export function Hero() {
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  // DEV NOTE: Consistent responsive height and text size. `justify-between` ensures the label and chevron are spaced correctly.
-                  className="w-full h-12 sm:h-14 px-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent cursor-pointer text-base flex items-center justify-between"
+                  className={`w-full h-12 sm:h-14 px-4 bg-white/10 backdrop-blur-lg border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#667eea] focus:border-transparent cursor-pointer text-base flex items-center justify-between ${
+                    categoryError ? 'border-red-500 border-2' : 'border-white/20'
+                  }`}
                 >
                   <span className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
-                    {getIcon(selectedCategory?.icon)}
-                    {selectedCategory?.label}
+                    {selectedCategory ? (
+                      <>
+                        {getIcon(selectedCategory.icon)}
+                        {selectedCategory.label}
+                      </>
+                    ) : (
+                      <span className="text-gray-400">Select a category</span>
+                    )}
                   </span>
                   <svg 
                     className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} 
@@ -160,7 +181,6 @@ export function Hero() {
                 </button>
                 
                 {isDropdownOpen && (
-                  // DEV NOTE: Added a subtle fade-in animation for a smoother appearance.
                   <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800/95 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in-20">
                     {categories.map((cat) => (
                       <button
