@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  // const [isSignInOpen, setIsSignInOpen] = useState(false);
+  // const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleScrollToPricing = (e) => {

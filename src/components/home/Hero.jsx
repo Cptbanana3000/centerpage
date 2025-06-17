@@ -221,7 +221,7 @@ export function Hero() {
                     // DEV NOTE: Swapping button text for a shorter version on mobile to prevent awkward wrapping and improve layout.
                     <>
                       <span className="sm:hidden">Analyze</span>
-                      <span className="hidden sm:inline">Analyze Brand</span>
+                      <span className="hidden sm:inline cursor-pointer">Analyze Brand</span>
                     </>
                   )}
                 </Button>

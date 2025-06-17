@@ -49,7 +49,7 @@ export function SignInDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-slate-600 hover:text-purple-600">
+        <Button variant="ghost" className="text-slate-600 hover:text-purple-600 cursor-pointer">
           Sign In
         </Button>
       </DialogTrigger>
