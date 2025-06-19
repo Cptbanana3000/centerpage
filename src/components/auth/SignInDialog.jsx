@@ -21,29 +21,43 @@ export function SignInDialog() {
     setError('');
     setIsLoading(true);
 
-    const result = await signIn(email, password);
-    if (result.success) {
+    try {
+      const result = await signIn(email, password);
       setOpen(false); // Close dialog on successful sign-in
       // Reset form
       setEmail('');
       setPassword('');
-    } else {
-      setError(result.error);
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') {
+        setError('No account found with this email address.');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Incorrect password.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email address.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else {
+        setError('Failed to sign in. Please try again.');
+      }
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
     setIsLoading(true);
 
-    const result = await signInWithGoogle();
-    if (result.success) {
+    try {
+      const result = await signInWithGoogle();
       setOpen(false); // Close dialog on successful Google sign-in
-    } else {
-      setError(result.error);
+    } catch (err) {
+      setError('Failed to sign in with Google. Please try again.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

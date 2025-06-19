@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ export function SignUpDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,30 +28,37 @@ export function SignUpDialog() {
     }
 
     setIsLoading(true);
-    const result = await signUp(email, password);
-    if (result.success) {
-      setOpen(false); // Close dialog on successful sign-up
-      // Reset form
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-    } else {
-      setError(result.error);
+    try {
+      await signUp(email, password);
+      setOpen(false);
+      router.push('/dashboard');
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('The password must be at least 6 characters long.');
+      } else {
+        setError('Failed to create an account. Please try again.');
+      }
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
     setIsLoading(true);
-
-    const result = await signInWithGoogle();
-    if (result.success) {
-      setOpen(false); // Close dialog on successful Google sign-in
-    } else {
-      setError(result.error);
+    try {
+      await signInWithGoogle();
+      setOpen(false);
+      router.push('/dashboard');
+    } catch (err) {
+      setError('Failed to sign in with Google. Please try again.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

@@ -1,0 +1,117 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Zap, Microscope, Plus } from 'lucide-react';
+import Link from 'next/link';
+
+export function CreditDisplay({ variant = 'full', showRefill = true }) {
+  const { user } = useAuth();
+  const [credits, setCredits] = useState({ standardAnalyses: 0, deepScans: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/user-credits', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCredits(data);
+        } else {
+          console.error('Failed to fetch credits');
+        }
+      } catch (error) {
+        console.error('Error fetching credits:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCredits();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-4 bg-gray-700 rounded w-20"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (variant === 'compact') {
+    return (
+      <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-1">
+          <Zap className="w-4 h-4 text-blue-400" />
+          <span className="text-white">{credits.standardAnalyses}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Microscope className="w-4 h-4 text-purple-400" />
+          <span className="text-white">{credits.deepScans}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Standard Analyses Credits */}
+      <Card className="bg-white/5 border border-white/10">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-blue-400" />
+              <span className="text-sm font-medium text-gray-400">Standard Analyses</span>
+            </div>
+            {showRefill && (
+              <Link href="/purchase-credits">
+                <button className="text-blue-400 hover:text-blue-300 text-xs transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </Link>
+            )}
+          </div>
+          <div className="text-2xl font-bold text-white">{credits.standardAnalyses}</div>
+          <p className="text-xs text-gray-500">Domain & competition checks</p>
+        </CardContent>
+      </Card>
+
+      {/* Deep Scans Credits */}
+      <Card className="bg-white/5 border border-white/10">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Microscope className="w-5 h-5 text-purple-400" />
+              <span className="text-sm font-medium text-gray-400">Deep Scans</span>
+            </div>
+            {showRefill && (
+              <Link href="/purchase-credits">
+                <button className="text-purple-400 hover:text-purple-300 text-xs transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </Link>
+            )}
+          </div>
+          <div className="text-2xl font-bold text-white">{credits.deepScans}</div>
+          <p className="text-xs text-gray-500">AI analysis & PDF exports</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+} 

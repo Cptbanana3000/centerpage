@@ -4,12 +4,13 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { AnalysisHistoryProvider } from '@/contexts/AnalysisHistoryContext';
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'VeritoLab - Brand Name Viability Analysis',
-  description: 'Analyze your brand name\'s viability with comprehensive domain, competition, and SEO analysis.',
+  title: 'VeritoLab',
+  description: 'Instantly analyze your brand name across domains, social media, and competition.',
 };
 
 export const viewport = {
@@ -20,12 +21,12 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
@@ -33,7 +34,10 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <AuthProvider>
           <AnalysisHistoryProvider>
-            {children}
+            <Navbar />
+        {children}
+            <Toaster />
+            <Footer />
           </AnalysisHistoryProvider>
         </AuthProvider>
       </body>

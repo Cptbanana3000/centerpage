@@ -1,6 +1,8 @@
 // src/app/api/analyze/route.js
 import { NextResponse } from 'next/server';
 import databaseService from '@/services/database'; 
+import requestTracker from '@/services/requestTracker';
+import { verifyIdToken } from '@/lib/firebase-admin';
 import { 
     calculateDomainStrength,
     calculateCompetitionIntensityAI,
@@ -16,22 +18,63 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const brandName = searchParams.get('brandName')?.toLowerCase().trim();
   const category = searchParams.get('category') || 'general'; // Default to 'general' if not provided
-  const userId = searchParams.get('userId'); // Optional - for saving to history
 
   if (!brandName) {
     return NextResponse.json({ message: 'brandName parameter is required' }, { status: 400 });
   }
 
+  const token = request.headers.get('Authorization')?.split('Bearer ')[1];
+
+  if (!token) {
+    return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+  }
+
+  const decodedToken = await verifyIdToken(token);
+  if (!decodedToken) {
+    return NextResponse.json({ message: 'Invalid authentication token' }, { status: 401 });
+  }
+
+  if (!decodedToken.email_verified) {
+    return NextResponse.json({ 
+      message: 'Email not verified. Please check your inbox for a verification link.',
+      code: 'EMAIL_NOT_VERIFIED'
+    }, { status: 403 });
+  }
+  
+  const userId = decodedToken.uid;
+
   try {
     // Include category in cache key for category-specific caching
     const cacheKey = `${brandName}_${category.toLowerCase().replace(/\s+/g, '_')}`;
+    
+    // Check for recent duplicate requests before any credit operations
+    const isDuplicate = requestTracker.isRecentDuplicateRequest(userId, brandName, category);
+    if (isDuplicate) {
+      return NextResponse.json({
+        message: 'Duplicate request detected. Please wait a moment before submitting again.',
+        code: 'DUPLICATE_REQUEST'
+      }, { status: 429 }); // 429 Too Many Requests
+    }
+    
+    // IMPORTANT: Check cache BEFORE deducting credits to avoid charging for cached results
     const cachedResult = await databaseService.getCachedAnalysis(cacheKey);
     if (cachedResult) {
       await databaseService.updateHitCount(cacheKey);
+      // We still save to the user's history even if it's a cached result
+      await databaseService.saveAnalysisToHistory(userId, cacheKey, cachedResult);
       return NextResponse.json(cachedResult);
     }
     
-    await databaseService.updateAnalytics('fresh_analysis_started', brandName, { category });
+    // Only check and deduct credits if no cached result exists
+    const userHasCredits = await databaseService.checkAndDeductCredits(userId, 'standardAnalyses');
+    if (!userHasCredits) {
+      return NextResponse.json({
+        message: 'Insufficient credits. Please purchase a credit pack to continue.',
+        code: 'INSUFFICIENT_CREDITS'
+      }, { status: 402 }); // 402 Payment Required
+    }
+    
+    await databaseService.updateAnalytics('fresh_analysis_started', brandName, { category, userId });
 
     const tldsToCheck = ['.com', '.io', '.ai', '.co', '.org', '.net'];
     const domainsToCheck = tldsToCheck.map(tld => `${brandName}${tld}`);
@@ -74,7 +117,7 @@ export async function GET(request) {
       overallScore: Math.round(overallScore)
     }, brandName, category);
 
-    const finalResponse = {
+    const analysisResult = {
       brandName,
       category,
       overallScore: Math.round(overallScore),
@@ -88,44 +131,20 @@ export async function GET(request) {
       analysisTime: new Date().toISOString()
     };
     
-    await databaseService.cacheAnalysis(cacheKey, finalResponse);
-    await databaseService.updateAnalytics('fresh_analysis_completed', brandName, { 
-      overallScore: finalResponse.overallScore,
-      category 
-    });
+    // Cache the new result and save it to user's history
+    await databaseService.cacheAnalysis(cacheKey, analysisResult);
+    await databaseService.saveAnalysisToHistory(userId, cacheKey, analysisResult);
 
-    // Save to user history if userId is provided
-    if (userId) {
-      try {
-        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/history`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            brandName,
-            category,
-            overallScore: finalResponse.overallScore,
-            scores: finalResponse.scores,
-            recommendation: finalResponse.recommendation
-          })
-        });
-        
-        if (!historyResponse.ok) {
-          console.warn('Failed to save analysis to history:', await historyResponse.text());
-        }
-      } catch (historyError) {
-        console.warn('Error saving to history:', historyError);
-        // Don't fail the main request if history saving fails
-      }
-    }
-
-    return NextResponse.json(finalResponse);
+    return NextResponse.json(analysisResult);
 
   } catch (error) {
-    console.error('Error in /api/analyze route:', error);
-    await databaseService.updateAnalytics('analysis_error', brandName, { error: error.message, category });
-    return NextResponse.json({ message: 'An error occurred during analysis.' }, { status: 500 });
+    console.error(`[API Analysis Error] for user ${userId}:`, error);
+    // Important: We should ideally refund the credit if the process fails catastrophically
+    await databaseService.refundCredit(userId, 'standardAnalyses');
+    
+    return NextResponse.json(
+      { message: 'An unexpected error occurred during the analysis.', error: error.message },
+      { status: 500 }
+    );
   }
 }

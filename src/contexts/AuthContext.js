@@ -1,94 +1,173 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  getAuth,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  sendEmailVerification,
+  reload,
 } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { app } from '@/services/firebase';
 import { useRouter } from 'next/navigation';
 
-const AuthContext = createContext({});
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth(app);
   const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
+  // Function to refresh the current user's data from Firebase
+  async function refreshUser() {
+    if (auth.currentUser) {
+      try {
+        await reload(auth.currentUser);
+        // If email is now verified, force refresh ID token to propagate claim
+        if (auth.currentUser.emailVerified) {
+          await auth.currentUser.getIdToken(true);
+        }
+        // Force update the user state with fresh data
+        setUser({ ...auth.currentUser });
+      } catch (error) {
+        console.error('Error refreshing user:', error);
       }
-      setLoading(false);
+    }
+  }
+
+  async function signUp(email, password) {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    await sendEmailVerification(user);
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, {
+      uid: user.uid,
+      email: user.email,
+      createdAt: serverTimestamp(),
+      credits: {
+        standardAnalyses: 5,
+        deepScans: 0
+      }
     });
 
-    return () => unsubscribe();
-  }, [auth]);
+    return userCredential;
+  }
 
-  const signIn = async (email, password) => {
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
-      return { success: true, user: result.user };
-    } catch (error) {
-      return { success: false, error: error.message };
+  function signIn(email, password) {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+
+  async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: serverTimestamp(),
+        credits: {
+          standardAnalyses: 5,
+          deepScans: 0
+        }
+      });
     }
-  };
 
-  const signUp = async (email, password) => {
-    try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
-      return { success: true, user: result.user };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
+    return result;
+  }
 
-  const signInWithGoogle = async () => {
+  async function logOut() {
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      router.push('/dashboard');
-      return { success: true, user: result.user };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-
-  const logout = async () => {
-    try {
+      console.log('Attempting to sign out...'); // Debug log
       await signOut(auth);
-      router.push('/');
-      return { success: true };
+      console.log('Sign out successful'); // Debug log
+      setUser(null); // Explicitly set user to null
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Error signing out:', error);
+      throw error; // Re-throw so calling components can handle it
     }
+  }
+
+  async function resendVerificationEmail() {
+    if (!auth.currentUser) {
+      throw new Error("No user is currently signed in.");
+    }
+    await sendEmailVerification(auth.currentUser);
+  }
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Periodically check for email verification when user is not verified
+  useEffect(() => {
+    let interval;
+    
+    if (user && !user.emailVerified) {
+      interval = setInterval(async () => {
+        await refreshUser();
+      }, 3000); // Check every 3 seconds
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [user?.emailVerified]);
+
+  // Force refresh ID token once when email becomes verified to ensure backend sees it
+  useEffect(() => {
+    const refreshTokenIfVerified = async () => {
+      if (user && user.emailVerified) {
+        try {
+          await user.getIdToken(true);
+        } catch (e) {
+          console.error('Error refreshing ID token after verification:', e);
+        }
+      }
+    };
+    refreshTokenIfVerified();
+  }, [user?.emailVerified]);
+
+  const value = {
+    user,
+    loading,
+    signUp,
+    signIn,
+    signInWithGoogle,
+    logOut,
+    resendVerificationEmail,
+    refreshUser,
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      signIn,
-      signUp,
-      signInWithGoogle,
-      logout
-    }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-}; 
+} 

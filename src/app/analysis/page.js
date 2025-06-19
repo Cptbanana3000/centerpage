@@ -1,4 +1,4 @@
-// src/app/analysis/page.js - v2.3 
+// src/app/analysis/page.js - v2.4 (Fixed saved report viewing)
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -10,23 +10,28 @@ import Footer from '@/components/layout/Footer';
 import ReactMarkdown from 'react-markdown';
 
 export default function AnalysisPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { triggerHistoryRefresh } = useAnalysisHistory();
+
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newBrandName, setNewBrandName] = useState('');
-  const [newCategory, setNewCategory] = useState('tech & saas');
+  const [newCategory, setNewCategory] = useState('Technology');
   const [isSearching, setIsSearching] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [deepScanData, setDeepScanData] = useState(null);
   const [isDeepScanning, setIsDeepScanning] = useState(false);
   const [deepScanError, setDeepScanError] = useState(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const { user } = useAuth();
-  const { triggerHistoryRefresh } = useAnalysisHistory();
-  const brandName = searchParams.get('brand');
-  const category = searchParams.get('category') || 'tech & saas';
+  
   const intervalRef = useRef(null);
+  const requestIdRef = useRef(null); // Track current request to prevent duplicates
+
+  const brandName = searchParams.get('brand');
+  const category = searchParams.get('category') || 'Technology';
+  const viewMode = searchParams.get('view'); // 'saved' for viewing saved reports
 
   const categories = [
     { value: 'tech & saas', label: '🖥️ Tech & SaaS' },
@@ -51,21 +56,112 @@ export default function AnalysisPage() {
   ], []);
 
   useEffect(() => {
-    const analyzeBrand = async () => {
+    const loadReport = async () => {
       if (!brandName) {
         setError('No brand name provided');
         setLoading(false);
         return;
       }
 
-      // Clear previous results and reset states
+      // Reset states
       setAnalysis(null);
       setError(null);
       setLoading(true);
       setIsSearching(false);
       setLoadingStage(0);
 
-      // Start loading stage progression
+      // If viewing a saved report, use the view-report endpoint
+      if (viewMode === 'saved') {
+        try {
+          const token = await user.getIdToken();
+          const response = await fetch(`/api/view-report?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.status === 404) {
+            setError('Saved report not found. It may have been deleted or expired.');
+            setLoading(false);
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error('Failed to load saved report');
+          }
+
+          const data = await response.json();
+          
+          // Validate saved report data and provide fallbacks
+          const validatedData = {
+            brandName: data.brandName || brandName,
+            category: data.category || category,
+            overallScore: data.overallScore || 0,
+            recommendation: data.recommendation || 'No recommendation available.',
+            scores: {
+              domainStrength: data.scores?.domainStrength || 0,
+              competitionIntensity: data.scores?.competitionIntensity || 0,
+              seoDifficulty: data.scores?.seoDifficulty || 0,
+              ...data.scores
+            },
+            detailedAnalysis: {
+              domainAvailability: data.detailedAnalysis?.domainAvailability || [],
+              googleCompetition: {
+                topResults: data.detailedAnalysis?.googleCompetition?.topResults || [],
+                ...data.detailedAnalysis?.googleCompetition
+              },
+              ...data.detailedAnalysis
+            },
+            cached: true,
+            source: data.source || 'user_history',
+            analysisTime: data.analysisTime || data.date || new Date().toISOString(),
+            ...data
+          };
+          
+          setAnalysis(validatedData);
+          setLoading(false);
+          return;
+        } catch (err) {
+          console.error('Error loading saved report:', err);
+          setError('Failed to load saved report. Please try again.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // NEW: Before running a fresh analysis, attempt to load an existing saved report
+      try {
+        const token = await user.getIdToken();
+        const cachedRes = await fetch(`/api/view-report?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (cachedRes.ok) {
+          const cachedData = await cachedRes.json();
+          setAnalysis(cachedData);
+          setLoading(false);
+          // Ensure the URL reflects saved mode for future reloads
+          if (viewMode !== 'saved') {
+            router.replace(`/analysis?brand=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}&view=saved`);
+          }
+          return;
+        }
+      } catch (err) {
+        // Ignore and proceed to fresh analysis
+      }
+
+      // Otherwise, perform fresh analysis (existing logic)
+      // Generate unique request ID to prevent duplicate requests
+      const currentRequestId = `${brandName}_${category}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // If a request is already in progress, cancel it
+      if (requestIdRef.current) {
+        console.log('Canceling previous request to prevent duplicate');
+        return;
+      }
+      
+      requestIdRef.current = currentRequestId;
+
+      // Start loading stage progression only for fresh analysis
       intervalRef.current = setInterval(() => {
         setLoadingStage(prev => {
           if (prev < loadingStages.length - 1) {
@@ -73,21 +169,41 @@ export default function AnalysisPage() {
           }
           return prev;
         });
-      }, 1500); // Change stage every 1.5 seconds
+      }, 1500);
 
       try {
-        // Build the API URL with userId if user is logged in
-        let apiUrl = `/api/analyze?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`;
-        if (user?.uid) {
-          apiUrl += `&userId=${encodeURIComponent(user.uid)}`;
+        const apiUrl = `/api/analyze?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`;
+        const options = {};
+
+        if (user) {
+          const token = await user.getIdToken();
+          options.headers = {
+            'Authorization': `Bearer ${token}`,
+          };
+        } else {
+          setError('You must be logged in to perform an analysis.');
+          setLoading(false);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          requestIdRef.current = null;
+          return;
         }
         
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, options);
+        
+        if (response.status === 403) {
+           const data = await response.json();
+           throw new Error(data.message || 'Please verify your email to continue.');
+        }
+        if (response.status === 402) {
+           const data = await response.json();
+           throw new Error(data.message || 'You have run out of credits.');
+        }
         if (!response.ok) {
           throw new Error('Failed to analyze brand name');
         }
 
         const data = await response.json();
+        
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
@@ -98,19 +214,27 @@ export default function AnalysisPage() {
         if (user?.uid) {
           triggerHistoryRefresh();
         }
+        // Update URL to saved mode so reloads use cached data
+        if (viewMode !== 'saved') {
+          router.replace(`/analysis?brand=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}&view=saved`);
+        }
       } catch (err) {
         console.error('Analysis error:', err);
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
-        setError('Failed to analyze brand name. Please try again.');
+        setError(err.message || 'Failed to analyze brand name. Please try again.');
       } finally {
         setLoading(false);
+        requestIdRef.current = null;
       }
     };
 
-    analyzeBrand();
+    // Only run if brand name exists and user is available
+    if (brandName && user) {
+      loadReport();
+    }
 
     // Cleanup function to prevent memory leaks
     return () => {
@@ -118,8 +242,11 @@ export default function AnalysisPage() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      if (requestIdRef.current) {
+        requestIdRef.current = null;
+      }
     };
-  }, [brandName, category, loadingStages.length, user?.uid, triggerHistoryRefresh]);
+  }, [brandName, category, user?.uid, viewMode]);
 
   if (loading || isSearching) {
     return (
@@ -137,51 +264,69 @@ export default function AnalysisPage() {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="4"
-                  strokeLinecap="round"
                 />
                 <circle
-                  className="text-[#667eea]"
+                  className="opacity-75"
                   cx="25"
                   cy="25"
                   r="20"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="4"
-                  strokeLinecap="round"
                   strokeDasharray="31.416"
-                  strokeDashoffset="15.708"
+                  strokeDashoffset="31.416"
+                  style={{
+                    animation: 'spin-dash 1.5s ease-in-out infinite',
+                  }}
                 />
               </svg>
             </div>
+          </div>
+          
+          {/* Loading Text */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-white">
+              {viewMode === 'saved' ? 'Loading Your Report...' : loadingStages[loadingStage]}
+            </h2>
+            <p className="text-gray-400 max-w-md mx-auto">
+              {viewMode === 'saved' 
+                ? 'Retrieving your previously saved analysis report.' 
+                : 'Our AI is working hard to provide you with comprehensive insights.'
+              }
+            </p>
             
-            {/* Pulsing dots around spinner */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-2 h-2 bg-[#667eea] rounded-full animate-ping"></div>
-            </div>
+            {/* Progress indicator - only show for fresh analysis */}
+            {viewMode !== 'saved' && (
+              <div className="w-64 mx-auto mt-6">
+                <div className="bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${((loadingStage + 1) / loadingStages.length) * 100}%` }}
+                  />
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  Step {loadingStage + 1} of {loadingStages.length}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Brand Name */}
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Analyzing <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#667eea] to-[#764ba2]">{isSearching ? newBrandName : brandName}</span>
-          </h2>
-
-          {/* Dynamic Loading Stage */}
-          <div className="text-gray-300 text-lg mb-2">
-            {loadingStages[loadingStage]}
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-80 mx-auto bg-gray-700 rounded-full h-2 mb-4">
-            <div 
-              className="bg-gradient-to-r from-[#667eea] to-[#764ba2] h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${((loadingStage + 1) / loadingStages.length) * 100}%` }}
-            ></div>
-          </div>
-
-          {/* Additional Info */}
-          <p className="text-gray-400 text-sm">
-            This may take a few moments while we gather comprehensive data...
-          </p>
+          <style jsx>{`
+            @keyframes spin-dash {
+              0% {
+                stroke-dasharray: 1, 31.416;
+                stroke-dashoffset: 0;
+              }
+              50% {
+                stroke-dasharray: 15.708, 31.416;
+                stroke-dashoffset: -7.854;
+              }
+              100% {
+                stroke-dasharray: 15.708, 31.416;
+                stroke-dashoffset: -23.562;
+              }
+            }
+          `}</style>
         </div>
       </div>
     );
@@ -248,37 +393,150 @@ export default function AnalysisPage() {
   };
 
   const handleDeepScan = async () => {
-    // Guard clause: make sure the data exists before trying to use it
-    if (!analysis?.detailedAnalysis?.googleCompetition?.topResults || isDeepScanning) return;
-    
+    if (!user) {
+      setDeepScanError('Please log in to perform a deep scan.');
+      return;
+    }
+
+    // Check user credits before performing deep scan
+    try {
+      const token = await user.getIdToken();
+      const checkResponse = await fetch('/api/user-credits', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (checkResponse.ok) {
+        const credits = await checkResponse.json();
+        if (credits.deepScans <= 0) {
+          setDeepScanError('Insufficient Deep Scan credits. Please purchase a credit pack to continue.');
+          return;
+        }
+      } else {
+        setDeepScanError('Unable to verify credits. Please try again.');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking credits:', error);
+      setDeepScanError('Unable to verify credits. Please try again.');
+      return;
+    }
+
     setIsDeepScanning(true);
     setDeepScanError(null);
-    
-    // Extract the competitor URLs
-    const competitorUrls = analysis.detailedAnalysis.googleCompetition.topResults.map(r => r.link);
-    
+    setDeepScanData(null);
+
     try {
+      const token = await user.getIdToken();
       const response = await fetch('/api/deep-scan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        // Send the URLs, brand name, and category in the body
-        body: JSON.stringify({ competitorUrls, brandName, category }),
+        body: JSON.stringify({
+          brandName,
+          category,
+          competitorUrls: analysis?.detailedAnalysis?.googleCompetition?.topResults?.map(r => r.link) || []
+        }),
       });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setDeepScanData(result.data);
+
+      const data = await response.json();
+
+      if (response.status === 402) {
+        setDeepScanError(data.message || 'Insufficient Deep Scan credits.');
+      } else if (response.status === 403) {
+        setDeepScanError(data.message || 'Please verify your email to continue.');
+      } else if (data.success) {
+        setDeepScanData(data.data);
       } else {
-        setDeepScanError(result.error || 'Deep scan failed');
+        setDeepScanError(data.error || 'Deep scan failed. Please try again.');
       }
-    } catch (err) {
-      console.error('Deep scan error:', err);
-      setDeepScanError('Failed to perform deep scan. Please try again.');
+    } catch (error) {
+      console.error('Deep scan error:', error);
+      setDeepScanError('An error occurred during deep scan. Please try again.');
     } finally {
       setIsDeepScanning(false);
+    }
+  };
+
+  const handlePdfExport = async () => {
+    if (!user) {
+      alert('Please log in to export PDF reports.');
+      return;
+    }
+
+    if (!analysis) {
+      alert('No analysis data available for export.');
+      return;
+    }
+
+    // Check user credits before exporting PDF
+    try {
+      const token = await user.getIdToken();
+      const checkResponse = await fetch('/api/user-credits', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (checkResponse.ok) {
+        const credits = await checkResponse.json();
+        if (credits.deepScans <= 0) {
+          alert('Insufficient Deep Scan credits. PDF exports require 1 Deep Scan credit.');
+          return;
+        }
+      } else {
+        alert('Unable to verify credits. Please try again.');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking credits:', error);
+      alert('Unable to verify credits. Please try again.');
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          analysisData: analysis,
+          brandName,
+          category
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 402) {
+        alert(data.message || 'Insufficient Deep Scan credits for PDF export.');
+      } else if (response.status === 403) {
+        alert(data.message || 'Please verify your email to continue.');
+      } else if (data.success) {
+        // Create and download the PDF (simplified - in production use proper PDF generation)
+        const blob = new Blob([data.data.html], { type: 'text/html' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.data.filename.replace('.pdf', '.html'); // For demo, download as HTML
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        alert('PDF export started! Check your downloads folder.');
+      } else {
+        alert(data.message || 'PDF export failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('PDF export error:', error);
+      alert('An error occurred during PDF export. Please try again.');
     }
   };
 
@@ -481,7 +739,7 @@ export default function AnalysisPage() {
             </div>
             
             {/* Deep Scan Button */}
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-center gap-4">
               <button 
                 onClick={handleDeepScan}
                 disabled={isDeepScanning}
@@ -498,6 +756,14 @@ export default function AnalysisPage() {
                     Perform Deep Scan
                   </>
                 )}
+              </button>
+              
+              <button 
+                onClick={handlePdfExport}
+                className="bg-purple-500/80 text-white font-bold text-sm px-8 py-3 rounded-lg shadow-lg hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75 transition-all duration-300 backdrop-filter backdrop-blur-sm border border-white/20 flex items-center gap-2"
+              >
+                <i className="fas fa-file-pdf"></i>
+                Export PDF Report
               </button>
             </div>
           </div>

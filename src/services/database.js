@@ -11,7 +11,9 @@ import {
   limit, 
   getDocs,
   serverTimestamp,
-  increment 
+  increment,
+  updateDoc,
+  runTransaction
 } from 'firebase/firestore';
 
 class DatabaseService {
@@ -19,6 +21,7 @@ class DatabaseService {
     this.analysisCollection = 'brand_analyses';
     this.analyticsCollection = 'usage_analytics';
     this.cacheExpiry = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    this.requestTracker = new Map();
   }
 
   // Generate cache key for brand analysis
@@ -395,6 +398,112 @@ class DatabaseService {
         hourlyActivity: new Array(24).fill(0)
       };
     }
+  }
+
+  async checkAndDeductCredits(userId, creditType) {
+    if (!userId || !creditType) return false;
+    const userDocRef = doc(db, 'users', userId);
+    
+    try {
+      // Use a transaction to ensure atomic credit checking and deduction
+      const result = await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userDocRef);
+        
+        if (!userDoc.exists()) {
+          console.error(`User document not found for uid: ${userId}`);
+          return false;
+        }
+        
+        const credits = userDoc.data().credits || {};
+        const currentBalance = credits[creditType] || 0;
+
+        if (currentBalance > 0) {
+          // Deduct credit within the transaction
+          transaction.update(userDocRef, {
+            [`credits.${creditType}`]: increment(-1)
+          });
+          console.log(`Credit deducted for user ${userId}, ${creditType}: ${currentBalance} -> ${currentBalance - 1}`);
+          return true;
+        } else {
+          console.log(`Insufficient credits for user ${userId}, ${creditType}: ${currentBalance}`);
+          return false;
+        }
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Error checking/deducting credits:', error);
+      return false;
+    }
+  }
+
+  async refundCredit(userId, creditType) {
+    if (!userId || !creditType) return;
+    const userDocRef = doc(db, 'users', userId);
+    try {
+      await updateDoc(userDocRef, {
+        [`credits.${creditType}`]: increment(1)
+      });
+      console.log(`Credit refunded to ${userId} for ${creditType}`);
+    } catch (error) {
+      console.error('Error refunding credit:', error);
+    }
+  }
+
+  async saveAnalysisToHistory(userId, cacheKey, analysisData) {
+    if (!userId) return;
+    const historyRef = doc(db, `users/${userId}/history`, cacheKey);
+    try {
+      await setDoc(historyRef, {
+        ...analysisData,
+        date: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('Failed to save analysis to user history:', error);
+    }
+  }
+
+  async getUserAnalysisHistory(userId) {
+    if (!userId) return [];
+    try {
+      const historyCollection = collection(db, `users/${userId}/history`);
+      const q = query(historyCollection, orderBy('date', 'desc'), limit(50));
+      const querySnapshot = await getDocs(q);
+      
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error fetching user history:', error);
+      return [];
+    }
+  }
+
+  // Request tracking to prevent duplicate charges within a short time window
+  requestTracker = new Map();
+
+  async isRecentDuplicateRequest(userId, brandName, category, windowMs = 5000) {
+    const requestKey = `${userId}_${brandName}_${category}`;
+    const now = Date.now();
+    
+    if (this.requestTracker.has(requestKey)) {
+      const lastRequestTime = this.requestTracker.get(requestKey);
+      if (now - lastRequestTime < windowMs) {
+        console.log(`Duplicate request detected for ${requestKey} within ${windowMs}ms`);
+        return true;
+      }
+    }
+    
+    this.requestTracker.set(requestKey, now);
+    
+    // Clean up old entries periodically
+    if (this.requestTracker.size > 1000) {
+      for (const [key, timestamp] of this.requestTracker.entries()) {
+        if (now - timestamp > windowMs * 2) {
+          this.requestTracker.delete(key);
+        }
+      }
+    }
+    
+    return false;
   }
 }
 

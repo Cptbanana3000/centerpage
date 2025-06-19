@@ -3,7 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { SignUpDialog } from '@/components/auth/SignUpDialog';
+// import { SignUpDialog } from '@/components/auth/SignUpDialog';
+import { toast } from "sonner";
+import { useAuth } from '@/contexts/AuthContext';
+import '@/styles/hero-media-queries.css';
 
 export function Hero() {
   const [brandName, setBrandName] = useState('');
@@ -14,6 +17,7 @@ export function Hero() {
   const [categoryError, setCategoryError] = useState(false); // Track category validation error
   const dropdownRef = useRef(null);
   const router = useRouter();
+  const { user } = useAuth();
 
   const categories = [
     { value: 'tech & saas', label: 'Tech & SaaS', icon: 'monitor' },
@@ -77,17 +81,14 @@ export function Hero() {
   const selectedCategory = categories.find(cat => cat.value === category);
 
   const handleAnalysis = async () => {
-    // Reset errors
     setError(null);
     setCategoryError(false);
 
-    // Validate brand name
     if (!brandName.trim()) {
       setError('Please enter a brand name');
       return;
     }
 
-    // Validate category selection
     if (!category) {
       setCategoryError(true);
       setError('Please select a category');
@@ -95,12 +96,48 @@ export function Hero() {
     }
 
     setIsLoading(true);
+
     try {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      if (user) {
+        const token = await user.getIdToken();
+        options.headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const res = await fetch('/api/pre-analysis-check', options);
+      const data = await res.json();
+
+      if (!res.ok || !data.hasStandardCredits || !data.isVerified) {
+        if (!data.isAuthenticated) {
+          toast.error("Authentication Required", {
+            description: "Please sign up or log in to run an analysis.",
+          });
+        } else if (!data.isVerified) {
+          toast.error("Email Not Verified", {
+            description: "Please check your inbox and verify your email to continue.",
+          });
+        } else if (!data.hasStandardCredits) {
+          toast.error("Insufficient Credits", {
+            description: `You have ${data.credits.standardAnalyses} standard analysis credits. Please purchase a credit pack to continue.`,
+          });
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // If all checks pass, navigate to the analysis page
       router.push(`/analysis?brand=${encodeURIComponent(brandName.trim())}&category=${encodeURIComponent(category)}`);
     } catch (err) {
-      console.error('Analysis error:', err);
-      setError('Failed to start analysis. Please try again.');
-    } finally {
+      console.error('Pre-analysis check error:', err);
+      toast.error("An Error Occurred", {
+        description: "Could not start analysis. Please try again later.",
+      });
       setIsLoading(false);
     }
   };
@@ -206,7 +243,7 @@ export function Hero() {
                 </label>
                 <Button
                   onClick={handleAnalysis}
-                  disabled={isLoading || !brandName.trim()}
+                  disabled={isLoading}
                   // DEV NOTE: Consistent responsive height and font size.
                   className="w-full h-12 sm:h-14 px-6 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl hover:from-[#5a6fd6] hover:to-[#6a3f9e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#212121] focus:ring-[#667eea] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-base flex items-center justify-center"
                 >

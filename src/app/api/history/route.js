@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/services/firebase';
-import { collection, query, where, orderBy, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit } from 'firebase/firestore';
 
 // GET - Fetch user's analysis history
 export async function GET(request) {
@@ -12,12 +12,12 @@ export async function GET(request) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Query user's analysis history from Firestore
-    const historyRef = collection(db, 'analysisHistory');
+    // Query user's analysis history from the correct subcollection path
+    const historyRef = collection(db, `users/${userId}/history`);
     const q = query(
       historyRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      orderBy('date', 'desc'),
+      limit(50)
     );
 
     const querySnapshot = await getDocs(q);
@@ -30,49 +30,16 @@ export async function GET(request) {
         brandName: data.brandName,
         category: data.category,
         overallScore: data.overallScore,
-        date: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        date: data.date?.toDate?.()?.toISOString() || data.analysisTime || new Date().toISOString(),
         scores: data.scores,
         recommendation: data.recommendation
       });
     });
 
+    console.log(`Fetched ${history.length} analysis records for user ${userId}`);
     return NextResponse.json({ history });
   } catch (error) {
     console.error('Error fetching analysis history:', error);
     return NextResponse.json({ error: 'Failed to fetch analysis history' }, { status: 500 });
-  }
-}
-
-// POST - Save new analysis to history
-export async function POST(request) {
-  try {
-    const body = await request.json();
-    const { userId, brandName, category, overallScore, scores, recommendation } = body;
-
-    if (!userId || !brandName || !category) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Save analysis to Firestore
-    const historyRef = collection(db, 'analysisHistory');
-    const docRef = await addDoc(historyRef, {
-      userId,
-      brandName: brandName.toLowerCase(),
-      category,
-      overallScore: overallScore || 0,
-      scores: scores || {},
-      recommendation: recommendation || '',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      id: docRef.id,
-      message: 'Analysis saved to history' 
-    });
-  } catch (error) {
-    console.error('Error saving analysis to history:', error);
-    return NextResponse.json({ error: 'Failed to save analysis' }, { status: 500 });
   }
 } 

@@ -38,7 +38,7 @@ export default function AboutPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-[#667eea] mb-2">AI-Powered Analysis</h3>
                   <p className="text-gray-300 text-sm">
-                    Our advanced AI doesn&apos;t just check domain availability—it analyzes competition, 
+                    Our advanced AI doesn&apos;t just check domain availability,it analyzes competition, 
                     SEO difficulty, and provides strategic recommendations tailored to your industry.
                   </p>
                 </div>
