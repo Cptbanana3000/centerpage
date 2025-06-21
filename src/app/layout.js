@@ -2,9 +2,10 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AnalysisHistoryProvider } from '@/contexts/AnalysisHistoryContext';
-import { Navbar } from "@/components/layout/Navbar";
+// import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner"
+
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,7 +35,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <AuthProvider>
           <AnalysisHistoryProvider>
-            <Navbar />
+            {/* <Navbar /> */}
         {children}
             <Toaster />
             <Footer />

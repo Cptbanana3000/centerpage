@@ -10,6 +10,7 @@ import { Features } from '@/components/home/Features';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { PricingSection } from '@/components/pricing/PricingSection';
+import { Faq } from '@/components/home/FAQ';
 import ReactMarkdown from 'react-markdown';
 
 // --- Reusable UI Sub-Components (A Best Practice in React) ---
@@ -83,6 +84,7 @@ export default function Home() {
         <HowItWorks />
         <WhyChooseUs />
         <PricingSection />
+        <Faq />
       </main>
       {/* <Footer /> */}
     </>
