@@ -340,7 +340,7 @@ export function Hero() {
                 <Button
                   onClick={handleAnalysis}
                   disabled={isLoading}
-                  className="w-full h-14 px-6 bg-[#64ffda] text-[#0a192f] rounded-lg hover:bg-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base flex items-center justify-center"
+                  className="w-full h-14 px-6 bg-[#64ffda] text-[#0a192f] rounded-lg hover:bg-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-bold text-base flex items-center justify-center cursor-pointer"
                 >
                   {isLoading ? (
                     <>

@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }) {
                         </Link>
                         <nav className="hidden lg:flex items-center gap-4">
                             <NavLink href="/dashboard">Overview</NavLink>
-                            <NavLink href="/dashboard/settings">Settings</NavLink>
+                            {/* <NavLink href="/dashboard/settings">Settings</NavLink> */}
                         </nav>
                     </div>
 

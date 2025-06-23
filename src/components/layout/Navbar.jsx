@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { CreditDisplay } from '@/components/ui/CreditDisplay';
 
 const navLinks = [
-  { href: '/#features', label: 'Features' },
+  { href: '/#Features', label: 'Features' },
   { href: '/#pricing', label: 'Pricing' },
-  { href: '/#why-choose-us', label: 'Why Us' }, // Added a link for the WhyChooseUs section
+  { href: '/#whyChooseUs', label: 'Why Us' }, // Added a link for the WhyChooseUs section
 ];
 
 export function Navbar() {

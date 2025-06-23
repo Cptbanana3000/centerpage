@@ -1,6 +1,6 @@
-// src/services/analysisLogic.js - v2.3 (Final Categories)
-// This version implements a comprehensive list of 10 industry categories
-// for highly specific domain recommendations and AI analysis.
+// src/services/analysisLogic.js - v2.4 (Multi-Step AI Fix)
+// This version implements a robust, two-step AI chain for the final recommendation
+// to prevent logical contradictions and improve reliability.
 
 import OpenAI from 'openai';
 
@@ -103,9 +103,18 @@ export async function calculateCompetitionIntensityAI(googleResults, brandName, 
       ${JSON.stringify(topResults, null, 2)}
       \`\`\`
 
-      Analyze each result through the lens of the "${category}" industry. Is the result a direct competitor, an informational page, or unrelated?
-      Based on this, provide a "competition_score" from 10 (multiple direct competitors in the same category) to 100 (no competitors).
-      Return ONLY a JSON object like: { "reasoning": "Found one direct competitor in the ${category} space.", "competition_score": 40 }
+      Analyze each result through the lens of the "${category}" industry and decide the competition **level**:
+
+      - "very_low"   → almost no direct competitors
+      - "low"        → few weak competitors
+      - "medium"     → some competitors of similar strength
+      - "high"       → many strong competitors
+      - "very_high"  → market saturated by strong brands
+
+      Respond with **ONLY** a JSON object of the shape:
+        { "competition_level": "very_low"|"low"|"medium"|"high"|"very_high", "reasoning": "short explanation" }
+
+      Do NOT include any other keys or text.
     `;
 
     try {
@@ -117,7 +126,16 @@ export async function calculateCompetitionIntensityAI(googleResults, brandName, 
 
         const result = JSON.parse(completion.choices[0].message.content);
         console.log('[AI Competition Analysis]', result.reasoning);
-        return result.competition_score || 50;
+
+        const levelMap = {
+          very_low: 90,
+          low: 70,
+          medium: 50,
+          high: 30,
+          very_high: 10,
+        };
+
+        return levelMap[result.competition_level] ?? 50;
     } catch (error) {
         console.error("AI Competition analysis failed:", error);
         return 50;
@@ -164,42 +182,86 @@ export async function calculateSeoDifficultyAI(googleResults, category) {
     }
 }
 
+// Deterministic verdict mapping based on overall score
+export function mapScoreToVerdict(score) {
+  if (score >= 85) return 'Exceptional Opportunity';
+  if (score >= 70) return 'Strong Contender';
+  if (score >= 55) return 'Moderate Potential';
+  if (score >= 40) return 'Challenging but Viable';
+  return 'Not Recommended';
+}
+
+// buildDeterministicReasoning is defined in this same file below and will be used for fallback reasoning.
 
 /**
- * ENHANCED: AI-powered summary that now includes category context and weighting.
+ * ROBUST: AI-powered summary using a two-step chain to ensure logical consistency.
  * @param {object} scores - An object containing all the calculated scores.
  * @param {string} brandName - The brand name being analyzed.
  * @param {string} category - The industry/category of the brand.
  * @returns {Promise<string>} - A narrative recommendation.
  */
-export async function generateAIReportAndRecommendation(scores, brandName, category) {
+export async function generateAISummary(scores, brandName, category) {
     const { domainStrength, competitionIntensity, seoDifficulty, overallScore } = scores;
 
-    const prompt = `
-      You are "Aura," an expert Brand Strategist. Your client is considering the brand name "${brandName}" for their new project in the **"${category}"** industry.
-      You need to provide a final, synthesized recommendation based on these scores (where 100 is best):
-      - Domain Strength: ${domainStrength}/100
-      - Competition Intensity: ${competitionIntensity}/100 (high score means LOW competition in the ${category} space)
-      - SEO Difficulty: ${seoDifficulty}/100 (high score means EASY SEO in the ${category} space)
-      - Final Overall Score: ${overallScore}/100
+    const verdict = mapScoreToVerdict(overallScore);
 
-      Synthesize these scores into a short, insightful, and actionable summary.
-      1. Start with a clear, one-sentence verdict (e.g., "Exceptional Opportunity," "Strong Contender," "Challenging but Viable," or "Not Recommended").
-      2. In a new paragraph, explain the "why" behind your verdict, applying industry-specific weighting. For the "${category}" industry, certain factors are more critical. For example:
-        - For "Tech & SaaS", brand name clarity is paramount (Competition Intensity is key).
-        - For "E-commerce & Retail", the ".com" domain availability is critical (Domain Strength is key).
-        - For "Games & Entertainment", existing community presence can make SEO very hard (SEO Difficulty is key).
-      3. Weave the scores together to justify your reasoning. Keep the entire response to 2-4 sentences.
-    `;
+    // Step-1: interpret metrics
+    const interpretationPrompt = `Analyze the following scores for the brand \"${brandName}\" in the \"${category}\" industry and describe the situation for each metric in one sentence.\n- Domain Strength: ${domainStrength}/100\n- Competition Intensity: ${competitionIntensity}/100 (10 = VERY HIGH competition, 100 = VERY LOW)\n- SEO Difficulty: ${seoDifficulty}/100 (10 = VERY DIFFICULT, 100 = VERY EASY)\nRespond ONLY with JSON:{\n  \"domain\":\"...\",\n  \"competition\":\"...\",\n  \"seo\":\"...\"\n}`;
 
+    let interpreted;
     try {
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4.1-mini",
-            messages: [{ role: "user", content: prompt }],
+        const completion1 = await openai.chat.completions.create({
+          model: 'gpt-4.1-mini',
+          messages: [
+            { role: 'system', content: 'You are a data analyst that returns only JSON.' },
+            { role: 'user', content: interpretationPrompt }
+          ],
+          response_format: { type: 'json_object' }
         });
-        return completion.choices[0].message.content.trim();
-    } catch (error) {
-        console.error("AI Recommendation generation failed:", error);
-        return "Analysis complete. Please review the scores manually as the final AI recommendation could not be generated.";
+        interpreted = JSON.parse(completion1.choices[0].message.content);
+    } catch (err) {
+        console.error('Step-1 interpretation failed:', err);
     }
+
+    // If interpretation failed, fall back to deterministic reasoning
+    if (!interpreted) {
+        const summaryFallback = buildDeterministicReasoning({ domainStrength, competitionIntensity, seoDifficulty }, brandName, category);
+        return { verdict, summary: summaryFallback };
+    }
+
+    // Step-2: craft final summary ensuring verdict consistency
+    const synthesisPrompt = `You are \"Aura\", an expert Brand Strategist.\nVerdict: ${verdict}\nFacts:\n- ${interpreted.domain}\n- ${interpreted.competition}\n- ${interpreted.seo}\nWrite a concise 2–3 sentence summary that JUSTIFIES the verdict. Do NOT alter the verdict or mention numeric scores. Return ONLY the summary sentence(s).`;
+
+    let summary;
+    try {
+        const completion2 = await openai.chat.completions.create({
+          model: 'gpt-4.1-mini',
+          messages: [{ role: 'user', content: synthesisPrompt }]
+        });
+        summary = completion2.choices[0].message.content.trim();
+    } catch (err) {
+        console.error('Step-2 synthesis failed:', err);
+        summary = buildDeterministicReasoning({ domainStrength, competitionIntensity, seoDifficulty }, brandName, category);
+    }
+
+    return { verdict, summary };
+}
+
+// rename all usages in other files accordingly or export alias
+export { generateAISummary as generateAIReportAndRecommendation };
+
+export function buildDeterministicReasoning({ domainStrength, competitionIntensity, seoDifficulty }, brandName, category) {
+  const describe = (score, positive = true) => {
+    if (score >= 85) return positive ? 'excellent' : 'very low';
+    if (score >= 70) return positive ? 'strong' : 'low';
+    if (score >= 55) return positive ? 'moderate' : 'moderate';
+    if (score >= 40) return positive ? 'weak' : 'high';
+    return positive ? 'poor' : 'very high';
+  };
+
+  const domainText = `domain strength is ${describe(domainStrength)} (${domainStrength}/100)`;
+  const compText = `competition is ${describe(competitionIntensity, false)} (${competitionIntensity}/100)`;
+  const seoText = `SEO difficulty is ${describe(seoDifficulty, false)} (${seoDifficulty}/100)`;
+
+  return `The brand name "${brandName}" in the ${category} industry shows ${domainText}, ${compText}, and ${seoText}.`;
 }

@@ -22,11 +22,17 @@ class DatabaseService {
     this.analyticsCollection = 'usage_analytics';
     this.cacheExpiry = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
     this.requestTracker = new Map();
+    this.deepScanCollection = 'deep_scan_reports';
   }
 
   // Generate cache key for brand analysis
   generateCacheKey(brandName) {
     return brandName.toLowerCase().trim();
+  }
+
+  // Deep Scan report caching
+  generateDeepScanKey(brandName, category) {
+    return `${brandName.toLowerCase().trim()}_${category.toLowerCase().replace(/\s+/g,'_')}`;
   }
 
   // Check if cached result exists and is still valid
@@ -504,6 +510,36 @@ class DatabaseService {
     }
     
     return false;
+  }
+
+  async saveDeepScanReport(brandName, category, reportData) {
+    try {
+      const key = this.generateDeepScanKey(brandName, category);
+      const docRef = doc(db, this.deepScanCollection, key);
+      await setDoc(docRef, {
+        brandName,
+        category,
+        report: reportData,
+        timestamp: serverTimestamp(),
+      });
+      return true;
+    } catch (e) {
+      console.error('Failed to save deep scan report', e);
+      return false;
+    }
+  }
+
+  async getDeepScanReport(brandName, category) {
+    try {
+      const key = this.generateDeepScanKey(brandName, category);
+      const docRef = doc(db, this.deepScanCollection, key);
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) return null;
+      return snap.data().report;
+    } catch (e) {
+      console.error('Failed to fetch deep scan report', e);
+      return null;
+    }
   }
 }
 

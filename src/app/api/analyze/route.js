@@ -111,8 +111,8 @@ export async function GET(request) {
 
     const overallScore = (scores.domainStrength * 0.4) + (scores.competitionIntensity * 0.4) + (scores.seoDifficulty * 0.2);
     
-    // Generate AI-powered recommendation and insights with category context
-    const aiRecommendation = await generateAIReportAndRecommendation({
+    // Generate AI verdict + summary with category context
+    const { verdict, summary } = await generateAIReportAndRecommendation({
       ...scores,
       overallScore: Math.round(overallScore)
     }, brandName, category);
@@ -121,7 +121,9 @@ export async function GET(request) {
       brandName,
       category,
       overallScore: Math.round(overallScore),
-      recommendation: aiRecommendation,
+      verdict,
+      summary,
+      recommendation: `${verdict} — ${summary}`,
       scores,
       detailedAnalysis: {
         domainAvailability: domainData.map(d => ({ domain: d.domain, isAvailable: d.available })),

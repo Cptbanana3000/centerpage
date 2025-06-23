@@ -92,6 +92,7 @@ export async function POST(request) {
     const result = await deepScanService.performMultipleDeepScan(urlsToScan, brandName, category);
 
     if (result.success) {
+      await databaseService.saveDeepScanReport(brandName, category, result.data);
       await databaseService.updateAnalytics('deep_scan_completed', brandName, { 
         competitorsAnalyzed: result.data.competitors?.length || 0,
         category,
