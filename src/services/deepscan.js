@@ -57,19 +57,38 @@ class DeepScanService {
    * @returns {Promise<object>} - A detailed object of website data.
    */
   async analyzeWebsite(url) {
+    // Validate and clean URL
     if (!/^(https?:\/\/)/i.test(url)) {
-        url = 'https://' + url;
-      }
+      url = 'https://' + url;
+    }
+    
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch (e) {
+      throw new Error(`Invalid URL format: ${url}`);
+    }
 
     console.log(`📡 Launching headless browser to analyze: ${url}`);
     let browser;
     try {
-      browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+      browser = await puppeteer.launch({ 
+        args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+        timeout: 30000
+      });
       const page = await browser.newPage();
       
+      // Set longer timeout and better error handling
+      await page.setDefaultNavigationTimeout(30000);
+      await page.setDefaultTimeout(30000);
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
       
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
+      try {
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      } catch (navigationError) {
+        console.warn(`⚠️ Navigation timeout for ${url}, trying with reduced wait conditions...`);
+        await page.goto(url, { waitUntil: 'load', timeout: 15000 });
+      }
       const finalUrl = page.url();
       const htmlContent = await page.content();
       const $ = cheerio.load(htmlContent);
@@ -244,16 +263,26 @@ ${JSON.stringify(analyzedData, null, 2)}
       const settledResults = await Promise.allSettled(analysisPromises);
       
       const successfulAnalyses = [];
+      const failedAnalyses = [];
       settledResults.forEach((result, index) => {
         if (result.status === 'fulfilled') {
+          console.log(`✅ Successfully analyzed: ${urlsToProcess[index]}`);
           successfulAnalyses.push(result.value);
         } else {
+          const failureInfo = {
+            url: urlsToProcess[index],
+            error: result.reason.message
+          };
+          failedAnalyses.push(failureInfo);
           console.error(`❌ Analysis failed for ${urlsToProcess[index]}:`, result.reason.message);
         }
       });
       
+      console.log(`📊 Analysis Summary: ${successfulAnalyses.length} successful, ${failedAnalyses.length} failed`);
+      
       if (successfulAnalyses.length === 0) {
-        throw new Error('No competitor data could be analyzed.');
+        const errorDetails = failedAnalyses.map(f => `${f.url}: ${f.error}`).join(' | ');
+        throw new Error(`No competitor data could be analyzed. All ${failedAnalyses.length} attempts failed: ${errorDetails}`);
       }
       
       console.log(`✅ Successfully analyzed ${successfulAnalyses.length} competitors.`);

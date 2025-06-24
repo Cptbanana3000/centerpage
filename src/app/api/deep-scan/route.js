@@ -5,6 +5,7 @@ import databaseService from '@/services/database';
 import requestTracker from '@/services/requestTracker';
 import { getGoogleResults } from '@/services/apiHelpers';
 import { verifyIdToken } from '@/lib/firebase-admin';
+import { categorizeCompetitors } from '@/utils/competitorCategorizer';
 
 const deepScanService = new DeepScanService();
 
@@ -80,7 +81,55 @@ export async function POST(request) {
       const uniqueResults = Array.from(new Map(combinedResults.map(item => [item.link, item])).values());
       
       console.log(`[Deep Scan] Found ${uniqueResults.length} unique Google results for deep scan.`);
-      urlsToScan = uniqueResults.slice(0, 5).map(result => result.link);
+      
+      // 4. Categorize competitors intelligently
+      const categorizedCompetitors = categorizeCompetitors(brandName, uniqueResults, category);
+      
+      // 5. Auto-select competitors with smart fallback strategy
+      let autoSelectedCompetitors = categorizedCompetitors.filter(comp => 
+        comp.threatLevel === 'direct' || 
+        (comp.threatLevel === 'indirect' && comp.analysis.productSimilarity > 80)
+      );
+      
+      // Fallback 1: If no direct/indirect threats, include name conflicts that are businesses
+      if (autoSelectedCompetitors.length === 0) {
+        autoSelectedCompetitors = categorizedCompetitors.filter(comp => 
+          comp.threatLevel === 'name-conflict' && comp.analysis.websiteType === 'business'
+        );
+      }
+      
+      // Fallback 2: If still nothing, take any business websites (even if unrelated)
+      if (autoSelectedCompetitors.length === 0) {
+        autoSelectedCompetitors = categorizedCompetitors.filter(comp => 
+          comp.analysis.websiteType === 'business'
+        );
+      }
+      
+      // Fallback 3: If STILL nothing, take the top informational sources for research
+      if (autoSelectedCompetitors.length === 0) {
+        autoSelectedCompetitors = categorizedCompetitors.filter(comp => 
+          comp.threatLevel === 'informational' || comp.threatLevel === 'discussion'
+        ).slice(0, 3);
+      }
+      
+      // If absolutely no usable competitors found, return error
+      if (autoSelectedCompetitors.length === 0) {
+        return NextResponse.json({
+          success: false,
+          message: `No analyzable competitors found for "${brandName}". Please use the competitor selection interface to choose specific competitors to analyze.`,
+          code: 'NO_AUTO_SELECTION',
+          categorizedCompetitors: categorizedCompetitors.slice(0, 10),
+          suggestions: [
+            'Use the competitor selection interface to manually choose relevant competitors',
+            'This might indicate a unique brand opportunity with low competition',
+            'Consider trademark searches for comprehensive brand validation'
+          ]
+        }, { status: 200 });
+      }
+      
+      console.log(`[Deep Scan] Auto-selected ${autoSelectedCompetitors.length} competitors:`, autoSelectedCompetitors.map(c => `${c.link} (${c.threatLevel})`));
+      
+      urlsToScan = autoSelectedCompetitors.slice(0, 5).map(comp => comp.link);
     }
     
     if (urlsToScan.length === 0) {

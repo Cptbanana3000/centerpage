@@ -14,6 +14,7 @@ import useBrandAnalysis from './hooks/useBrandAnalysis';
 import useDeepScan from './hooks/useDeepScan';
 import usePdfExport from './hooks/usePdfExport';
 import DeepScanPanel from './components/DeepScanPanel';
+import SmartCompetitorSelection from './components/SmartCompetitorSelection';
 import { CATEGORIES } from './utils/categories';
 import GoogleCompetitorsList from './components/GoogleCompetitorsList';
 import BrandMetrics from './components/BrandMetrics';
@@ -74,6 +75,7 @@ export default function AnalysisPage() {
   const [newCategory, setNewCategory] = useState(category);
   const [isSearching, setIsSearching] = useState(false);
   const [activeSection, setActiveSection] = useState('ai-summary');
+  const [showCompetitorSelection, setShowCompetitorSelection] = useState(false);
 
   const loadingStages = useMemo(() => [
     'Initializing analysis...', 'Analyzing domain availability...', 'AI analyzing competitors...',
@@ -133,8 +135,18 @@ export default function AnalysisPage() {
     router.push(`/analysis?brand=${encodeURIComponent(newBrandName.trim())}&category=${encodeURIComponent(newCategory)}`);
   };
   
-  const handleDeepScan = () => runDeepScan({ brandName, category, competitorUrls: analysis?.detailedAnalysis?.googleCompetition?.topResults?.map(r => r.link) || [] });
-  const handlePdfExport = () => exportPdf({ analysis, brandName, category });
+  const handleDeepScan = () => setShowCompetitorSelection(true);
+  
+  const handleCompetitorSelectionProceed = (selectedCompetitors) => {
+    setShowCompetitorSelection(false);
+    const competitorUrls = selectedCompetitors.map(comp => comp.link);
+    runDeepScan({ brandName, category, competitorUrls });
+  };
+
+  const handleCompetitorSelectionCancel = () => {
+    setShowCompetitorSelection(false);
+  };
+  const handlePdfExport = () => exportPdf({ analysis, brandName, category, deepScanData });
   const verdictFromScore = (score) => {
     if (score >= 85) return 'Exceptional Opportunity';
     if (score >= 70) return 'Strong Contender';
@@ -144,7 +156,7 @@ export default function AnalysisPage() {
   };
 
   const reportSections = [
-    { id: 'ai-summary', label: 'AI Strategic Summary', icon: 'fa-brain' },
+    { id: 'ai-summary', label: ' Strategic Summary', icon: 'fa-brain' },
     { id: 'brand-metrics', label: 'Brand Metrics', icon: 'fa-chart-pie' },
     { id: 'google-competitors', label: 'Google Competitors', icon: 'fa-users' },
     { id: 'domain-availability', label: 'Domain Availability', icon: 'fa-globe' },
@@ -159,12 +171,12 @@ export default function AnalysisPage() {
                 {/* --- Main Report Feed (Left, Scrollable) --- */}
                 <div className="lg:col-span-2 flex flex-col gap-8">
                     <GlassCard id="ai-summary" ref={el => sectionsRef.current['ai-summary'] = el} className="p-8">
-                        <h2 className="text-3xl font-bold mb-4 text-white flex items-center gap-3"><i className="fas fa-brain text-[#64ffda]"></i> AI Strategic Analysis</h2>
-                        <p className="text-lg text-[#8892b0] mb-6 border-l-4 border-[#64ffda] pl-4"><span className="font-bold text-[#ccd6f6]">AI Verdict: </span>{analysis.verdict}</p>
+                        <h2 className="text-3xl font-bold mb-4 text-white flex items-center gap-3"><i className="fas fa-brain text-[#64ffda]"></i>  Strategic Analysis</h2>
+                        <p className="text-lg text-[#8892b0] mb-6 border-l-4 border-[#64ffda] pl-4"><span className="font-bold text-[#ccd6f6]">Verdict: </span>{analysis.verdict}</p>
                         <p className="text-md text-[#8892b0] mt-2">{analysis.summary}</p>
                     </GlassCard>
                     <GlassCard id="brand-metrics" ref={el => sectionsRef.current['brand-metrics'] = el} className="p-8">
-                        <h2 className="text-3xl font-bold mb-6 text-white">Brand Metrics</h2>
+                        {/* <h2 className="text-3xl font-bold mb-6 text-white">Brand Metrics</h2> */}
                         <BrandMetrics scores={analysis.scores} />
                     </GlassCard>
                     <GlassCard id="google-competitors" ref={el => sectionsRef.current['google-competitors'] = el} className="p-8">
@@ -208,7 +220,7 @@ export default function AnalysisPage() {
                     </GlassCard>
                     
                     <GlassCard className="p-6">
-                         <h2 className="text-xl font-bold mb-4 text-white">Actions</h2>
+                         {/* <h2 className="text-xl font-bold mb-4 text-white">Actions</h2> */}
                          <div className="flex flex-col gap-4">
                              <Button onClick={handleDeepScan} disabled={isDeepScanning} className="w-full bg-[#64ffda]/10 border border-[#64ffda]/50 text-[#64ffda] hover:bg-[#64ffda]/20 h-14 font-bold"><i className="fas fa-microscope mr-2"></i>Perform Deep Scan</Button>
                              <Button onClick={handlePdfExport} disabled={isExporting} className="w-full bg-white/10 border border-white/20 hover:bg-white/20 h-14 font-bold"><i className="fas fa-file-pdf mr-2"></i>Export PDF</Button>
@@ -224,6 +236,16 @@ export default function AnalysisPage() {
                     </GlassCard>
                 </aside>
             </div>
+
+            {showCompetitorSelection && (
+              <SmartCompetitorSelection
+                competitors={analysis?.detailedAnalysis?.googleCompetition?.topResults || []}
+                brandName={brandName}
+                category={category}
+                onProceed={handleCompetitorSelectionProceed}
+                onCancel={handleCompetitorSelectionCancel}
+              />
+            )}
 
             <DeepScanPanel
                 brandName={brandName}
