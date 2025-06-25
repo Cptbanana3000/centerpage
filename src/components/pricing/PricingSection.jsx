@@ -66,10 +66,10 @@ export function PricingSection() {
 
         {/* Header Section */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-6xl lg:text-7xl font-bold text-gray-900 mb-4 tracking-tight">
             Simple, Value-Driven Pricing
           </h2>
-          <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
+          <p className="text-lg lg:text-2xl text-gray-600 leading-relaxed">
             Our one-time packs align with your process. Explore freely, then get deep validation for your best ideas—no subscription needed.
           </p>
         </div>
@@ -119,7 +119,7 @@ export function PricingSection() {
               </div>
               
               <Button 
-                className={`mt-8 w-full font-bold py-3 rounded-lg text-lg h-14
+                className={`mt-8 w-full font-bold py-3 rounded-lg text-lg h-14 cursor-pointer
                   ${plan.isBestValue 
                     ? 'bg-white text-gray-900 hover:bg-gray-200' 
                     : plan.isFree

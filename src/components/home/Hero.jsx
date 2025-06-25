@@ -81,7 +81,7 @@ export function Hero() {
                 <Button
                   onClick={handleAnalysis}
                   disabled={isLoading}
-                  className="h-16 px-10 text-xl font-semibold bg-gray-900 text-white hover:bg-gray-800 shrink-0"
+                  className="h-16 px-10 text-xl font-semibold bg-gray-900 text-white hover:bg-gray-800 shrink-0 cursor-pointer"
                   style={{ borderRadius: '0.5rem' }}
                 >
                   {isLoading ? '...' : 'Search'}
@@ -89,7 +89,7 @@ export function Hero() {
               </div>
               <div className="mt-4">
                  <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-12 w-auto px-4 text-base bg-white border-gray-400 text-gray-500">
+                  <SelectTrigger className="h-12 w-auto px-4 text-base bg-white border-gray-400 text-gray-500 cursor-pointer">
                     <SelectValue placeholder="select a category" />
                   </SelectTrigger>
                   <SelectContent position="popper" side="bottom" className="bg-white text-gray-900">

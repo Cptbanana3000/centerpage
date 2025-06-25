@@ -42,10 +42,10 @@ export function Features() {
 
           {/* Text Content Column */}
           <div className="max-w-xl">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-6xl lg:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
               A Complete Brand Toolkit
             </h2>
-            <p className="text-lg lg:text-xl text-gray-600 leading-relaxed mb-12">
+            <p className="text-lg lg:text-2xl text-gray-600 leading-relaxed mb-12">
               Go beyond simple name checking. Get a full strategic analysis to ensure your brand is built to last.
             </p>
 

@@ -36,7 +36,7 @@ export function Navbar() {
       <SignInDialog>
         <Button
           variant="ghost"
-          className={`w-full text-gray-600 hover:text-gray-900 ${mobile ? 'justify-start p-2' : 'p-2'}`}
+          className={`w-full text-gray-600 hover:text-gray-900 ${mobile ? 'justify-start p-2' : 'p-2'} cursor-pointer`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           Sign In
@@ -44,7 +44,7 @@ export function Navbar() {
       </SignInDialog>
       <SignUpDialog>
         <Button
-          className={`w-full bg-gray-900 text-white hover:bg-gray-800 font-bold ${mobile ? 'p-2' : 'py-2 px-4'}`}
+          className={`w-full bg-gray-900 text-white hover:bg-gray-800 font-bold ${mobile ? 'p-2' : 'py-2 px-4'} cursor-pointer`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           Get Started
@@ -107,7 +107,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2 cursor-pointer"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
@@ -119,7 +119,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white absolute top-full left-0 w-full border-t border-gray-200">
+        <div className="lg:hidden bg-white absolute top-full left-0 w-full border-t border-gray-200 cursor-pointer">
           <div className="px-4 pt-2 pb-4 space-y-4">
             <NavLinks mobile />
             <div className="border-t border-gray-200 pt-4">
@@ -132,7 +132,7 @@ export function Navbar() {
                   <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 transition-colors" onClick={handleMobileClose}>
                     Dashboard
                   </Link>
-                   <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900">
+                   <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900 cursor-pointer">
                     Sign Out
                   </Button>
                 </div>

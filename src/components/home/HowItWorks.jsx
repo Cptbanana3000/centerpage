@@ -42,10 +42,10 @@ export function HowItWorks() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl tracking-tight">
+          <h2 className="text-6xl font-bold text-gray-900 lg:text-7xl tracking-tight">
             From Idea to Intelligence
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg lg:text-2xl text-gray-600">
             Our tool simplifies brand analysis into three straightforward steps.
           </p>
         </div>

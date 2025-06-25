@@ -46,10 +46,10 @@ export function WhyChooseUs() {
 
         {/* Header Section */}
         <div className="text-center mb-20 max-w-3xl mx-auto">
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-6xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
             A Founder's Focus, Not an Enterprise Maze
           </h2>
-          <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
+          <p className="text-lg lg:text-2xl text-gray-600 leading-relaxed">
             You don't need another overwhelming dashboard. You need the right insights, right now. Here's how our approach is different.
           </p>
         </div>
