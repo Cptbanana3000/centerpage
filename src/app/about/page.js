@@ -14,7 +14,7 @@ export default function AboutPage() {
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               About{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#667eea] to-[#764ba2]">
-                VeritoLab
+                CenterPage
               </span>
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
@@ -26,9 +26,8 @@ export default function AboutPage() {
             <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
               <p className="text-gray-300 leading-relaxed">
-                VeritoLab was built to solve a critical problem every entrepreneur faces: choosing the right brand name. 
-                We combine advanced AI analysis with comprehensive market research to give you the insights you need to 
-                make confident branding decisions.
+                CenterPage was built to solve a critical problem every entrepreneur faces: choosing the right brand name. 
+                We provide instant, AI-powered analysis on brand names, checking everything from domain availability and social media handles to potential trademark conflicts and competitor overlap. Our goal is to give you the confidence to build a strong, unique, and legally sound brand from day one.
               </p>
             </div>
 

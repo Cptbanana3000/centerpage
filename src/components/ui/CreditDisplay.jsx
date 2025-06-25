@@ -44,8 +44,9 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
 
   if (loading) {
     return (
-      <div className="animate-pulse">
-        <div className="h-4 bg-gray-700 rounded w-20"></div>
+      <div className="animate-pulse flex items-center gap-4">
+        <div className="h-4 bg-gray-300 rounded w-8"></div>
+        <div className="h-4 bg-gray-300 rounded w-8"></div>
       </div>
     );
   }
@@ -58,12 +59,12 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
     return (
       <div className="flex items-center gap-4 text-sm">
         <div className="flex items-center gap-1">
-          <Zap className="w-4 h-4 text-blue-400" />
-          <span className="text-white">{credits.standardAnalyses}</span>
+          <Zap className="w-4 h-4 text-blue-500" />
+          <span className="text-gray-900 font-medium">{credits.standardAnalyses}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Microscope className="w-4 h-4 text-purple-400" />
-          <span className="text-white">{credits.deepScans}</span>
+          <Microscope className="w-4 h-4 text-purple-500" />
+          <span className="text-gray-900 font-medium">{credits.deepScans}</span>
         </div>
       </div>
     );
@@ -72,43 +73,43 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Standard Analyses Credits */}
-      <Card className="bg-white/5 border border-white/10">
+      <Card className="bg-gray-100 border-gray-200">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-blue-400" />
-              <span className="text-sm font-medium text-gray-400">Standard Analyses</span>
+              <Zap className="w-5 h-5 text-blue-500" />
+              <span className="text-sm font-medium text-gray-600">Standard Analyses</span>
             </div>
             {showRefill && (
               <Link href="/purchase-credits">
-                <button className="text-blue-400 hover:text-blue-300 text-xs transition-colors">
+                <button className="text-blue-500 hover:text-blue-600 text-xs transition-colors">
                   <Plus className="w-4 h-4" />
                 </button>
               </Link>
             )}
           </div>
-          <div className="text-2xl font-bold text-white">{credits.standardAnalyses}</div>
+          <div className="text-2xl font-bold text-gray-900">{credits.standardAnalyses}</div>
           <p className="text-xs text-gray-500">Domain & competition checks</p>
         </CardContent>
       </Card>
 
       {/* Deep Scans Credits */}
-      <Card className="bg-white/5 border border-white/10">
+      <Card className="bg-gray-100 border-gray-200">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Microscope className="w-5 h-5 text-purple-400" />
-              <span className="text-sm font-medium text-gray-400">Deep Scans</span>
+              <Microscope className="w-5 h-5 text-purple-500" />
+              <span className="text-sm font-medium text-gray-600">Deep Scans</span>
             </div>
             {showRefill && (
               <Link href="/purchase-credits">
-                <button className="text-purple-400 hover:text-purple-300 text-xs transition-colors">
+                <button className="text-purple-500 hover:text-purple-600 text-xs transition-colors">
                   <Plus className="w-4 h-4" />
                 </button>
               </Link>
             )}
           </div>
-          <div className="text-2xl font-bold text-white">{credits.deepScans}</div>
+          <div className="text-2xl font-bold text-gray-900">{credits.deepScans}</div>
           <p className="text-xs text-gray-500">AI analysis & PDF exports</p>
         </CardContent>
       </Card>

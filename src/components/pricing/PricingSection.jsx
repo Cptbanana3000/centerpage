@@ -17,6 +17,8 @@ export function PricingSection() {
         { text: 'Deep Scan AI Report', included: false, note: '(Locked)' },
       ],
       isFree: true,
+      buttonText: 'Start for Free',
+      buttonVariant: 'outline'
     },
     {
       name: 'Starter Pack',
@@ -28,6 +30,8 @@ export function PricingSection() {
         { text: '10 Deep Scan Reports', included: true },
       ],
       isBestValue: false,
+      buttonText: 'Buy Starter Pack',
+      buttonVariant: 'default'
     },
     {
       name: 'Pro Pack',
@@ -39,70 +43,75 @@ export function PricingSection() {
         { text: '35 Deep Scan Reports', included: true },
       ],
       isBestValue: true,
+      buttonText: 'Buy Pro Pack',
+      buttonVariant: 'default'
     },
   ];
 
   const CheckIcon = () => (
-    <svg className="w-5 h-5 text-[#64ffda] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-5 h-5 text-gray-900 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
     </svg>
   );
 
   const CrossIcon = () => (
-    <svg className="w-5 h-5 text-[#8892b0] mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
     </svg>
   );
 
   return (
-    <section id="pricing" className="min-h-screen bg-[#0a192f] text-white py-24 sm:py-32 relative overflow-hidden font-['Inter',_sans-serif]">
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="pricing" className="bg-white text-gray-900 py-24 sm:py-32">
+      <div className="container mx-auto px-4">
 
         {/* Header Section */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
             Simple, Value-Driven Pricing
           </h2>
-          <p className="text-lg lg:text-xl text-[#8892b0] leading-relaxed">
+          <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
             Our one-time packs align with your process. Explore freely, then get deep validation for your best ideas—no subscription needed.
           </p>
         </div>
 
         {/* Pricing Cards Container */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative flex flex-col bg-[rgba(255,255,255,0.05)] border backdrop-blur-lg rounded-xl p-8 transition-all duration-300 hover:-translate-y-2
-                ${plan.isBestValue ? 'border-[rgba(100,255,218,0.5)]' : 'border-[rgba(255,255,255,0.1)] hover:border-[rgba(100,255,218,0.5)]'}
+              className={`relative flex flex-col rounded-xl p-8 transition-all duration-300
+                ${plan.isBestValue 
+                  ? 'bg-gray-900 text-white border-2 border-gray-900 shadow-2xl scale-105' 
+                  : 'bg-slate-50 border border-slate-200'
+                }
               `}
             >
               {plan.isBestValue && (
-                <div className="absolute top-0 right-8 -mt-4 bg-[#64ffda] text-[#0a192f] text-sm font-bold px-4 py-1 rounded-full">
+                <div className="absolute top-0 right-8 -mt-4 bg-yellow-300 text-gray-900 text-sm font-bold px-4 py-1 rounded-full">
                   BEST VALUE
                 </div>
               )}
 
               <div className="flex-grow">
-                <h3 className={`text-2xl font-bold mb-2 ${plan.isBestValue ? 'text-[#64ffda]' : 'text-white'}`}>
+                <h3 className={`text-2xl font-bold mb-2 ${plan.isBestValue ? 'text-white' : 'text-gray-900'}`}>
                   {plan.name}
                 </h3>
-                <p className="text-[#8892b0] h-12">
+                <p className={`${plan.isBestValue ? 'text-gray-300' : 'text-gray-600'} h-12`}>
                   {plan.description}
                 </p>
                 <div className="my-8">
-                  <span className="text-5xl font-extrabold text-[#ccd6f6]">{plan.price}</span>
+                  <span className={`text-5xl font-extrabold ${plan.isBestValue ? 'text-white' : 'text-gray-900'}`}>{plan.price}</span>
                   {plan.originalPrice && (
-                    <span className="text-2xl text-[#8892b0] line-through ml-2">{plan.originalPrice}</span>
+                    <span className={`text-2xl ${plan.isBestValue ? 'text-gray-400' : 'text-gray-400'} line-through ml-2`}>{plan.originalPrice}</span>
                   )}
                 </div>
-                <ul className="space-y-4 text-[#ccd6f6]">
+                <ul className="space-y-4">
                   {plan.features.map((feature) => (
                     <li key={feature.text} className="flex items-start">
                       {feature.included ? <CheckIcon /> : <CrossIcon />}
-                      <span>
+                      <span className={`${plan.isBestValue ? 'text-gray-200' : 'text-gray-700'}`}>
                         <span className="font-semibold">{feature.text}</span>
-                        {feature.note && <span className="text-[#8892b0] ml-1">{feature.note}</span>}
+                        {feature.note && <span className={`${plan.isBestValue ? 'text-gray-400' : 'text-gray-500'} ml-1`}>{feature.note}</span>}
                       </span>
                     </li>
                   ))}
@@ -110,11 +119,16 @@ export function PricingSection() {
               </div>
               
               <Button 
-                className={`mt-8 w-full font-bold py-3 rounded-lg transition-all duration-300 text-lg
-                  ${plan.isFree ? 'bg-transparent border-2 border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10' : 'bg-[#64ffda] text-[#0a192f] hover:bg-white'}
+                className={`mt-8 w-full font-bold py-3 rounded-lg text-lg h-14
+                  ${plan.isBestValue 
+                    ? 'bg-white text-gray-900 hover:bg-gray-200' 
+                    : plan.isFree
+                      ? 'bg-transparent border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
+                      : 'bg-gray-900 text-white hover:bg-gray-700'
+                  }
                 `}
               >
-                {plan.isFree ? 'Start for Free' : `Buy ${plan.name}`}
+                {plan.buttonText}
               </Button>
             </div>
           ))}

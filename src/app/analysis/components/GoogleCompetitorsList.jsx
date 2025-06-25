@@ -22,11 +22,11 @@ export default function GoogleCompetitorsList({ results = [], brandName }) {
   if (results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <div className="w-16 h-16 mb-4 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20">
-          <i className="fas fa-check text-green-400 text-2xl"></i>
+        <div className="w-16 h-16 mb-4 rounded-full bg-green-100 flex items-center justify-center border border-green-200">
+          <i className="fas fa-check text-green-600 text-2xl"></i>
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Clear Path Ahead</h3>
-        <p className="text-[#8892b0] text-sm leading-relaxed max-w-xs">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Clear Path Ahead</h3>
+        <p className="text-gray-600 text-sm leading-relaxed max-w-xs">
           No direct competitors found in the top Google search results. This indicates a unique opportunity for your brand name.
         </p>
       </div>
@@ -35,7 +35,7 @@ export default function GoogleCompetitorsList({ results = [], brandName }) {
 
   // Main list rendering with a clean, separated layout
   return (
-    <div className="divide-y divide-white/10">
+    <div className="divide-y divide-gray-200">
       {results.slice(0, 5).map((result, idx) => {
         const rootDomain = extractRootDomain(result.link);
         const isDirect = rootDomain?.toLowerCase() === brandName.toLowerCase();

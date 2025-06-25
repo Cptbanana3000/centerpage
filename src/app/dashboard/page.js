@@ -11,6 +11,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, BarChart, ChevronRight, Star, Plus, CheckCircle } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -52,9 +60,9 @@ export default function DashboardPage() {
   if (!user) return null;
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
-    return 'text-red-400';
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-500';
+    return 'text-red-600';
   };
 
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -67,103 +75,122 @@ export default function DashboardPage() {
   const averageScore = totalAnalyses > 0 ? Math.round(recentAnalyses.reduce((acc, curr) => acc + curr.overallScore, 0) / totalAnalyses) : 0;
   const topPicks = recentAnalyses.filter(a => a.overallScore >= 80).length;
 
-  // Reusable card component for consistent styling
-  const GlassCard = ({ children, className = '' }) => (
-    <div className={`bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] backdrop-blur-lg rounded-xl ${className}`}>
+  const StyledCard = ({ children, className = '' }) => (
+    <div className={`bg-white border border-gray-200 rounded-xl ${className}`}>
       {children}
     </div>
   );
 
   return (
-    <div className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-      {/* Restored Welcome Header */}
-      <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <h1 className="text-3xl md:text-4xl font-black text-white">Welcome Back,</h1>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.05)] border border-white/10">
-                <span className="font-bold text-[#ccd6f6] truncate">{user?.email}</span>
-                {user?.emailVerified && (
-                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+    <div className="">
+      <div className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+        <header className="mb-10">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 className="text-3xl md:text-4xl font-black text-gray-900">Welcome Back,</h1>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200">
+                  <span className="font-bold text-gray-700 truncate">{user?.email}</span>
+                  {user?.emailVerified && (
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  )}
+              </div>
+          </div>
+          <p className="text-lg text-gray-600 mt-1">Ready to find your next breakthrough brand name?</p>
+        </header>
+
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          
+          {/* Main Content Area (Left Side) */}
+          <div className="lg:col-span-3 flex flex-col gap-8">
+            <StyledCard className="p-8 bg-gradient-to-br from-blue-50 to-white">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Start a New Analysis</h2>
+              <p className="text-gray-600 mb-6">Your next great idea is one search away. Enter a brand name on the home page to begin.</p>
+              <Link href="/" passHref>
+                <Button size="lg" className="bg-gray-900 text-white font-bold hover:bg-gray-800">
+                    <Plus className="w-5 h-5 mr-2" /> Launch
+                </Button>
+              </Link>
+            </StyledCard>
+
+            {/* Analysis History */}
+            <StyledCard>
+              <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold mb-4 sm:mb-0 text-gray-900">Analysis History</h2>
+                <div className="relative w-full sm:w-64">
+                  <Input
+                    type="search"
+                    placeholder="Search history..."
+                    className="bg-gray-100 border-gray-300 pl-10 h-11"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+              
+              <div className="max-h-[60vh] overflow-y-auto">
+                {loading ? (
+                  <div className="text-center py-20"><div className="w-8 h-8 mx-auto border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div></div>
+                ) : filteredAnalyses.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-2/5">Brand Name</TableHead>
+                        <TableHead className="hidden sm:table-cell">Date</TableHead>
+                        <TableHead className="text-right">Score</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAnalyses.map((analysis) => (
+                        <TableRow 
+                          key={analysis.id} 
+                          className="cursor-pointer group"
+                          onClick={() => router.push(`/analysis?brand=${encodeURIComponent(analysis.brandName)}&category=${encodeURIComponent(analysis.category)}&view=saved`)}
+                        >
+                          <TableCell>
+                            <div className="font-semibold text-base text-gray-800 truncate">{analysis.brandName}</div>
+                            <div className="text-sm text-gray-500">{analysis.category}</div>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-gray-500">{formatDate(analysis.date)}</TableCell>
+                          <TableCell className={`text-right text-2xl font-bold ${getScoreColor(analysis.overallScore)}`}>{analysis.overallScore}</TableCell>
+                          <TableCell>
+                            <ChevronRight className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-16 text-gray-500 px-4">
+                    <p className="mb-2">No analyses found.</p>
+                    {searchQuery && <p className="text-sm">Try clearing your search.</p>}
+                  </div>
                 )}
-            </div>
-        </div>
-        <p className="text-lg text-[#8892b0] mt-1">Ready to find your next breakthrough brand name?</p>
-      </header>
-
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        
-        {/* Main Content Area (Left Side) */}
-        <div className="lg:col-span-3 flex flex-col gap-8">
-          <GlassCard className="p-8 bg-gradient-to-br from-[rgba(100,255,218,0.1)] to-transparent">
-            <h2 className="text-2xl font-bold text-white mb-2">Start a New Analysis</h2>
-            <p className="text-[#8892b0] mb-6">Your next great idea is one search away. Enter a brand name on the home page to begin.</p>
-            <Link href="/" passHref>
-              <Button size="lg" className="bg-[#64ffda] text-[#0a192f] font-bold hover:bg-white">
-                  <Plus className="w-5 h-5 mr-2" /> Launch
-              </Button>
-            </Link>
-          </GlassCard>
-
-          {/* Analysis History */}
-          <GlassCard>
-            <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-white/10">
-              <h2 className="text-2xl font-bold mb-4 sm:mb-0">Analysis History</h2>
-              <div className="relative w-full sm:w-64">
-                <Input
-                  type="search"
-                  placeholder="Search history..."
-                  className="bg-black/20 border-white/20 pl-10 h-11"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               </div>
-            </div>
-            
-            <div className="flex flex-col">
-              {loading ? (
-                <div className="text-center py-20"><div className="w-8 h-8 mx-auto border-2 border-[#64ffda] border-t-transparent rounded-full animate-spin"></div></div>
-              ) : filteredAnalyses.length > 0 ? (
-                filteredAnalyses.map((analysis, index) => (
-                  <Link href={`/analysis?brand=${encodeURIComponent(analysis.brandName)}&category=${encodeURIComponent(analysis.category)}&view=saved`} key={analysis.id} className={`grid grid-cols-2 sm:grid-cols-3 items-center px-6 py-5 transition-colors hover:bg-white/5 group ${index < filteredAnalyses.length - 1 ? 'border-b border-white/10' : ''}`}>
-                    <div className="sm:col-span-1">
-                      <div className="font-semibold text-lg text-[#ccd6f6] truncate">{analysis.brandName}</div>
-                      <div className="text-sm text-[#8892b0]">{analysis.category}</div>
-                    </div>
-                    <div className="text-sm text-[#8892b0] hidden sm:block text-center">{formatDate(analysis.date)}</div>
-                    <div className="flex items-center justify-end gap-4">
-                      <div className={`text-2xl font-bold ${getScoreColor(analysis.overallScore)}`}>{analysis.overallScore}</div>
-                      <ChevronRight className="w-6 h-6 text-[#8892b0] opacity-0 group-hover:opacity-100 transition-all" />
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="text-center py-16 text-[#8892b0] px-4">No analyses found.</div>
-              )}
-            </div>
-          </GlassCard>
-        </div>
+            </StyledCard>
+          </div>
 
-        {/* Sidebar / Stats Area (Right Side) */}
-        <div className="lg:col-span-2 flex flex-col gap-8">
-            <GlassCard className="p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Your Credits</h3>
-              <CreditDisplay />
-            </GlassCard>
-            <GlassCard className="p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Key Stats</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3 text-lg"><BarChart className="w-5 h-5 text-[#8892b0]" /><span>Average Score</span></div>
-                    <span className={`text-2xl font-bold ${getScoreColor(averageScore)}`}>{averageScore}</span>
+          {/* Sidebar / Stats Area (Right Side) */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
+              <StyledCard className="p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Your Credits</h3>
+                <CreditDisplay />
+              </StyledCard>
+              <StyledCard className="p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Key Stats</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3 text-lg text-gray-700"><BarChart className="w-5 h-5 text-gray-400" /><span>Average Score</span></div>
+                      <span className={`text-2xl font-bold ${getScoreColor(averageScore)}`}>{averageScore}</span>
+                  </div>
+                   <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3 text-lg text-gray-700"><Star className="w-5 h-5 text-yellow-400" /><span>Top Picks</span></div>
+                      <span className="text-2xl font-bold text-green-500">{topPicks}</span>
+                  </div>
                 </div>
-                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3 text-lg"><Star className="w-5 h-5 text-yellow-400" /><span>Top Picks</span></div>
-                    <span className="text-2xl font-bold text-green-400">{topPicks}</span>
-                </div>
-              </div>
-            </GlassCard>
+              </StyledCard>
+          </div>
         </div>
       </div>
     </div>

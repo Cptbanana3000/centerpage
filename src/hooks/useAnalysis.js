@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnalysisHistory } from '@/contexts/AnalysisHistoryContext';
+import { toast } from 'react-hot-toast';
 
 export function useAnalysis() {
   const { user } = useAuth();
@@ -270,13 +271,15 @@ export function useAnalysis() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${analysis.brandName}_VeritoLab_Report.pdf`;
+      a.download = `${analysis.brandName}_CenterPage_Report.pdf`;
       document.body.appendChild(a);
       a.click();
-      a.remove();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success("Report downloaded successfully!");
     } catch (error) {
-      console.error('Failed to export PDF', error);
-      alert('Failed to export PDF. Please try again later.');
+      console.error('Failed to download PDF:', error);
+      toast.error("An unexpected error occurred while downloading the report.");
     }
   };
 
@@ -292,7 +295,7 @@ export function useAnalysis() {
     loadingStage,
     deepScanData,
     isDeepScanning,
-deepScanError,
+    deepScanError,
     brandName,
     category,
     viewMode,

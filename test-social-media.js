@@ -4,7 +4,7 @@ async function testSocialMediaHandles() {
   console.log('\n🔍 Testing Social Media Handle Checker\n');
   
   const testBrands = [
-    'veritolab',
+    'centerpage',
     'apple',
     'nonexistenthandle123'
   ];

@@ -44,7 +44,7 @@ export async function POST(request) {
       finalAnalysisData.deepScanData = deepScanData;
       console.log('Deep scan data structure:', JSON.stringify(deepScanData, null, 2));
     }
-
+    
     if (!finalAnalysisData || !brandName) {
       // Refund credit if required data is missing
       await databaseService.refundCredit(userId, 'deepScans');
@@ -59,7 +59,7 @@ export async function POST(request) {
     const pdfBuffer = await generatePdfFromHtml(pdfHtml);
     
     const filename = `${brandName.replace(/[^a-zA-Z0-9]/g, '-')}-brand-analysis-report.pdf`;
-    
+
     await databaseService.updateAnalytics('pdf_export_completed', brandName, { 
       category,
       userId,
@@ -655,9 +655,9 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
 <body>
     <div class="page">
         <!-- Header -->
-        <div class="header">
+    <div class="header">
             <div class="logo">CenterPage</div>
-            <h1>Brand Analysis Report</h1>
+        <h1>Brand Analysis Report</h1>
             <div class="brand-info">${brandName || 'Unknown Brand'}</div>
             <div class="brand-info">${category || 'General'} Industry</div>
             <div class="date-info">Generated on ${currentDate}</div>
@@ -669,10 +669,10 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
             <div class="summary-content">
                 This comprehensive brand analysis evaluates "<strong>${brandName || 'your brand'}</strong>" for market viability in the ${category || 'business'} industry. Our analysis examines domain availability, competitive landscape, and market positioning to provide data-driven insights for strategic decision making.
             </div>
-        </div>
+    </div>
 
         <!-- Score Section -->
-        <div class="score-section">
+    <div class="score-section">
             <h2 style="margin-bottom: 20px; color: #1f2937;">Overall Brand Viability Score</h2>
             <div class="score-container">
                 <div class="score-circle">
@@ -680,7 +680,7 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
                 </div>
             </div>
             <div class="score-description">${getScoreLabel(analysisData.overallScore || 0)} - ${Math.round(analysisData.overallScore || 0)}/100</div>
-        </div>
+    </div>
 
         <!-- Metrics -->
         <div class="metrics-section">
@@ -688,7 +688,7 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-value" style="color: ${getScoreColor(analysisData.scores?.domainStrength || 0)}">${Math.round(analysisData.scores?.domainStrength || 0)}</div>
-                    <div class="metric-title">Domain Strength</div>
+            <div class="metric-title">Domain Strength</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-value" style="color: ${getScoreColor(analysisData.scores?.competitionIntensity || 0)}">${Math.round(analysisData.scores?.competitionIntensity || 0)}</div>
@@ -785,7 +785,7 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
                         <div class="premium-badge">PREMIUM ANALYSIS</div>
                         <h2 class="deep-scan-title">Deep Scan Intelligence Report</h2>
                         <p class="deep-scan-subtitle">Advanced AI-powered competitive analysis with live-scraped data</p>
-                    </div>
+    </div>
 
                     ${(deepScanData.competitorsAnalyzed || deepScanData.competitors) && (deepScanData.competitorsAnalyzed || deepScanData.competitors).length > 0 ? `
                     <div class="deep-competitors-section">
@@ -849,9 +849,9 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
                                 <div class="insight-item">
                                     <h6>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h6>
                                     <p>${value}</p>
-                                </div>
-                            `).join('')}
-                        </div>
+            </div>
+        `).join('')}
+    </div>
                     </div>
                     ` : ''}
                 </div>
@@ -866,10 +866,10 @@ function generateProfessionalPdfHtml(analysisData, brandName, category) {
             <div class="recommendation-content">
                 ${analysisData.recommendation || analysisData.summary || `Based on our analysis of "${brandName || 'this brand'}" in the ${category || 'this'} industry, we recommend careful consideration of the competitive landscape and domain availability. Focus on building a strong brand identity that differentiates from existing market players.`}
             </div>
-        </div>
+    </div>
 
         <!-- Footer -->
-        <div class="footer">
+    <div class="footer">
             <div class="footer-logo">CenterPage</div>
             <div class="footer-text">
                 This report was generated by CenterPage's AI-powered brand analysis engine.<br>

@@ -11,7 +11,7 @@ import { CreditDisplay } from '@/components/ui/CreditDisplay';
 const navLinks = [
   { href: '/#Features', label: 'Features' },
   { href: '/#pricing', label: 'Pricing' },
-  { href: '/#whyChooseUs', label: 'Why Us' }, // Added a link for the WhyChooseUs section
+  { href: '/#whyChooseUs', label: 'Why Us' },
 ];
 
 export function Navbar() {
@@ -31,13 +31,12 @@ export function Navbar() {
 
   const handleMobileClose = () => setIsMobileMenuOpen(false);
 
-  // Reusable Auth Buttons with updated styling
   const AuthButtons = ({ mobile = false }) => (
     <div className={`flex items-center gap-2 ${mobile ? 'flex-col w-full' : ''}`}>
       <SignInDialog>
         <Button
           variant="ghost"
-          className={`w-full text-[#8892b0] hover:text-[#ccd6f6] hover:bg-transparent ${mobile ? 'justify-start p-2' : 'p-2'}`}
+          className={`w-full text-gray-600 hover:text-gray-900 ${mobile ? 'justify-start p-2' : 'p-2'}`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           Sign In
@@ -45,7 +44,7 @@ export function Navbar() {
       </SignInDialog>
       <SignUpDialog>
         <Button
-          className={`w-full bg-[#64ffda] text-[#0a192f] hover:bg-white font-bold ${mobile ? 'p-2' : 'p-2'}`}
+          className={`w-full bg-gray-900 text-white hover:bg-gray-800 font-bold ${mobile ? 'p-2' : 'py-2 px-4'}`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           Get Started
@@ -54,14 +53,13 @@ export function Navbar() {
     </div>
   );
 
-  // Reusable Nav Links with updated styling
   const NavLinks = ({ mobile = false }) => (
     <>
       {navLinks.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className={`px-3 py-2 rounded-md text-base font-medium text-[#8892b0] hover:text-[#ccd6f6] transition-colors ${mobile ? 'block' : ''}`}
+          className={`px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 transition-colors ${mobile ? 'block' : ''}`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           {link.label}
@@ -71,13 +69,13 @@ export function Navbar() {
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a192f]/80 backdrop-blur-lg border-b border-white/10 pb-4">
+    <nav className="relative w-full z-50 bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-black text-white">VeritoLab</span>
+              <span className="text-2xl font-black text-gray-900">CenterPage</span>
             </Link>
           </div>
 
@@ -91,10 +89,10 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-4">
                 <CreditDisplay variant="compact" showRefill={false} />
-                <Link href="/dashboard" className="px-3 py-2 rounded-md text-base font-medium text-[#8892b0] hover:text-[#ccd6f6] transition-colors">
+                <Link href="/dashboard" className="px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   Dashboard
                 </Link>
-                <Button variant="ghost" onClick={handleSignOut} className="text-[#8892b0] hover:text-[#ccd6f6] hover:bg-transparent">
+                <Button variant="ghost" onClick={handleSignOut} className="text-gray-600 hover:text-gray-900">
                   Sign Out
                 </Button>
               </div>
@@ -109,7 +107,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-[#ccd6f6] hover:text-white hover:bg-white/10 p-2"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
@@ -121,20 +119,20 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-[#0a192f]/95 backdrop-blur-xl absolute top-full left-0 w-full border-t border-white/10 ">
-          <div className="px-4 pt-2 pb-4 space-y-4 " >
+        <div className="lg:hidden bg-white absolute top-full left-0 w-full border-t border-gray-200">
+          <div className="px-4 pt-2 pb-4 space-y-4">
             <NavLinks mobile />
-            <div className="border-t border-white/20 pt-4">
+            <div className="border-t border-gray-200 pt-4">
               {user ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                     <span className="font-medium text-white">My Account</span>
+                     <span className="font-medium text-gray-900">My Account</span>
                      <CreditDisplay variant="compact" showRefill={false} />
                   </div>
-                  <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-[#8892b0] hover:text-[#ccd6f6] transition-colors" onClick={handleMobileClose}>
+                  <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 transition-colors" onClick={handleMobileClose}>
                     Dashboard
                   </Link>
-                   <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start px-3 py-2 text-base font-medium text-[#8892b0] hover:text-[#ccd6f6] hover:bg-transparent">
+                   <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900">
                     Sign Out
                   </Button>
                 </div>

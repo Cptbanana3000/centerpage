@@ -59,8 +59,8 @@ class DeepScanService {
   async analyzeWebsite(url) {
     // Validate and clean URL
     if (!/^(https?:\/\/)/i.test(url)) {
-      url = 'https://' + url;
-    }
+        url = 'https://' + url;
+      }
     
     // Basic URL validation
     try {

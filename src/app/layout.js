@@ -10,8 +10,8 @@ import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'VeritoLab',
-  description: 'Instantly analyze your brand name across domains, social media, and competition.',
+  title: 'CenterPage',
+  description: 'The new standard for brand validation',
 };
 
 export const viewport = {

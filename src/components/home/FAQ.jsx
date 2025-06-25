@@ -1,6 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -28,58 +33,37 @@ const faqData = [
   },
 ];
 
-const FaqItem = ({ question, answer, isOpen, onClick }) => {
-  return (
-    <div className="border-b border-white/10">
-      <button
-        onClick={onClick}
-        className="w-full flex justify-between items-center text-left py-6 px-2"
-      >
-        <h3 className="text-lg md:text-xl font-medium text-[#ccd6f6]">{question}</h3>
-        <span className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-           <i className="fas fa-chevron-down text-[#64ffda]"></i>
-        </span>
-      </button>
-      <div
-        className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-      >
-        <div className="overflow-hidden">
-          <p className="pb-6 px-2 text-[#8892b0] leading-relaxed">
-            {answer}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export function Faq() {
-  const [openIndex, setOpenIndex] = useState(null);
-
-  const handleToggle = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
-    <section className="bg-[#0a192f] py-24 sm:py-32 font-['Inter',_sans-serif]">
+    <section className="bg-slate-50 py-24 sm:py-32">
       <div className="container mx-auto px-4">
+
+        {/* Section Header */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
             Frequently Asked Questions
           </h2>
+          <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
+            Have questions? We've got answers. If you don't find what you're looking for, feel free to contact us.
+          </p>
         </div>
 
-        <div className="max-w-3xl mx-auto bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] backdrop-blur-lg rounded-xl p-4 sm:p-8">
-          {faqData.map((faq, index) => (
-            <FaqItem
-              key={index}
-              question={faq.question}
-              answer={faq.answer}
-              isOpen={openIndex === index}
-              onClick={() => handleToggle(index)}
-            />
-          ))}
+        {/* Accordion */}
+        <div className="max-w-3xl mx-auto">
+           <Accordion type="single" collapsible className="w-full">
+            {faqData.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-lg font-medium text-left text-gray-900 hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-base text-gray-600">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
+
       </div>
     </section>
   );

@@ -43,16 +43,16 @@ export default function SmartCompetitorSelection({
   };
 
   const selectAllByThreatLevel = (threatLevel) => {
-    const competitors = getCompetitorsByThreatLevel(threatLevel);
+    const competitorsToSelect = getCompetitorsByThreatLevel(threatLevel);
     const newSelected = new Set(selectedCompetitors);
-    competitors.forEach(comp => newSelected.add(comp.link));
+    competitorsToSelect.forEach(comp => newSelected.add(comp.link));
     setSelectedCompetitors(newSelected);
   };
 
   const clearAllByThreatLevel = (threatLevel) => {
-    const competitors = getCompetitorsByThreatLevel(threatLevel);
+    const competitorsToClear = getCompetitorsByThreatLevel(threatLevel);
     const newSelected = new Set(selectedCompetitors);
-    competitors.forEach(comp => newSelected.delete(comp.link));
+    competitorsToClear.forEach(comp => newSelected.delete(comp.link));
     setSelectedCompetitors(newSelected);
   };
 
@@ -72,33 +72,33 @@ export default function SmartCompetitorSelection({
     const info = {
       direct: {
         title: 'Direct Business Threats',
-        description: 'High-priority competitors that pose immediate brand risks',
-        color: 'border-red-500/30 bg-red-500/10'
+        description: 'High-priority competitors posing immediate brand risks.',
+        color: 'border-red-200 bg-red-50'
       },
       indirect: {
         title: 'Indirect Competitors', 
-        description: 'Same industry competitors useful for market analysis',
-        color: 'border-yellow-500/30 bg-yellow-500/10'
+        description: 'Same industry competitors useful for market analysis.',
+        color: 'border-yellow-200 bg-yellow-50'
       },
       'name-conflict': {
         title: 'Name Conflicts',
-        description: 'Different industries but similar names - trademark considerations',
-        color: 'border-blue-500/30 bg-blue-500/10'
+        description: 'Different industries, similar names - potential trademark issues.',
+        color: 'border-blue-200 bg-blue-50'
       },
       informational: {
         title: 'Informational Content',
-        description: 'Wikipedia, news, reviews - useful for research but not competitors',
-        color: 'border-green-500/30 bg-green-500/10'
+        description: 'Wikipedia, news, reviews - not competitors, but useful for research.',
+        color: 'border-green-200 bg-green-50'
       },
       discussion: {
         title: 'Forums & Discussions',
-        description: 'Reddit, forums, social media - useful intel but not threats',
-        color: 'border-purple-500/30 bg-purple-500/10'
+        description: 'Reddit, forums, social media - good for intel, not direct threats.',
+        color: 'border-purple-200 bg-purple-50'
       },
       unrelated: {
         title: 'Unrelated Results',
-        description: 'Low relevance to your brand validation',
-        color: 'border-gray-500/30 bg-gray-500/10'
+        description: 'Low relevance to your brand validation.',
+        color: 'border-gray-200 bg-gray-50'
       }
     };
     return info[threatLevel] || info.unrelated;
@@ -110,37 +110,37 @@ export default function SmartCompetitorSelection({
     
     return (
       <div className={`competitor-card p-4 border rounded-lg transition-all ${
-        isSelected ? 'border-[#64ffda]/50 bg-[#64ffda]/10' : 'border-white/10 bg-white/5'
+        isSelected ? 'border-blue-300 bg-blue-100/50' : 'border-gray-200 bg-white'
       }`}>
         <div className="flex items-start gap-3">
           <input
             type="checkbox"
             checked={isSelected}
             onChange={() => handleCompetitorToggle(competitor.link)}
-            className="mt-1 w-4 h-4 text-[#64ffda] bg-gray-900 border-gray-600 rounded focus:ring-[#64ffda] focus:ring-2"
+            className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-medium text-white truncate">{competitor.title}</h4>
-              <span className="text-xs text-gray-400 ml-2">{domain}</span>
+              <h4 className="font-medium text-gray-900 truncate">{competitor.title}</h4>
+              <span className="text-xs text-gray-500 ml-2">{domain}</span>
             </div>
             
-            <p className="text-sm text-gray-300 mb-2">{competitor.reasoning}</p>
+            <p className="text-sm text-gray-600 mb-2">{competitor.reasoning}</p>
             
             <div className="flex flex-wrap gap-2">
               {competitor.analysis.exactMatch && (
-                <span className="px-2 py-1 text-xs bg-red-500/20 text-red-300 rounded">
+                <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
                   Exact Match
                 </span>
               )}
               {competitor.analysis.sameIndustry && (
-                <span className="px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded">
+                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
                   Same Industry
                 </span>
               )}
               {competitor.analysis.nameSimilarity > 70 && (
-                <span className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded">
+                <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
                   Similar Name
                 </span>
               )}
@@ -161,24 +161,24 @@ export default function SmartCompetitorSelection({
       <div className={`threat-category border rounded-lg p-4 ${info.color}`}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h4 className="font-semibold text-white">{info.title}</h4>
-            <p className="text-sm text-gray-300">{info.description}</p>
+            <h4 className="font-semibold text-gray-900">{info.title}</h4>
+            <p className="text-sm text-gray-600">{info.description}</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-gray-500">
               {selectedCount}/{competitors.length} selected
             </span>
             {selectedCount < competitors.length ? (
               <button
                 onClick={() => selectAllByThreatLevel(threatLevel)}
-                className="text-xs text-[#64ffda] hover:underline"
+                className="text-xs text-blue-600 hover:underline"
               >
                 Select All
               </button>
             ) : (
               <button
                 onClick={() => clearAllByThreatLevel(threatLevel)}
-                className="text-xs text-gray-400 hover:underline"
+                className="text-xs text-gray-500 hover:underline"
               >
                 Clear All
               </button>
@@ -203,93 +203,74 @@ export default function SmartCompetitorSelection({
   const unrelatedResults = getCompetitorsByThreatLevel('unrelated');
 
   return (
-    <div className="smart-competitor-selection bg-white/5 border border-white/10 rounded-xl p-6 mb-6">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">Select Competitors to Analyze</h3>
-        <p className="text-gray-300">
-          Choose which competitors to include in your deep scan analysis for "{brandName}".
-        </p>
-      </div>
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in-0">
+      <div className="w-full max-w-4xl max-h-[90vh] bg-white border border-gray-200 rounded-xl flex flex-col">
+        <div className="p-6 border-b border-gray-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Select Competitors for Deep Scan</h3>
+            <p className="text-gray-600">
+              Our AI has categorized competitors by threat level. Choose which ones to include in your analysis of "{brandName}".
+            </p>
+        </div>
 
-      <div className="flex flex-wrap gap-2 mb-6 p-4 bg-white/5 rounded-lg">
-        <Button
-          onClick={selectRecommended}
-          className="bg-[#64ffda]/20 border border-[#64ffda]/50 text-[#64ffda] hover:bg-[#64ffda]/30"
-        >
-          Select Recommended
-        </Button>
-        <Button
-          onClick={() => selectAllByThreatLevel('direct')}
-          className="bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30"
-        >
-          Select All Direct Threats
-        </Button>
-        <Button
-          onClick={() => setSelectedCompetitors(new Set())}
-          variant="outline"
-          className="border-white/20 text-white hover:bg-white/10"
-        >
-          Clear All
-        </Button>
-      </div>
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex flex-wrap gap-2 mb-2 p-4 bg-gray-50 rounded-lg">
+                <Button
+                onClick={selectRecommended}
+                className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                Select Recommended
+                </Button>
+                <Button
+                onClick={() => selectAllByThreatLevel('direct')}
+                className="bg-red-600 text-white hover:bg-red-700"
+                >
+                Select All Direct Threats
+                </Button>
+                <Button
+                onClick={() => setSelectedCompetitors(new Set())}
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                >
+                Clear All
+                </Button>
+            </div>
 
-      <div className="space-y-4">
-        <ThreatCategory threatLevel="direct" competitors={directThreats} />
-        <ThreatCategory threatLevel="indirect" competitors={indirectCompetitors} />
-        
-        {(nameConflicts.length > 0 || informationalContent.length > 0 || discussionContent.length > 0 || unrelatedResults.length > 0) && (
-          <div className="additional-categories">
-            <button
-              onClick={() => setShowAllCategories(!showAllCategories)}
-              className="text-[#64ffda] hover:underline mb-4"
-            >
-              {showAllCategories ? 'Hide' : 'Show'} Additional Categories ({nameConflicts.length + informationalContent.length + discussionContent.length + unrelatedResults.length})
-            </button>
+            <ThreatCategory threatLevel="direct" competitors={directThreats} />
+            <ThreatCategory threatLevel="indirect" competitors={indirectCompetitors} />
             
-            {showAllCategories && (
-              <div className="space-y-4">
-                <ThreatCategory threatLevel="name-conflict" competitors={nameConflicts} />
-                <ThreatCategory threatLevel="informational" competitors={informationalContent} />
-                <ThreatCategory threatLevel="discussion" competitors={discussionContent} />
-                <ThreatCategory threatLevel="unrelated" competitors={unrelatedResults} />
-              </div>
+            {(nameConflicts.length > 0 || informationalContent.length > 0 || discussionContent.length > 0 || unrelatedResults.length > 0) && (
+            <div className="additional-categories">
+                <button
+                onClick={() => setShowAllCategories(!showAllCategories)}
+                className="text-blue-600 hover:underline mb-4 text-sm font-medium"
+                >
+                {showAllCategories ? 'Hide' : 'Show'} Additional Categories ({nameConflicts.length + informationalContent.length + discussionContent.length + unrelatedResults.length})
+                </button>
+                
+                {showAllCategories && (
+                <div className="space-y-4">
+                    <ThreatCategory threatLevel="name-conflict" competitors={nameConflicts} />
+                    <ThreatCategory threatLevel="informational" competitors={informationalContent} />
+                    <ThreatCategory threatLevel="discussion" competitors={discussionContent} />
+                    <ThreatCategory threatLevel="unrelated" competitors={unrelatedResults} />
+                </div>
+                )}
+            </div>
             )}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-6 p-4 bg-white/5 rounded-lg">
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-medium text-white">
-            Selected: {selectedCompetitors.size} competitors
-          </span>
-          <span className="text-[#64ffda]">
-            Cost: {selectedCompetitors.size} deep scan credit{selectedCompetitors.size !== 1 ? 's' : ''}
-          </span>
         </div>
         
-        {selectedCompetitors.size > 0 && (
-          <div className="text-sm text-gray-300">
-            Analyzing: {getSelectedCompetitors().map(comp => new URL(comp.link).hostname).join(', ')}
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-3 mt-6">
-        <Button
-          onClick={() => onProceed(getSelectedCompetitors())}
-          disabled={selectedCompetitors.size === 0}
-          className="flex-1 bg-[#64ffda]/20 border border-[#64ffda]/50 text-[#64ffda] hover:bg-[#64ffda]/30 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Analyze Selected Competitors ({selectedCompetitors.size})
-        </Button>
-        <Button
-          onClick={onCancel}
-          variant="outline"
-          className="border-white/20 text-white hover:bg-white/10"
-        >
-          Cancel
-        </Button>
+        <div className="p-6 border-t border-gray-200 bg-gray-50/50 flex justify-end items-center gap-4">
+            <Button variant="ghost" onClick={onCancel} className="text-gray-700 hover:bg-gray-200">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => onProceed(getSelectedCompetitors())}
+              disabled={selectedCompetitors.size === 0}
+              className="bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-300"
+            >
+              Proceed with {selectedCompetitors.size} Competitors
+            </Button>
+        </div>
       </div>
     </div>
   );

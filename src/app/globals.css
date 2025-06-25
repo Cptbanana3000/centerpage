@@ -133,22 +133,23 @@ body {
     animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Enhanced scrollbar */
+/* A clean, minimal scrollbar for light themes */
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background-color: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #c1c1c1;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    background-color: #a8a8a8;
 }
 
 @theme inline {

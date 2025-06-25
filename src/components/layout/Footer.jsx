@@ -6,13 +6,13 @@ import Link from 'next/link';
 
 const Footer = () => {
   const socialLinks = [
-    { href: 'https://twitter.com/veritolab', icon: 'fab fa-twitter' },
-    { href: 'https://linkedin.com/company/veritolab', icon: 'fab fa-linkedin-in' },
-    { href: 'mailto:support@veritolab.com', icon: 'fas fa-envelope' },
+    { href: 'https://twitter.com/centerpage', icon: 'fab fa-twitter' },
+    { href: 'https://linkedin.com/company/centerpage', icon: 'fab fa-linkedin-in' },
+    { href: 'mailto:support@centerpage.com', icon: 'fas fa-envelope' },
   ];
 
   return (
-    <footer className="bg-[#0a192f] border-t border-white/10 text-[#8892b0] font-['Inter',_sans-serif]">
+    <footer className="bg-white border-t border-gray-200 text-gray-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
         {/* Top Section: Logo, Description, and Links */}
@@ -20,8 +20,8 @@ const Footer = () => {
           
           {/* Column 1: Logo and Socials */}
           <div className="lg:col-span-1">
-            <Link href="/" className="text-3xl font-black text-white">
-              VeritoLab
+            <Link href="/" className="text-3xl font-black text-gray-900">
+              CenterPage
             </Link>
             <p className="mt-4 max-w-xs leading-relaxed">
               Empowering entrepreneurs with comprehensive brand name analysis and domain insights.
@@ -33,7 +33,7 @@ const Footer = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-[rgba(255,255,255,0.05)] border border-transparent rounded-full flex items-center justify-center text-[#8892b0] hover:text-[#64ffda] hover:border-[#64ffda]/50 transition-all duration-300"
+                  className="w-10 h-10 bg-gray-100 border border-transparent rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all duration-300"
                 >
                   <i className={link.icon}></i>
                 </a>
@@ -44,35 +44,35 @@ const Footer = () => {
           {/* Column 2 & 3: Link columns */}
           <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-base font-semibold text-[#ccd6f6] mb-4">Product</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Product</h3>
               <ul className="space-y-3">
-                <li><Link href="/#Features" className="hover:text-[#64ffda] transition-colors">Features</Link></li>
-                <li><Link href="/#pricing" className="hover:text-[#64ffda] transition-colors">Pricing</Link></li>
-                <li><Link href="/#whyChooseUs" className="hover:text-[#64ffda] transition-colors">Why Us?</Link></li>
+                <li><Link href="/#Features" className="hover:text-gray-900 transition-colors">Features</Link></li>
+                <li><Link href="/#pricing" className="hover:text-gray-900 transition-colors">Pricing</Link></li>
+                <li><Link href="/#whyChooseUs" className="hover:text-gray-900 transition-colors">Why Us?</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[#ccd6f6] mb-4">Company</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Company</h3>
               <ul className="space-y-3">
-                <li><Link href="/about" className="hover:text-[#64ffda] transition-colors">About</Link></li>
-                <li><Link href="/contact" className="hover:text-[#64ffda] transition-colors">Contact</Link></li>
-                <li><Link href="/blog" className="hover:text-[#64ffda] transition-colors">Blog</Link></li>
+                <li><Link href="/about" className="hover:text-gray-900 transition-colors">About</Link></li>
+                <li><Link href="/contact" className="hover:text-gray-900 transition-colors">Contact</Link></li>
+                <li><Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[#ccd6f6] mb-4">Legal</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Legal</h3>
               <ul className="space-y-3">
-                <li><Link href="/terms" className="hover:text-[#64ffda] transition-colors">Terms of Service</Link></li>
-                <li><Link href="/privacy" className="hover:text-[#64ffda] transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-gray-900 transition-colors">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-white/10 text-center text-sm">
+        <div className="mt-16 pt-8 border-t border-gray-200 text-center text-sm">
           <p>
-            © {new Date().getFullYear()} VeritoLab. All rights reserved.
+            © {new Date().getFullYear()} CenterPage. All rights reserved.
           </p>
         </div>
       </div>
