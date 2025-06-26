@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnalysisHistory } from '@/contexts/AnalysisHistoryContext';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export function useAnalysis() {
   const { user } = useAuth();

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Globe, PieChart, AreaChart } from 'lucide-react';
 
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -10,17 +11,17 @@ export function Features() {
     {
       title: 'AI-Powered Domain Analysis',
       description: 'Instantly check domain availability across key TLDs and get smart, brandable alternatives.',
-      icon: 'fa-globe',
+      icon: Globe,
     },
     {
       title: 'In-Depth Competition Analysis',
       description: 'Discover existing businesses using similar names and assess market saturation with our AI.',
-      icon: 'fa-chart-pie',
+      icon: PieChart,
     },
     {
       title: 'Actionable SEO Viability',
       description: 'Evaluate your name\'s SEO potential and get a clear picture of the keyword competition.',
-      icon: 'fa-magnifying-glass-chart',
+      icon: AreaChart,
     },
   ];
 
@@ -57,7 +58,7 @@ export function Features() {
                   className="flex items-start"
                 >
                   <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gray-900 text-white flex items-center justify-center">
-                    <i className={`fas ${feature.icon} text-xl`}></i>
+                    <feature.icon className="w-6 h-6" />
                   </div>
                   <div className="ml-5">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>

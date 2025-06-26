@@ -76,8 +76,8 @@ export default function SmartCompetitorSelection({
         color: 'border-red-200 bg-red-50'
       },
       indirect: {
-        title: 'Indirect Competitors', 
-        description: 'Same industry competitors useful for market analysis.',
+        title: 'Indirect Competitors',
+        description: 'Companies in the same space but not targeting the exact same customers.',
         color: 'border-yellow-200 bg-yellow-50'
       },
       'name-conflict': {
@@ -91,8 +91,8 @@ export default function SmartCompetitorSelection({
         color: 'border-green-200 bg-green-50'
       },
       discussion: {
-        title: 'Forums & Discussions',
-        description: 'Reddit, forums, social media - good for intel, not direct threats.',
+        title: 'Online Communities & Discussions',
+        description: 'Reddit, forums, and discussion boards - good for intel, not direct threats.',
         color: 'border-purple-200 bg-purple-50'
       },
       unrelated: {

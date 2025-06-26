@@ -19,6 +19,9 @@ import { CATEGORIES } from './utils/categories';
 import GoogleCompetitorsList from './components/GoogleCompetitorsList';
 import BrandMetrics from './components/BrandMetrics';
 import { Button } from '@/components/ui/button';
+import { useAnalysis } from '@/hooks/useAnalysis';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Microscope, FileText, BrainCircuit, PieChart, Users, Globe, Plus } from 'lucide-react';
 
 // Make sure you have Font Awesome loaded for icons
 // import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -156,10 +159,10 @@ export default function AnalysisPage() {
   };
 
   const reportSections = [
-    { id: 'ai-summary', label: ' Strategic Summary', icon: 'fa-brain' },
-    { id: 'brand-metrics', label: 'Brand Metrics', icon: 'fa-chart-pie' },
-    { id: 'google-competitors', label: 'Google Competitors', icon: 'fa-users' },
-    { id: 'domain-availability', label: 'Domain Availability', icon: 'fa-globe' },
+    { id: 'ai-summary', label: 'Strategic Summary', icon: BrainCircuit },
+    { id: 'brand-metrics', label: 'Brand Metrics', icon: PieChart },
+    { id: 'google-competitors', label: 'Google Competitors', icon: Users },
+    { id: 'domain-availability', label: 'Domain Availability', icon: Globe },
   ];
 
   return (
@@ -171,12 +174,11 @@ export default function AnalysisPage() {
                 {/* --- Main Report Feed (Left, Scrollable) --- */}
                 <div className="lg:col-span-2 flex flex-col gap-8">
                     <StyledCard id="ai-summary" ref={el => sectionsRef.current['ai-summary'] = el} className="p-8">
-                        <h2 className="text-3xl font-bold mb-4 text-gray-900 flex items-center gap-3"><i className="fas fa-brain text-gray-800"></i>  Strategic Analysis</h2>
+                        <h2 className="text-3xl font-bold mb-4 text-gray-900 flex items-center gap-3"><BrainCircuit className="h-8 w-8 text-gray-800" /> Strategic Analysis</h2>
                         <p className="text-lg text-gray-600 mb-6 border-l-4 border-gray-800 pl-4"><span className="font-bold text-gray-900">Verdict: </span>{analysis.verdict}</p>
                         <p className="text-md text-gray-600 mt-2">{analysis.summary}</p>
                     </StyledCard>
                     <StyledCard id="brand-metrics" ref={el => sectionsRef.current['brand-metrics'] = el} className="p-8">
-                        {/* <h2 className="text-3xl font-bold mb-6 text-gray-900">Brand Metrics</h2> */}
                         <BrandMetrics scores={analysis.scores} />
                     </StyledCard>
                     <StyledCard id="google-competitors" ref={el => sectionsRef.current['google-competitors'] = el} className="p-8">
@@ -212,7 +214,7 @@ export default function AnalysisPage() {
                         <nav className="flex flex-col gap-1">
                             {reportSections.map(section => (
                                 <a key={section.id} href={`#${section.id}`} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-base font-medium transition-colors ${activeSection === section.id ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
-                                    <i className={`fas ${section.icon} w-5 text-center`}></i>
+                                    <section.icon className="h-5 w-5 shrink-0" />
                                     <span>{section.label}</span>
                                 </a>
                             ))}
@@ -220,18 +222,24 @@ export default function AnalysisPage() {
                     </StyledCard>
                     
                     <StyledCard className="p-6">
-                         {/* <h2 className="text-xl font-bold mb-4 text-gray-900">Actions</h2> */}
                          <div className="flex flex-col gap-4">
-                             <Button onClick={handleDeepScan} disabled={isDeepScanning} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-14 font-bold"><i className="fas fa-microscope mr-2"></i>Perform Deep Scan</Button>
-                             <Button onClick={handlePdfExport} disabled={isExporting} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold"><i className="fas fa-file-pdf mr-2"></i>Export PDF</Button>
+                             <Button onClick={handleDeepScan} disabled={isDeepScanning} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-14 font-bold text-lg flex items-center justify-center gap-2">
+                                 <Microscope className="h-5 w-5" />
+                                 <span>{isDeepScanning ? 'Scanning...' : 'Perform Deep Scan'}</span>
+                             </Button>
+                             <Button onClick={handlePdfExport} disabled={isExporting} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
+                                 <FileText className="h-5 w-5" />
+                                 <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
+                             </Button>
                          </div>
                          {exportError && <p className="text-red-600 text-sm mt-4">{exportError}</p>}
                     </StyledCard>
 
                     <StyledCard className="p-6 flex flex-col gap-4 items-center">
                         <h2 className="text-xl font-bold text-gray-900">Start Another Analysis</h2>
-                        <Button onClick={() => router.push('/')} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-12 font-bold">
-                            <i className="fas fa-plus mr-2"></i> New Analysis
+                        <Button onClick={() => router.push('/')} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-12 font-bold flex items-center justify-center gap-2">
+                            <Plus className="h-5 w-5" />
+                            <span>New Analysis</span>
                         </Button>
                     </StyledCard>
                 </aside>

@@ -1,14 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
+import { Twitter, Linkedin, Mail } from 'lucide-react';
 
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Footer = () => {
   const socialLinks = [
-    { href: 'https://twitter.com/centerpage', icon: 'fab fa-twitter' },
-    { href: 'https://linkedin.com/company/centerpage', icon: 'fab fa-linkedin-in' },
-    { href: 'mailto:support@centerpage.com', icon: 'fas fa-envelope' },
+    { href: 'https://twitter.com/centerpage', icon: Twitter },
+    { href: 'https://linkedin.com/company/centerpage', icon: Linkedin },
+    { href: 'mailto:support@centerpage.com', icon: Mail },
   ];
 
   return (
@@ -35,7 +36,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-gray-100 border border-transparent rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all duration-300"
                 >
-                  <i className={link.icon}></i>
+                  <link.icon className="h-5 w-5" />
                 </a>
               ))}
             </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { Layers, Rocket, PieChart, BrainCircuit, Receipt, HandCoins } from 'lucide-react';
+
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -9,33 +11,33 @@ export function WhyChooseUs() {
       title: "A Seamless Workflow, Not a Dozen Open Tabs",
       oldWay: {
         description: "Juggling your domain registrar, multiple Google searches, and an SEO tool, trying to connect the dots yourself in a spreadsheet.",
-        icon: "fa-layer-group",
+        icon: Layers,
       },
-      veritoWay: {
-        description: "One search bar, one category, one unified dashboard. We combine domain availability, Google search analysis, and competitor insights into a single workflow.",
-        icon: "fa-rocket",
+      centerPageWay: {
+        description: "One search bar, one category, one unified dashboard. We combine domain availability checks with deep Google search analysis to give you a clear picture of the competitive landscape.",
+        icon: Rocket,
       }
     },
     {
       title: "Strategic Insights, Not Just Data Dumps",
       oldWay: {
         description: "Endless charts and data tables from enterprise-grade tools that leave you to figure out what it all means.",
-        icon: "fa-chart-pie",
+        icon: PieChart,
       },
-      veritoWay: {
+      centerPageWay: {
         description: "Our AI doesn't just show you numbers; it gives you a clear verdict and a 'Strategic Battle Plan.' It's like having an experienced marketing strategist on your team.",
-        icon: "fa-brain",
+        icon: BrainCircuit,
       }
     },
     {
       title: "Value-Driven Packs, Not Predatory Subscriptions",
       oldWay: {
         description: "Getting locked into a costly monthly subscription for a massive toolkit where you only use 5% of the features.",
-        icon: "fa-file-invoice-dollar",
+        icon: Receipt,
       },
-      veritoWay: {
+      centerPageWay: {
         description: "Our one-time credit packs give you access to powerful, professional-grade analysis without the long-term commitment. Solve your problem and get back to building.",
-        icon: "fa-hand-holding-dollar",
+        icon: HandCoins,
       }
     }
   ];
@@ -69,19 +71,19 @@ export function WhyChooseUs() {
                 {/* The Old Way */}
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 h-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <i className={`fas ${point.oldWay.icon} text-slate-500 text-2xl`}></i>
+                    <point.oldWay.icon className="h-8 w-8 text-slate-500 shrink-0" />
                     <h4 className="font-bold text-xl text-slate-600">The Old Way</h4>
                   </div>
                   <p className="text-slate-600 leading-relaxed">{point.oldWay.description}</p>
                 </div>
 
-                {/* The Verito Way */}
+                {/* The CenterPage Way */}
                 <div className="bg-white border-4 border-gray-900 rounded-xl p-8 h-full shadow-2xl group transition-transform transform hover:scale-105 hover:shadow-2xl">
                    <div className="flex items-center gap-4 mb-4">
-                     <i className={`fas ${point.veritoWay.icon} text-gray-900 text-2xl transition-transform transform group-hover:scale-110`}></i>
-                     <h4 className="font-bold text-xl text-gray-900">The Verito Way</h4>
+                     <point.centerPageWay.icon className="h-8 w-8 text-gray-900 shrink-0 transition-transform transform group-hover:scale-110" />
+                     <h4 className="font-bold text-xl text-gray-900">The CenterPage Way</h4>
                    </div>
-                   <p className="text-gray-700 leading-relaxed">{point.veritoWay.description}</p>
+                   <p className="text-gray-700 leading-relaxed">{point.centerPageWay.description}</p>
                 </div>
 
               </div>

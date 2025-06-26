@@ -1,95 +1,65 @@
 'use client';
 
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
 
 export default function AboutPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-[#212121] pt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-              About{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#667eea] to-[#764ba2]">
-                CenterPage
-              </span>
-            </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Empowering entrepreneurs with AI-powered brand name analysis and validation tools.
-            </p>
-          </div>
+    <div className="bg-white">
+      <main className="container mx-auto px-4 py-24 sm:py-32">
+        {/* Header */}
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-900">
+            We help you <span className="bg-yellow-300 px-4">get it right</span>.
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            CenterPage was born from a simple, painful truth: a bad brand name can kill a great business. We've seen it happen. We built CenterPage to stop it from happening to you. Our mission is to give every founder the power to build a strong, resonant, and legally sound brand from day one.
+          </p>
+        </div>
 
-          <div className="space-y-12">
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
-              <p className="text-gray-300 leading-relaxed">
-                CenterPage was built to solve a critical problem every entrepreneur faces: choosing the right brand name. 
-                We provide instant, AI-powered analysis on brand names, checking everything from domain availability and social media handles to potential trademark conflicts and competitor overlap. Our goal is to give you the confidence to build a strong, unique, and legally sound brand from day one.
-              </p>
+        {/* Our Philosophy */}
+        <div className="max-w-5xl mx-auto mt-20 md:mt-32">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+            <div className="md:col-span-1">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900">The CenterPage Philosophy</h2>
             </div>
-
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-4">What Makes Us Different</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-[#667eea] mb-2">AI-Powered Analysis</h3>
-                  <p className="text-gray-300 text-sm">
-                    Our advanced AI doesn&apos;t just check domain availability,it analyzes competition, 
-                    SEO difficulty, and provides strategic recommendations tailored to your industry.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[#667eea] mb-2">Category-Aware Insights</h3>
-                  <p className="text-gray-300 text-sm">
-                    Unlike generic tools, we provide industry-specific analysis across 10 business 
-                    categories, ensuring relevant and actionable insights.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[#667eea] mb-2">Deep Competitive Intelligence</h3>
-                  <p className="text-gray-300 text-sm">
-                    Our deep scan feature scrapes competitor websites and generates comprehensive 
-                    strategic analysis to help you understand the competitive landscape.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[#667eea] mb-2">Founder-Focused</h3>
-                  <p className="text-gray-300 text-sm">
-                    Built by entrepreneurs, for entrepreneurs. We understand the challenges of 
-                    building a brand and provide tools that actually help you make decisions.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-4">Get Started Today</h2>
-              <p className="text-gray-300 leading-relaxed mb-6">
-                Ready to validate your brand name with confidence? Start with our free analysis 
-                and discover insights that could save you months of rebranding later.
+            <div className="md:col-span-2 space-y-8 text-gray-700 text-base md:text-lg">
+              <p>
+                Choosing a name shouldn't feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective "what sounds good" conversations and into objective, data-driven analysis.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  href="/" 
-                  className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl hover:from-[#5a6fd6] hover:to-[#6a3f9e] transition-all duration-200 font-semibold"
-                >
-                  Try Free Analysis
-                </Link>
-                <Link 
-                  href="/#pricing" 
-                  className="inline-flex items-center justify-center px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-200 font-semibold border border-white/20"
-                >
-                  View Pricing
-                </Link>
-              </div>
+              <p>
+                Our platform is built on three core principles:
+              </p>
+              <ul className="space-y-4 list-disc list-outside pl-5">
+                <li>
+                  <span className="font-semibold">Comprehensive Analysis:</span> We go beyond a simple domain check. We analyze your name against SEO landscapes and potential competitor conflicts to give you a 360-degree view.
+                </li>
+                <li>
+                  <span className="font-semibold">Actionable Insights:</span> We don't just dump data on you. We provide clear scores, strategic recommendations, and competitive intelligence that you can actually use to make a decision.
+                </li>
+                <li>
+                  <span className="font-semibold">Founder Focused:</span> We're built for the speed and constraints of early-stage ventures. Get the insights you need in minutes, not weeks, and avoid costly legal fees or rebranding disasters down the line.
+                </li>
+              </ul>
             </div>
           </div>
         </div>
+
+        {/* Call to Action */}
+        <div className="max-w-4xl mx-auto text-center mt-20 md:mt-32">
+           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">Ready to build a brand that lasts?</h2>
+           <p className="mt-4 text-lg text-gray-600">
+            Stop guessing. Start analyzing.
+           </p>
+           <div className="mt-8">
+            <Link href="/" passHref>
+               <Button size="lg" className="h-16 px-10 text-xl font-semibold bg-gray-900 text-white hover:bg-gray-800 shrink-0 cursor-pointer">
+                Analyze Your Brand
+               </Button>
+             </Link>
+           </div>
+        </div>
       </main>
-      <Footer />
-    </>
+    </div>
   );
 }

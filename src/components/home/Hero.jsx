@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from "sonner";
+import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,8 +43,31 @@ export function Hero() {
     router.push(`/analysis?brand=${encodeURIComponent(brandName.trim())}&category=${encodeURIComponent(category)}`);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center bg-white">
+    <section className="relative w-full min-h-screen flex items-center justify-center bg-white overflow-hidden">
       {/* Blurred Background Image for mobile */}
       <div className="absolute inset-0 lg:hidden z-0">
         <Image
@@ -54,21 +78,28 @@ export function Hero() {
         />
       </div>
 
-      <div className="relative container mx-auto px-4 py-20 z-10">
+      <motion.div 
+        className="relative container mx-auto px-4 py-20 z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           
           {/* Left side: Text and Form */}
           <div className="flex flex-col text-left z-10">
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-900 leading-none">
-              Avoid the <br className="hidden md:block" /> Rebrand.
-            </h1>
-            <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-800 leading-none mt-2">
-              <span className="bg-yellow-300 px-4">
-                Nail it the first time.
-              </span>
-            </h2>
+            <motion.div variants={itemVariants}>
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-900 leading-none">
+                Avoid the <br className="hidden md:block" /> Rebrand.
+              </h1>
+              <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-800 leading-none mt-2">
+                <span className="bg-yellow-300 px-4">
+                  Nail it the first time.
+                </span>
+              </h2>
+            </motion.div>
             
-            <div className="mt-12 max-w-xl">
+            <motion.div className="mt-12 max-w-xl" variants={itemVariants}>
               <div className="flex items-center gap-2">
                 <Input
                   type="text"
@@ -101,11 +132,14 @@ export function Hero() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right side: Image - Hidden on mobile, visible on desktop */}
-          <div className="hidden lg:relative lg:flex lg:items-center lg:justify-center">
+          <motion.div 
+            className="hidden lg:relative lg:flex lg:items-center lg:justify-center"
+            variants={itemVariants}
+          >
              <div className="lg:-mr-32 transform-gpu rotate-12">
               <Image
                 src="/hero7.jpg" 
@@ -116,10 +150,10 @@ export function Hero() {
                 priority
               />
             </div>
-          </div>
+          </motion.div>
 
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
