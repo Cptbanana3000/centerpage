@@ -51,7 +51,7 @@ export function Faq() {
         {/* Accordion */}
         <div className="max-w-3xl mx-auto">
            <Accordion type="single" collapsible className="w-full">
-            {faqData.map((faq, index) => (
+          {faqData.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger className="text-lg font-medium text-left text-gray-900 hover:no-underline">
                   {faq.question}
@@ -60,7 +60,7 @@ export function Faq() {
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
-            ))}
+          ))}
           </Accordion>
         </div>
 

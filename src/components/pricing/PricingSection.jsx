@@ -1,11 +1,16 @@
 'use client';
 
-// Note: The SignUpDialog is imported but its usage would need to be implemented
-// (e.g., wrapping the free plan button).
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { SignUpDialog } from '@/components/auth/SignUpDialog';
+import { useRouter } from 'next/navigation';
 
 export function PricingSection() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState('');
+  const router = useRouter();
+
   const plans = [
     {
       name: 'Explorer',
@@ -18,10 +23,11 @@ export function PricingSection() {
       ],
       isFree: true,
       buttonText: 'Start for Free',
-      buttonVariant: 'outline'
+      buttonVariant: 'outline',
     },
     {
       name: 'Starter Pack',
+      priceId: 'pri_01jypm11t9pdaeqdeygkg132at', // TODO: Replace with your actual price ID from Paddle
       price: '$4.99',
       originalPrice: '$7.99',
       description: 'For a focused brainstorming session to find a great name.',
@@ -31,10 +37,11 @@ export function PricingSection() {
       ],
       isBestValue: false,
       buttonText: 'Buy Starter Pack',
-      buttonVariant: 'default'
+      buttonVariant: 'default',
     },
     {
       name: 'Pro Pack',
+      priceId: 'pri_01jypnx15gmrp3csr9wtvrrykq', // TODO: Replace with your actual price ID from Paddle
       price: '$9.99',
       originalPrice: '$14.99',
       description: 'For comprehensive research on one or more projects.',
@@ -44,9 +51,42 @@ export function PricingSection() {
       ],
       isBestValue: true,
       buttonText: 'Buy Pro Pack',
-      buttonVariant: 'default'
+      buttonVariant: 'default',
     },
   ];
+
+  const handlePurchase = (plan) => {
+    if (!user) {
+      // Maybe trigger a sign-in/sign-up modal here
+      router.push('/dashboard'); // Or redirect to a login page
+      return;
+    }
+
+    if (typeof window.Paddle === 'undefined') {
+      console.error('Paddle.js has not loaded yet.');
+      alert('Payment provider is not ready. Please try again in a moment.');
+      return;
+    }
+
+    setLoading(plan.name);
+
+    try {
+      window.Paddle.Checkout.open({
+        items: [{ priceId: plan.priceId, quantity: 1 }],
+        customer: {
+          email: user.email,
+        },
+        customData: {
+          userId: user.uid,
+        },
+      });
+    } catch (error) {
+      console.error('Paddle Checkout error:', error);
+      alert('Could not open checkout. Please try again.');
+    } finally {
+      setTimeout(() => setLoading(''), 3000);
+    }
+  };
 
   const CheckIcon = () => (
     <svg className="w-5 h-5 text-gray-900 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,6 +159,8 @@ export function PricingSection() {
               </div>
               
               <Button 
+                onClick={() => plan.isFree ? router.push('/dashboard') : handlePurchase(plan)}
+                disabled={loading === plan.name}
                 className={`mt-8 w-full font-bold py-3 rounded-lg text-lg h-14 cursor-pointer
                   ${plan.isBestValue 
                     ? 'bg-white text-gray-900 hover:bg-gray-200' 
@@ -128,7 +170,7 @@ export function PricingSection() {
                   }
                 `}
               >
-                {plan.buttonText}
+                {loading === plan.name ? 'Processing...' : plan.buttonText}
               </Button>
             </div>
           ))}

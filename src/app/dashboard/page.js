@@ -83,55 +83,55 @@ export default function DashboardPage() {
 
   return (
     <div className="">
-      <div className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="mb-10">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+      <header className="mb-10">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <h1 className="text-3xl md:text-4xl font-black text-gray-900">Welcome Back,</h1>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200">
                   <span className="font-bold text-gray-700 truncate">{user?.email}</span>
-                  {user?.emailVerified && (
+                {user?.emailVerified && (
                       <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  )}
-              </div>
-          </div>
+                )}
+            </div>
+        </div>
           <p className="text-lg text-gray-600 mt-1">Ready to find your next breakthrough brand name?</p>
-        </header>
+      </header>
 
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          
-          {/* Main Content Area (Left Side) */}
-          <div className="lg:col-span-3 flex flex-col gap-8">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        
+        {/* Main Content Area (Left Side) */}
+        <div className="lg:col-span-3 flex flex-col gap-8">
             <StyledCard className="p-8 bg-gradient-to-br from-blue-50 to-white">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Start a New Analysis</h2>
               <p className="text-gray-600 mb-6">Your next great idea is one search away. Enter a brand name on the home page to begin.</p>
-              <Link href="/" passHref>
+            <Link href="/" passHref>
                 <Button size="lg" className="bg-gray-900 text-white font-bold hover:bg-gray-800">
-                    <Plus className="w-5 h-5 mr-2" /> Launch
-                </Button>
-              </Link>
+                  <Plus className="w-5 h-5 mr-2" /> Launch
+              </Button>
+            </Link>
             </StyledCard>
 
-            {/* Analysis History */}
+          {/* Analysis History */}
             <StyledCard>
               <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold mb-4 sm:mb-0 text-gray-900">Analysis History</h2>
-                <div className="relative w-full sm:w-64">
-                  <Input
-                    type="search"
-                    placeholder="Search history..."
+              <div className="relative w-full sm:w-64">
+                <Input
+                  type="search"
+                  placeholder="Search history..."
                     className="bg-gray-100 border-gray-300 pl-10 h-11"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </div>
               </div>
-              
+            </div>
+            
               <div className="max-h-[60vh] overflow-y-auto">
-                {loading ? (
+              {loading ? (
                   <div className="text-center py-20"><div className="w-8 h-8 mx-auto border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div></div>
-                ) : filteredAnalyses.length > 0 ? (
+              ) : filteredAnalyses.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -165,32 +165,32 @@ export default function DashboardPage() {
                   <div className="text-center py-16 text-gray-500 px-4">
                     <p className="mb-2">No analyses found.</p>
                     {searchQuery && <p className="text-sm">Try clearing your search.</p>}
-                  </div>
-                )}
-              </div>
+                    </div>
+              )}
+            </div>
             </StyledCard>
-          </div>
+        </div>
 
-          {/* Sidebar / Stats Area (Right Side) */}
-          <div className="lg:col-span-2 flex flex-col gap-8">
+        {/* Sidebar / Stats Area (Right Side) */}
+        <div className="lg:col-span-2 flex flex-col gap-8">
               <StyledCard className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Your Credits</h3>
-                <CreditDisplay />
+              <CreditDisplay />
               </StyledCard>
               <StyledCard className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Key Stats</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3 text-lg text-gray-700"><BarChart className="w-5 h-5 text-gray-400" /><span>Average Score</span></div>
-                      <span className={`text-2xl font-bold ${getScoreColor(averageScore)}`}>{averageScore}</span>
-                  </div>
-                   <div className="flex justify-between items-center">
+                    <span className={`text-2xl font-bold ${getScoreColor(averageScore)}`}>{averageScore}</span>
+                </div>
+                 <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3 text-lg text-gray-700"><Star className="w-5 h-5 text-yellow-400" /><span>Top Picks</span></div>
                       <span className="text-2xl font-bold text-green-500">{topPicks}</span>
                   </div>
                 </div>
               </StyledCard>
-          </div>
+              </div>
         </div>
       </div>
     </div>

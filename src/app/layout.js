@@ -2,6 +2,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AnalysisHistoryProvider } from '@/contexts/AnalysisHistoryContext';
+import { PaddleProvider } from '@/components/pricing/PaddleProvider';
 // import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner"
@@ -27,10 +28,12 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <AuthProvider>
           <AnalysisHistoryProvider>
-            {/* <Navbar /> */}
-        {children}
-            <Toaster />
-            <Footer />
+            <PaddleProvider>
+              {/* <Navbar /> */}
+              {children}
+              <Toaster />
+              <Footer />
+            </PaddleProvider>
           </AnalysisHistoryProvider>
         </AuthProvider>
       </body>
