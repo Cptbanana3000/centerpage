@@ -28,12 +28,19 @@ export async function POST(request) {
 
   if (!process.env.GOOGLE_SEARCH_API_KEY || !process.env.GOOGLE_SEARCH_CX) {
     console.error('Missing Google Search API credentials');
+    console.error('GOOGLE_SEARCH_API_KEY present:', !!process.env.GOOGLE_SEARCH_API_KEY);
+    console.error('GOOGLE_SEARCH_CX present:', !!process.env.GOOGLE_SEARCH_CX);
     return NextResponse.json({ 
       success: false, 
       message: 'Search service is temporarily unavailable. Please try again later.',
       code: 'SERVICE_UNAVAILABLE'
     }, { status: 503 });
   }
+
+  // Add environment check logging
+  console.log('Environment check passed - OPENAI_API_KEY:', !!process.env.OPENAI_API_KEY);
+  console.log('Environment check passed - GOOGLE_SEARCH_API_KEY:', !!process.env.GOOGLE_SEARCH_API_KEY);
+  console.log('Environment check passed - GOOGLE_SEARCH_CX:', !!process.env.GOOGLE_SEARCH_CX);
 
   const decodedToken = await verifyIdToken(token);
   if (!decodedToken) {

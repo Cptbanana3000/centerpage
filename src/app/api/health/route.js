@@ -1,0 +1,21 @@
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const envStatus = {
+    OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+    GOOGLE_SEARCH_API_KEY: !!process.env.GOOGLE_SEARCH_API_KEY,
+    GOOGLE_SEARCH_CX: !!process.env.GOOGLE_SEARCH_CX,
+    PADDLE_API_KEY: !!process.env.PADDLE_API_KEY,
+    PADDLE_WEBHOOK_SECRET: !!process.env.PADDLE_WEBHOOK_SECRET,
+    FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY: !!process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY,
+  };
+
+  const allPresent = Object.values(envStatus).every(Boolean);
+
+  return NextResponse.json({
+    status: allPresent ? 'healthy' : 'missing_env_vars',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'unknown',
+    environmentVariables: envStatus
+  });
+} 
