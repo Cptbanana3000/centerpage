@@ -4,8 +4,9 @@
 
 // --- Core Dependencies ---
 import OpenAI from 'openai';
-import puppeteer from 'puppeteer';
+import axios from 'axios';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer-core';
 import { getDomain } from 'tldts';
 
 // Import Vercel-compatible Chromium
@@ -118,7 +119,7 @@ class DeepScanService {
 
       // Use Vercel-compatible Chromium in production
       if (process.env.NODE_ENV === 'production' && chromium) {
-        launchOptions.executablePath = chromium.executablePath;
+        launchOptions.executablePath = await chromium.executablePath();
         launchOptions.args = [...launchOptions.args, ...chromium.args];
       }
 

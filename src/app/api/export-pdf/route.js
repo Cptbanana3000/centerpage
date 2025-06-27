@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyIdToken } from '@/lib/firebase-admin';
 import databaseService from '@/services/database';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 // Import Vercel-compatible Chromium for production
 let chromium;
@@ -117,7 +117,7 @@ async function generatePdfFromHtml(html) {
 
     // Use Vercel-compatible Chromium in production
     if (process.env.NODE_ENV === 'production' && chromium) {
-      launchOptions.executablePath = chromium.executablePath;
+      launchOptions.executablePath = await chromium.executablePath();
       launchOptions.args = [...launchOptions.args, ...chromium.args];
     }
 
