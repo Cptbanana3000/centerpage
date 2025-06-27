@@ -25,16 +25,33 @@ export async function POST(req) {
     // The SDK needs the raw request body for verification.
     // Next.js 13+ App Router streams requests, so we need to read it as a buffer.
     const rawRequestBody = await req.text();
+
+    // --- DEBUG -------------------------------------------------------------
+    console.log('🔔 Raw request body (first 300 chars):', rawRequestBody.slice(0, 300));
+    // ----------------------------------------------------------------------
     
     // Verify and parse the webhook event
     const event = paddle.webhooks.unmarshal(rawRequestBody, webhookSecret, signature);
 
+    // --- DEBUG -------------------------------------------------------------
+    console.log('🔔 Unmarshalled event', JSON.stringify(event, null, 2));
+    // ----------------------------------------------------------------------
+
     // Check if the event is a completed transaction
-    if (event && event.eventType === EventName.TransactionCompleted) {
+    if (
+      event &&
+      (event.eventType === EventName.TransactionCompleted || // enum value
+       event.eventType === 'transaction.completed')           // raw string fallback
+    ) {
       console.log(`Received event: ${event.eventType}`);
-      
+
       const userId = event.data.customData?.userId;
       const purchasedItems = event.data.items;
+
+      // --- DEBUG -----------------------------------------------------------
+      console.log('🛠 userId', userId);
+      console.log('🛠 purchasedItems', JSON.stringify(purchasedItems));
+      // --------------------------------------------------------------------
 
       if (!userId || !purchasedItems || purchasedItems.length === 0) {
         console.error('Webhook error: Missing userId or items from customData.');
@@ -45,6 +62,11 @@ export async function POST(req) {
       const purchasedPriceId = purchasedItems[0].price.id;
       const pack = CREDIT_PACKS[purchasedPriceId];
 
+      // --- DEBUG -----------------------------------------------------------
+      console.log('🛠 priceId', purchasedPriceId);
+      console.log('🛠 matched pack', pack);
+      // --------------------------------------------------------------------
+
       if (!pack) {
         console.error(`Webhook error: Could not find credit pack for priceId ${purchasedPriceId}`);
         return NextResponse.json({ error: 'Purchased pack not found' }, { status: 400 });
@@ -52,25 +74,32 @@ export async function POST(req) {
 
       // Update user's credits in Firestore
       const userDocRef = admin.firestore().doc(`users/${userId}`);
-      
+
       await admin.firestore().runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userDocRef);
-        if (!userDoc.exists) {
-          throw new Error('User not found in Firestore.');
+        let currentCredits = { standardAnalyses: 0, deepScans: 0 };
+
+        if (userDoc.exists) {
+          currentCredits = userDoc.data().credits || currentCredits;
         }
 
-        const currentCredits = userDoc.data().credits || { standardAnalyses: 0, deepScans: 0 };
-        
         const newStandardAnalyses = (currentCredits.standardAnalyses || 0) + pack.standardAnalyses;
         const newDeepScans = (currentCredits.deepScans || 0) + pack.deepScans;
 
-        transaction.update(userDocRef, {
-          'credits.standardAnalyses': newStandardAnalyses,
-          'credits.deepScans': newDeepScans,
-        });
+        // If the doc doesn't exist yet, set it; otherwise update.
+        transaction.set(
+          userDocRef,
+          {
+            credits: {
+              standardAnalyses: newStandardAnalyses,
+              deepScans: newDeepScans,
+            },
+          },
+          { merge: true }
+        );
       });
-      
-      console.log(`Successfully added credits to user ${userId}.`);
+
+      console.log(`✅ Successfully added credits to user ${userId}.`);
     }
 
     // Acknowledge the webhook
