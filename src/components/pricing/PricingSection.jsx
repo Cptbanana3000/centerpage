@@ -72,6 +72,9 @@ export function PricingSection() {
 
     try {
       window.Paddle.Checkout.open({
+        settings: {
+          successUrl: `${window.location.origin}/dashboard`,
+        },
         items: [{ priceId: plan.priceId, quantity: 1 }],
         customer: {
           email: user.email,
