@@ -94,6 +94,7 @@ export default function AnalysisPage() {
   // Scroll spy logic
   const sectionsRef = useRef({});
   useEffect(() => {
+    const currentSections = sectionsRef.current; // Capture ref snapshot
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -104,11 +105,11 @@ export default function AnalysisPage() {
       },
       { rootMargin: '-30% 0px -70% 0px' } // Trigger when section is in the middle 40% of the viewport
     );
-    Object.values(sectionsRef.current).forEach((section) => {
+    Object.values(currentSections).forEach((section) => {
       if(section) observer.observe(section);
     });
     return () => {
-      Object.values(sectionsRef.current).forEach((section) => {
+      Object.values(currentSections).forEach((section) => {
         if(section) observer.unobserve(section);
       });
     };

@@ -13,7 +13,7 @@ export default function AboutPage() {
             We help you <span className="bg-yellow-300 px-4">get it right</span>.
           </h1>
           <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            CenterPage was born from a simple, painful truth: a bad brand name can kill a great business. We've seen it happen. We built CenterPage to stop it from happening to you. Our mission is to give every founder the power to build a strong, resonant, and legally sound brand from day one.
+            CenterPage was born from a simple, painful truth: a bad brand name can kill a great business. We&apos;ve seen it happen. We built CenterPage to stop it from happening to you. Our mission is to give every founder the power to build a strong, resonant, and legally sound brand from day one.
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function AboutPage() {
             </div>
             <div className="md:col-span-2 space-y-8 text-gray-700 text-base md:text-lg">
               <p>
-                Choosing a name shouldn&apos;t feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective "what sounds good" conversations and into objective, data-driven analysis.
+                Choosing a name shouldn&apos;t feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective &quot;what sounds good&quot; conversations and into objective, data-driven analysis.
               </p>
               <p>
                 Our platform is built on three core principles:
