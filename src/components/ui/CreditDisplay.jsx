@@ -81,7 +81,7 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
               <span className="text-sm font-medium text-gray-600">Standard Analyses</span>
             </div>
             {showRefill && (
-              <Link href="/purchase-credits">
+              <Link href="/#pricing">
                 <button className="text-blue-500 hover:text-blue-600 text-xs transition-colors">
                   <Plus className="w-4 h-4" />
                 </button>
@@ -102,7 +102,7 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
               <span className="text-sm font-medium text-gray-600">Deep Scans</span>
             </div>
             {showRefill && (
-              <Link href="/purchase-credits">
+              <Link href="/#pricing">
                 <button className="text-purple-500 hover:text-purple-600 text-xs transition-colors">
                   <Plus className="w-4 h-4" />
                 </button>
