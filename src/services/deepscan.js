@@ -8,6 +8,12 @@ import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import { getDomain } from 'tldts';
 
+// Import Vercel-compatible Chromium
+let chromium;
+if (process.env.NODE_ENV === 'production') {
+  chromium = await import('@sparticuz/chromium');
+}
+
 class DeepScanService {
   /**
    * Initializes the service with necessary API keys.
@@ -73,13 +79,46 @@ class DeepScanService {
       throw new Error(`Invalid URL format: ${url}`);
     }
 
+    console.log(`📡 Attempting browser analysis for: ${url}`);
+    
+    // Try Puppeteer first, fall back to simple HTTP if it fails
+    try {
+      return await this.analyzWithPuppeteer(url);
+    } catch (puppeteerError) {
+      console.warn(`⚠️ Puppeteer failed for ${url}, trying fallback method:`, puppeteerError.message);
+      return await this.analyzeWithFallback(url);
+    }
+  }
+
+  /**
+   * Analyzes website using Puppeteer (original method)
+   */
+  async analyzWithPuppeteer(url) {
     console.log(`📡 Launching headless browser to analyze: ${url}`);
     let browser;
     try {
-      browser = await puppeteer.launch({ 
-        args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+      let launchOptions = {
+        args: [
+          '--no-sandbox', 
+          '--disable-dev-shm-usage', 
+          '--disable-gpu',
+          '--disable-setuid-sandbox',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-extensions'
+        ],
+        headless: true,
         timeout: 30000
-      });
+      };
+
+      // Use Vercel-compatible Chromium in production
+      if (process.env.NODE_ENV === 'production' && chromium) {
+        launchOptions.executablePath = await chromium.executablePath();
+        launchOptions.args = [...launchOptions.args, ...chromium.args];
+      }
+
+      browser = await puppeteer.launch(launchOptions);
       const page = await browser.newPage();
       
       // Set longer timeout and better error handling
@@ -381,6 +420,93 @@ ${JSON.stringify(analyzedData, null, 2)}
       }
     });
     return Array.from(domainMap.values());
+  }
+
+  /**
+   * Fallback analysis method using simple HTTP requests
+   */
+  async analyzeWithFallback(url) {
+    console.log(`🔄 Using fallback HTTP analysis for: ${url}`);
+    
+    try {
+      const axios = (await import('axios')).default;
+      
+      const response = await axios.get(url, {
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        },
+        maxRedirects: 5
+      });
+
+      const $ = cheerio.load(response.data);
+      const finalUrl = response.request?.responseURL || url;
+
+      const analyzedData = {
+        url: finalUrl,
+        title: $('title').text().trim() || 'No title found',
+        metaDescription: $('meta[name="description"]').attr('content')?.trim() || 'No meta description found',
+        h1: $('h1').first().text().trim() || 'No H1 found',
+        h2Count: $('h2').length,
+        h3Count: $('h3').length,
+        wordCount: this.estimateWordCount($('body').text()),
+        internalLinks: this.countLinks($, finalUrl, true),
+        externalLinks: this.countLinks($, finalUrl, false),
+        images: $('img').length,
+        imagesWithAlt: $('img[alt][alt!=""]').length,
+        schemaMarkup: $('script[type="application/ld+json"]').length > 0,
+        canonicalUrl: $('link[rel="canonical"]').attr('href') || null,
+        metaRobots: $('meta[name="robots"]').attr('content') || null,
+        performance: {
+          firstContentfulPaint: 'N/A (Fallback mode)',
+          domLoadTime: 'N/A (Fallback mode)',
+          pageLoadTime: 'N/A (Fallback mode)',
+        },
+        technologyStack: await this.detectTechnologiesFromHTML($),
+        analysisMethod: 'HTTP_FALLBACK'
+      };
+
+      console.log(`✅ Fallback analysis complete for ${finalUrl}`);
+      return analyzedData;
+
+    } catch (error) {
+      console.error(`[Fallback Analysis] Failed for ${url}:`, error.message);
+      throw new Error(`Failed to analyze ${url} with fallback method: ${error.message}`);
+    }
+  }
+
+  /**
+   * Detect technologies from HTML without AI (for fallback)
+   */
+  async detectTechnologiesFromHTML($) {
+    const technologies = [];
+    
+    // Check for common frameworks/platforms
+    const scripts = [];
+    $('script[src]').each((_, el) => {
+      scripts.push($(el).attr('src'));
+    });
+    
+    const scriptText = scripts.join(' ').toLowerCase();
+    
+    if (scriptText.includes('react')) technologies.push('React');
+    if (scriptText.includes('vue')) technologies.push('Vue.js');
+    if (scriptText.includes('angular')) technologies.push('Angular');
+    if (scriptText.includes('jquery')) technologies.push('jQuery');
+    if (scriptText.includes('shopify')) technologies.push('Shopify');
+    if (scriptText.includes('wordpress')) technologies.push('WordPress');
+    if (scriptText.includes('woocommerce')) technologies.push('WooCommerce');
+    if (scriptText.includes('gtag') || scriptText.includes('analytics')) technologies.push('Google Analytics');
+    
+    // Check meta tags
+    const generator = $('meta[name="generator"]').attr('content');
+    if (generator) {
+      if (generator.toLowerCase().includes('wordpress')) technologies.push('WordPress');
+      if (generator.toLowerCase().includes('shopify')) technologies.push('Shopify');
+      if (generator.toLowerCase().includes('squarespace')) technologies.push('Squarespace');
+    }
+    
+    return technologies.length > 0 ? technologies : ['Unknown'];
   }
 }
 

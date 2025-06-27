@@ -3,6 +3,12 @@ import { verifyIdToken } from '@/lib/firebase-admin';
 import databaseService from '@/services/database';
 import puppeteer from 'puppeteer';
 
+// Import Vercel-compatible Chromium for production
+let chromium;
+if (process.env.NODE_ENV === 'production') {
+  chromium = await import('@sparticuz/chromium');
+}
+
 export async function POST(request) {
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
 
@@ -90,10 +96,28 @@ export async function POST(request) {
 async function generatePdfFromHtml(html) {
   let browser;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    let launchOptions = {
+      args: [
+        '--no-sandbox', 
+        '--disable-dev-shm-usage', 
+        '--disable-gpu',
+        '--disable-setuid-sandbox',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-extensions'
+      ],
+      headless: true,
       timeout: 30000
-    });
+    };
+
+    // Use Vercel-compatible Chromium in production
+    if (process.env.NODE_ENV === 'production' && chromium) {
+      launchOptions.executablePath = await chromium.executablePath();
+      launchOptions.args = [...launchOptions.args, ...chromium.args];
+    }
+
+    browser = await puppeteer.launch(launchOptions);
     
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
