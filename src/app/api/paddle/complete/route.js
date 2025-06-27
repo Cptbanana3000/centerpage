@@ -21,6 +21,10 @@ export async function POST(req) {
   const signature = req.headers.get('paddle-signature') || '';
   const webhookSecret = process.env.PADDLE_WEBHOOK_SECRET || '';
 
+  // DEBUG: log signature & secret presence
+  console.log('🖊  Header signature length', signature.length);
+  console.log('🔑 Secret present', !!webhookSecret);
+
   try {
     // The SDK needs the raw request body for verification.
     // Next.js 13+ App Router streams requests, so we need to read it as a buffer.
