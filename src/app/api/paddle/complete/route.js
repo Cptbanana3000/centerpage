@@ -26,9 +26,10 @@ export async function POST(req) {
   console.log('🔑 Secret present', !!webhookSecret);
 
   try {
-    // The SDK needs the raw request body for verification.
-    // Next.js 13+ App Router streams requests, so we need to read it as a buffer.
-    const rawRequestBody = await req.text();
+    // Get raw request body as ArrayBuffer, then convert to string
+    // This preserves the exact bytes that Paddle signed
+    const arrayBuffer = await req.arrayBuffer();
+    const rawRequestBody = Buffer.from(arrayBuffer).toString();
 
     // --- DEBUG -------------------------------------------------------------
     console.log('🔔 Raw request body (first 300 chars):', rawRequestBody.slice(0, 300));
@@ -38,6 +39,7 @@ export async function POST(req) {
     let event = {};
     try {
       event = paddle.webhooks.unmarshal(rawRequestBody, webhookSecret, signature);
+      console.log('✅ Signature verification successful');
     } catch (signatureError) {
       console.warn('⚠️ Paddle signature verification failed:', signatureError.message);
       // Will use fallback parsing below
