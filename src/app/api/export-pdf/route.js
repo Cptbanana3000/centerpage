@@ -6,7 +6,11 @@ import puppeteer from 'puppeteer';
 // Import Vercel-compatible Chromium for production
 let chromium;
 if (process.env.NODE_ENV === 'production') {
-  chromium = await import('@sparticuz/chromium');
+  try {
+    chromium = (await import('@sparticuz/chromium')).default;
+  } catch (error) {
+    console.warn('Failed to import @sparticuz/chromium:', error);
+  }
 }
 
 export async function POST(request) {
@@ -113,7 +117,7 @@ async function generatePdfFromHtml(html) {
 
     // Use Vercel-compatible Chromium in production
     if (process.env.NODE_ENV === 'production' && chromium) {
-      launchOptions.executablePath = await chromium.executablePath();
+      launchOptions.executablePath = chromium.executablePath;
       launchOptions.args = [...launchOptions.args, ...chromium.args];
     }
 

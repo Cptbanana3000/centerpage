@@ -11,7 +11,11 @@ import { getDomain } from 'tldts';
 // Import Vercel-compatible Chromium
 let chromium;
 if (process.env.NODE_ENV === 'production') {
-  chromium = await import('@sparticuz/chromium');
+  try {
+    chromium = (await import('@sparticuz/chromium')).default;
+  } catch (error) {
+    console.warn('Failed to import @sparticuz/chromium:', error);
+  }
 }
 
 class DeepScanService {
@@ -114,7 +118,7 @@ class DeepScanService {
 
       // Use Vercel-compatible Chromium in production
       if (process.env.NODE_ENV === 'production' && chromium) {
-        launchOptions.executablePath = await chromium.executablePath();
+        launchOptions.executablePath = chromium.executablePath;
         launchOptions.args = [...launchOptions.args, ...chromium.args];
       }
 
