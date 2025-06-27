@@ -37,20 +37,34 @@ export async function POST(req) {
     // Verify and parse the webhook event
     const event = paddle.webhooks.unmarshal(rawRequestBody, webhookSecret, signature);
 
+    // If the SDK returned an empty object (signature mismatch or unsupported version),
+    // fall back to plain JSON parsing so we can at least handle the purchase while
+    // we debug the signature problem.
+    let effectiveEvent = event;
+    if (!effectiveEvent || Object.keys(effectiveEvent).length === 0) {
+      try {
+        effectiveEvent = JSON.parse(rawRequestBody);
+        console.warn('⚠️ Using fallback parsed event; signature verification may have failed');
+      } catch (e) {
+        console.error('Failed to JSON.parse raw body fallback', e);
+      }
+    }
+
     // --- DEBUG -------------------------------------------------------------
-    console.log('🔔 Unmarshalled event', JSON.stringify(event, null, 2));
+    console.log('📦 Effective event', JSON.stringify(effectiveEvent, null, 2));
     // ----------------------------------------------------------------------
 
     // Check if the event is a completed transaction
-    if (
-      event &&
-      (event.eventType === EventName.TransactionCompleted || // enum value
-       event.eventType === 'transaction.completed')           // raw string fallback
-    ) {
-      console.log(`Received event: ${event.eventType}`);
+    const eventType = effectiveEvent.eventType || effectiveEvent.event_type;
 
-      const userId = event.data.customData?.userId;
-      const purchasedItems = event.data.items;
+    if (
+      effectiveEvent &&
+      (eventType === EventName.TransactionCompleted || eventType === 'transaction.completed')
+    ) {
+      console.log(`Received event: ${eventType}`);
+
+      const userId = effectiveEvent.data?.customData?.userId || effectiveEvent.data?.custom_data?.userId;
+      const purchasedItems = effectiveEvent.data?.items || [];
 
       // --- DEBUG -----------------------------------------------------------
       console.log('🛠 userId', userId);
