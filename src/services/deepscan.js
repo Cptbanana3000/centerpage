@@ -14,6 +14,10 @@ class DeepScanService {
    * @param {string} openaiApiKey - Your OpenAI API key.
    */
   constructor(openaiApiKey) {
+    if (!openaiApiKey && !process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is required for DeepScanService');
+    }
+    
     this.openai = new OpenAI({
       apiKey: openaiApiKey || process.env.OPENAI_API_KEY,
     });

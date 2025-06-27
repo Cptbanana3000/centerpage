@@ -16,6 +16,25 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
   }
 
+  // Check for required environment variables
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('Missing OPENAI_API_KEY environment variable');
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Deep scan service is temporarily unavailable. Please try again later.',
+      code: 'SERVICE_UNAVAILABLE'
+    }, { status: 503 });
+  }
+
+  if (!process.env.GOOGLE_SEARCH_API_KEY || !process.env.GOOGLE_SEARCH_CX) {
+    console.error('Missing Google Search API credentials');
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Search service is temporarily unavailable. Please try again later.',
+      code: 'SERVICE_UNAVAILABLE'
+    }, { status: 503 });
+  }
+
   const decodedToken = await verifyIdToken(token);
   if (!decodedToken) {
     return NextResponse.json({ message: 'Invalid authentication token' }, { status: 401 });
@@ -138,7 +157,41 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'No competitors found for analysis' }, { status: 404 });
     }
 
-    const result = await deepScanService.performMultipleDeepScan(urlsToScan, brandName, category);
+    // Initialize DeepScanService with error handling for Puppeteer
+    let result;
+    try {
+      result = await deepScanService.performMultipleDeepScan(urlsToScan, brandName, category);
+    } catch (serviceError) {
+      console.error('DeepScanService error:', serviceError);
+      
+      // Handle specific Puppeteer/browser errors
+      if (serviceError.message.includes('browser') || serviceError.message.includes('puppeteer')) {
+        await databaseService.refundCredit(userId, 'deepScans');
+        return NextResponse.json({ 
+          success: false, 
+          message: 'Browser service is temporarily unavailable on our servers. Please try again in a few minutes.',
+          code: 'BROWSER_SERVICE_ERROR'
+        }, { status: 503 });
+      }
+      
+      // Handle OpenAI API errors
+      if (serviceError.message.includes('OpenAI') || serviceError.message.includes('API')) {
+        await databaseService.refundCredit(userId, 'deepScans');
+        return NextResponse.json({ 
+          success: false, 
+          message: 'AI analysis service is temporarily unavailable. Please try again later.',
+          code: 'AI_SERVICE_ERROR'
+        }, { status: 503 });
+      }
+      
+      // Generic service error
+      await databaseService.refundCredit(userId, 'deepScans');
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Deep scan service encountered an error. Your credits have been refunded.',
+        code: 'SERVICE_ERROR'
+      }, { status: 500 });
+    }
 
     if (result.success) {
       await databaseService.saveDeepScanReport(brandName, category, result.data);
