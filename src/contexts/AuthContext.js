@@ -138,7 +138,7 @@ export function AuthProvider({ children }) {
         clearInterval(interval);
       }
     };
-  }, [user?.emailVerified]);
+  }, [user]);
 
   // Force refresh ID token once when email becomes verified to ensure backend sees it
   useEffect(() => {
@@ -152,7 +152,7 @@ export function AuthProvider({ children }) {
       }
     };
     refreshTokenIfVerified();
-  }, [user?.emailVerified]);
+  }, [user]);
 
   const value = {
     user,

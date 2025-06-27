@@ -173,7 +173,7 @@ export default function useBrandAnalysis({
       if (intervalRef.current) clearInterval(intervalRef.current);
       requestIdRef.current = null;
     };
-  }, [brandName, category, user?.uid, viewMode]);
+  }, [brandName, category, user, viewMode, router, triggerHistoryRefresh, loadingStages.length]);
 
   return { analysis, loading, error, loadingStage };
 } 

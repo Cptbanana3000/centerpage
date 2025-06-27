@@ -3,6 +3,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnalysisHistory } from '@/contexts/AnalysisHistoryContext';
 import { Navbar } from '@/components/layout/Navbar';
@@ -35,6 +36,7 @@ const StyledCard = React.forwardRef(({ children, className = '', ...props }, ref
     {children}
   </div>
 ));
+StyledCard.displayName = 'StyledCard';
 
 const LoadingScreen = ({ stageIndex, totalStages, stageLabel, viewMode }) => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

@@ -25,7 +25,7 @@ export default function AboutPage() {
             </div>
             <div className="md:col-span-2 space-y-8 text-gray-700 text-base md:text-lg">
               <p>
-                Choosing a name shouldn't feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective "what sounds good" conversations and into objective, data-driven analysis.
+                Choosing a name shouldn&apos;t feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective "what sounds good" conversations and into objective, data-driven analysis.
               </p>
               <p>
                 Our platform is built on three core principles:
@@ -35,10 +35,10 @@ export default function AboutPage() {
                   <span className="font-semibold">Comprehensive Analysis:</span> We go beyond a simple domain check. We analyze your name against SEO landscapes and potential competitor conflicts to give you a 360-degree view.
                 </li>
                 <li>
-                  <span className="font-semibold">Actionable Insights:</span> We don't just dump data on you. We provide clear scores, strategic recommendations, and competitive intelligence that you can actually use to make a decision.
+                  <span className="font-semibold">Actionable Insights:</span> We don&apos;t just dump data on you. We provide clear scores, strategic recommendations, and competitive intelligence that you can actually use to make a decision.
                 </li>
                 <li>
-                  <span className="font-semibold">Founder Focused:</span> We're built for the speed and constraints of early-stage ventures. Get the insights you need in minutes, not weeks, and avoid costly legal fees or rebranding disasters down the line.
+                  <span className="font-semibold">Founder Focused:</span> We&apos;re built for the speed and constraints of early-stage ventures. Get the insights you need in minutes, not weeks, and avoid costly legal fees or rebranding disasters down the line.
                 </li>
               </ul>
             </div>
