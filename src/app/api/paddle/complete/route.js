@@ -37,22 +37,27 @@ export async function POST(req) {
     
     // Verify and parse the webhook event
     let event = {};
+    let signatureVerified = false;
     try {
       event = paddle.webhooks.unmarshal(rawRequestBody, webhookSecret, signature);
       console.log('✅ Signature verification successful');
+      signatureVerified = true;
     } catch (signatureError) {
       console.warn('⚠️ Paddle signature verification failed:', signatureError.message);
       // Will use fallback parsing below
     }
 
-    // If the SDK returned an empty object (signature mismatch or unsupported version),
-    // fall back to plain JSON parsing so we can at least handle the purchase while
-    // we debug the signature problem.
+    // If the SDK returned an empty object even after successful verification,
+    // or if signature verification failed, fall back to plain JSON parsing
     let effectiveEvent = event;
     if (!effectiveEvent || Object.keys(effectiveEvent).length === 0) {
       try {
         effectiveEvent = JSON.parse(rawRequestBody);
-        console.warn('⚠️ Using fallback parsed event; signature verification may have failed');
+        if (!signatureVerified) {
+          console.warn('⚠️ Using fallback parsed event; signature verification failed');
+        } else {
+          console.warn('⚠️ Using fallback parsed event; SDK returned empty object despite successful verification');
+        }
       } catch (e) {
         console.error('Failed to JSON.parse raw body fallback', e);
         return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
