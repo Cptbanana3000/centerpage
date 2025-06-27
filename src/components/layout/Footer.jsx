@@ -56,15 +56,17 @@ const Footer = () => {
               <h3 className="text-base font-semibold text-gray-900 mb-4">Company</h3>
               <ul className="space-y-3">
                 <li><Link href="/about" className="hover:text-gray-900 transition-colors">About</Link></li>
-                <li><Link href="/contact" className="hover:text-gray-900 transition-colors">Contact</Link></li>
-                <li><Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li>
+                {/* TODO: Create these pages and uncomment the links */}
+                {/* <li><Link href="/contact" className="hover:text-gray-900 transition-colors">Contact</Link></li> */}
+                {/* <li><Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li> */}
               </ul>
             </div>
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-4">Legal</h3>
               <ul className="space-y-3">
-                <li><Link href="/terms" className="hover:text-gray-900 transition-colors">Terms of Service</Link></li>
-                <li><Link href="/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</Link></li>
+                {/* TODO: Create these pages and uncomment the links */}
+                {/* <li><Link href="/terms" className="hover:text-gray-900 transition-colors">Terms of Service</Link></li> */}
+                {/* <li><Link href="/privacy" className="hover:text-gray-900 transition-colors">Privacy Policy</Link></li> */}
               </ul>
             </div>
           </div>
