@@ -7,11 +7,11 @@ const paddle = new Paddle(process.env.PADDLE_API_KEY);
 
 // Define credit packs based on their Price IDs
 const CREDIT_PACKS = {
-  'pri_01jypm11t9pdaeqdeygkg132at': { // Starter Pack
+  'pri_01jypnx15gmrp3csr9wtvrrykq': { // Starter Pack
     standardAnalyses: 25,
     deepScans: 10,
   },
-  'pri_01jypnx15gmrp3csr9wtvrrykq': { // Pro Pack
+  'pri_01jypm11t9pdaeqdeygkg132at': { // Pro Pack
     standardAnalyses: 75,
     deepScans: 35,
   },
