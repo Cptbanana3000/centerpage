@@ -70,14 +70,41 @@ export function calculateDomainStrength(domainData, brandName, category) {
             break;
     }
 
-    const availablePremium = domainData.filter(d => d.available && premiumTLDs.some(tld => d.domain.endsWith(tld))).length;
-    if (availablePremium >= 2) return 85;
-    if (availablePremium >= 1) return 70;
+    let score = 10; // Start with a low base score.
 
-    const availableStandard = domainData.filter(d => d.available && standardTLDs.some(tld => d.domain.endsWith(tld))).length;
-    if (availableStandard >= 1) return 50;
+    const availableDomains = domainData.filter(d => d.available);
 
-    return 20;
+    // Add points for each available premium TLD
+    availableDomains.forEach(d => {
+        if (premiumTLDs.some(tld => d.domain.endsWith(tld))) {
+            score += 18; // A significant boost for each premium TLD
+        }
+    });
+
+    // Add fewer points for each available standard TLD
+    availableDomains.forEach(d => {
+        if (standardTLDs.some(tld => d.domain.endsWith(tld))) {
+            score += 7; // A smaller boost for standard TLDs
+        }
+    });
+
+    // 4. Apply modifiers based on the brand name itself.
+    // Penalty for long names
+    if (lowerBrandName.length > 12) {
+        score -= 10;
+    }
+    // Penalty for hyphens
+    if (lowerBrandName.includes('-')) {
+        score -= 15;
+    }
+    // Bonus for short, memorable names
+    if (lowerBrandName.length <= 6) {
+        score += 5;
+    }
+
+    // 5. Ensure the score is within the 10-100 range.
+    // We cap it at 90 because not having the .com is a significant drawback.
+    return Math.max(10, Math.min(90, Math.round(score)));
 }
 
 /**
