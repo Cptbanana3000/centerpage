@@ -7,77 +7,84 @@ import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
- * ENHANCED: Calculates domain strength based on 10 specific industry categories.
+ * ADVANCED: Calculates a holistic "Digital Identity Strength" score.
+ * This function evaluates not just domain availability, but also the authority
+ * of the .com holder and the general uniqueness of the brand name.
  * @param {Array<object>} domainData - Array of domain availability results.
+ * @param {Array<object>} googleResults - The top search results.
  * @param {string} brandName - The brand name being checked.
  * @param {string} category - The industry/category of the brand.
+ * @param {number} uniquenessScore - The AI-generated uniqueness score (1-10).
  * @returns {number} - A score from 10 to 100.
  */
-export function calculateDomainStrength(domainData, brandName, category) {
+export function calculateDigitalIdentityStrength(domainData, googleResults, brandName, category, uniquenessScore) {
     if (!domainData || domainData.length === 0) return 10;
 
-    const comDomain = domainData.find(d => d.domain.toLowerCase() === `${brandName.toLowerCase()}.com`);
-    if (comDomain?.available) return 100;
+    let score = 0;
+    const brandCom = `${brandName.toLowerCase()}.com`;
 
-    let premiumTLDs = ['.co', '.app'];
-    let standardTLDs = ['.net', '.org', '.info'];
+    const comDomain = domainData.find(d => d.domain.toLowerCase() === brandCom);
 
-    // Adjust TLD recommendations based on the 10 selected categories
-    switch (category.toLowerCase()) {
-        case 'tech & saas':
-            premiumTLDs = ['.io', '.ai', '.tech', '.app', '.co'];
-            standardTLDs = ['.so', '.dev', '.net'];
-            break;
-        case 'e-commerce & retail':
-            premiumTLDs = ['.shop', '.store', '.co'];
-            standardTLDs = ['.net', '.biz', '.market'];
-            break;
-        case 'health & wellness':
-            premiumTLDs = ['.health', '.care', '.co', '.io'];
-            standardTLDs = ['.fit', '.life', '.net'];
-            break;
-        case 'creative & design':
-             premiumTLDs = ['.design', '.art', '.studio', '.io'];
-             standardTLDs = ['.co', '.me', '.net'];
-             break;
-        case 'games & entertainment':
-            premiumTLDs = ['.games', '.gg', '.tv', '.live', '.io'];
-            standardTLDs = ['.net', '.co', '.stream'];
-            break;
-        case 'finance & fintech':
-            premiumTLDs = ['.finance', '.money', '.io', '.co'];
-            standardTLDs = ['.financial', '.cash', '.net'];
-            break;
-        case 'food & beverage':
-            premiumTLDs = ['.food', '.bar', '.rest', '.cafe', '.co'];
-            standardTLDs = ['.recipes', '.kitchen', '.net'];
-            break;
-        case 'travel & hospitality':
-            premiumTLDs = ['.travel', '.tours', '.holiday', '.hotel'];
-            standardTLDs = ['.co', '.net', '.guide'];
-            break;
-        case 'education & e-learning':
-            premiumTLDs = ['.education', '.school', '.academy', '.io'];
-            standardTLDs = ['.courses', '.study', '.net'];
-            break;
-        case 'professional services':
-            premiumTLDs = ['.pro', '.expert', '.consulting', '.legal'];
-            standardTLDs = ['.co', '.net', '.biz'];
-            break;
-        default:
-            // General-purpose fallback
-            premiumTLDs = ['.io', '.co', '.app'];
-            break;
+    // 1. Calculate Base Score from TLD availability
+    if (comDomain?.available) {
+        score = 100;
+    } else {
+        // .com is taken, calculate score based on alternatives
+        let premiumTLDs = ['.io', '.co', '.app'];
+        switch (category.toLowerCase()) {
+            case 'tech & saas': premiumTLDs = ['.io', '.ai', '.tech', '.app', '.co']; break;
+            case 'e-commerce & retail': premiumTLDs = ['.shop', '.store', '.co']; break;
+            case 'health & wellness': premiumTLDs = ['.health', '.care', '.co', '.io']; break;
+            case 'creative & design': premiumTLDs = ['.design', '.art', '.studio', '.io']; break;
+            case 'games & entertainment': premiumTLDs = ['.games', '.gg', '.tv', '.live', '.io']; break;
+            case 'finance & fintech': premiumTLDs = ['.finance', '.money', '.io', '.co']; break;
+            case 'food & beverage': premiumTLDs = ['.food', '.bar', '.rest', '.cafe', '.co']; break;
+            case 'travel & hospitality': premiumTLDs = ['.travel', '.tours', '.holiday', '.hotel']; break;
+            case 'education & e-learning': premiumTLDs = ['.education', '.school', '.academy', '.io']; break;
+            case 'professional services': premiumTLDs = ['.pro', '.expert', '.consulting', '.legal']; break;
+            default: premiumTLDs = ['.io', '.co', '.app']; break;
+        }
+        
+        const availablePremium = domainData.filter(d => d.available && premiumTLDs.some(tld => d.domain.endsWith(tld))).length;
+        
+        if (availablePremium >= 2) {
+            score = 65; // Good alternatives exist
+        } else if (availablePremium === 1) {
+            score = 50; // A decent compromise
+        } else {
+            // Check for standard TLDs if no premium ones are available
+            let standardTLDs = ['.net', '.org', '.info'];
+            const availableStandard = domainData.filter(d => d.available && standardTLDs.some(tld => d.domain.endsWith(tld))).length;
+            if (availableStandard >= 2) score = 35;
+            else if (availableStandard === 1) score = 25;
+            else score = 10; // Very few, weak options
+        }
     }
 
-    const availablePremium = domainData.filter(d => d.available && premiumTLDs.some(tld => d.domain.endsWith(tld))).length;
-    if (availablePremium >= 2) return 85;
-    if (availablePremium >= 1) return 70;
+    // 2. Apply ".COM Authority" Penalty
+    if (!comDomain?.available) {
+        const comResultIndex = googleResults.findIndex(r => r.link.includes(`//www.${brandCom}`) || r.link.includes(`//${brandCom}`));
+        
+        if (comResultIndex !== -1) {
+            if (comResultIndex < 3) {
+                score -= 30; // Massive penalty for top 3 ranking
+                console.log(`[Penalty Applied] .com is a Top 3 result. (-30)`);
+            } else if (comResultIndex < 10) {
+                score -= 15; // Moderate penalty for top 10 ranking
+                console.log(`[Penalty Applied] .com is a Top 10 result. (-15)`);
+            }
+        }
+    }
 
-    const availableStandard = domainData.filter(d => d.available && standardTLDs.some(tld => d.domain.endsWith(tld))).length;
-    if (availableStandard >= 1) return 50;
+    // 3. Apply "Confusability" Penalty based on AI Uniqueness Score
+    if (uniquenessScore < 8) {
+        const penalty = (10 - uniquenessScore) * 3; // Scale penalty: low uniqueness = high penalty
+        score -= penalty;
+        console.log(`[Penalty Applied] Low uniqueness score of ${uniquenessScore}. (-${penalty})`);
+    }
 
-    return 20;
+    // Ensure score doesn't fall below the floor of 10
+    return Math.max(10, score);
 }
 
 /**
@@ -179,6 +186,53 @@ export async function calculateSeoDifficultyAI(googleResults, category) {
     } catch (error) {
         console.error("AI SEO analysis failed:", error);
         return 50;
+    }
+}
+
+/**
+ * NEW: Uses AI to determine if a brand name is a unique term or a generic one.
+ * @param {Array<object>} googleResults - The top search results.
+ * @param {string} brandName - The user's brand name.
+ * @param {string} category - The industry/category of the brand.
+ * @returns {Promise<number>} - A uniqueness score from 1 (very generic) to 10 (very unique).
+ */
+export async function getBrandUniquenessAI(googleResults, brandName, category) {
+    if (!googleResults || googleResults.length === 0) return 10; // If no results, it's unique by default.
+
+    const topResults = googleResults.slice(0, 5).map(r => ({ title: r.title, snippet: r.snippet }));
+
+    const prompt = `
+      You are a Brand Identity Analyst. Your task is to determine if the brand name "${brandName}" is a unique, invented term or a generic word/phrase with other meanings, based on the top Google search results for it within the "${category}" industry.
+
+      Search Results:
+      \`\`\`json
+      ${JSON.stringify(topResults, null, 2)}
+      \`\`\`
+
+      Analyze the results:
+      - Is the name an invented word (like "Miro," "Figma")? Or is it a common dictionary word, a person's name, or a place (like "Sharp," "Thrive," "Lincoln")?
+      - Do the search results show multiple different companies or topics unrelated to a single brand identity?
+
+      Based on this, provide a "uniqueness_score" from 1 (very generic, lots of confusion) to 10 (very unique, clearly an invented brand name).
+      A name like "Apple" in the context of "e-commerce" would be a 1. A name like "Zapier" would be a 10.
+
+      Respond with ONLY a JSON object of the shape:
+      { "reasoning": "A short explanation of your thinking.", "uniqueness_score": 8 }
+    `;
+
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4.1-mini",
+            messages: [{ role: "system", content: "You are a Brand Analyst AI that returns only JSON." }, { role: "user", content: prompt }],
+            response_format: { type: "json_object" },
+        });
+
+        const result = JSON.parse(completion.choices[0].message.content);
+        console.log('[AI Uniqueness Analysis]', result.reasoning);
+        return result.uniqueness_score || 5; // Return 5 as a neutral default on failure
+    } catch (error) {
+        console.error("AI Uniqueness analysis failed:", error);
+        return 5; // Return 5 as a neutral default on error
     }
 }
 

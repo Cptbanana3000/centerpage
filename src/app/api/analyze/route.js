@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server';
 import databaseService from '@/services/database'; 
 import requestTracker from '@/services/requestTracker';
 import { verifyIdToken } from '@/lib/firebase-admin';
-import { 
-    calculateDomainStrength,
+import {
+    calculateDigitalIdentityStrength,
     calculateCompetitionIntensityAI,
     calculateSeoDifficultyAI,
-    generateAIReportAndRecommendation
+    getBrandUniquenessAI,
+    generateAISummary,
+    mapScoreToVerdict
 } from '@/services/analysisLogic';
 import { 
     getDomainAvailability, 
@@ -102,22 +104,38 @@ export async function GET(request) {
     
     console.log(`[API] Found ${uniqueResults.length} unique Google results (${exactMatchResults.length} exact + ${categoryMatchResults.length} category).`);
 
-    // --- The rest of the analysis pipeline uses the corrected `uniqueResults` ---
-    const scores = {
-      domainStrength: calculateDomainStrength(domainData, brandName, category),
-      competitionIntensity: await calculateCompetitionIntensityAI(uniqueResults, brandName, category),
-      seoDifficulty: await calculateSeoDifficultyAI(uniqueResults, category)
-    };
+    // --- NEW: Perform all AI analyses concurrently for efficiency ---
+    const [
+        uniquenessScore,
+        competitionIntensity,
+        seoDifficulty
+    ] = await Promise.all([
+        getBrandUniquenessAI(uniqueResults, brandName, category),
+        calculateCompetitionIntensityAI(uniqueResults, brandName, category),
+        calculateSeoDifficultyAI(uniqueResults, category)
+    ]);
 
-    const overallScore = (scores.domainStrength * 0.4) + (scores.competitionIntensity * 0.4) + (scores.seoDifficulty * 0.2);
+    // --- UPDATED: Use the new, more advanced scoring function ---
+    const domainStrength = calculateDigitalIdentityStrength(domainData, uniqueResults, brandName, category, uniquenessScore);
+
+    // Calculate overall score (weights can be adjusted)
+    const overallScore = Math.round(
+        (domainStrength * 0.4) +
+        (competitionIntensity * 0.4) +
+        (seoDifficulty * 0.2)
+    );
+
+    const scores = {
+        domainStrength,
+        competitionIntensity,
+        seoDifficulty,
+        overallScore
+    };
     
     // Generate AI verdict + summary with category context
-    const { verdict, summary } = await generateAIReportAndRecommendation({
-      ...scores,
-      overallScore: Math.round(overallScore)
-    }, brandName, category);
+    const { verdict, summary } = await generateAISummary(scores, brandName, category);
 
-    const analysisResult = {
+    const analysisRecord = {
       brandName,
       category,
       overallScore: Math.round(overallScore),
@@ -134,10 +152,10 @@ export async function GET(request) {
     };
     
     // Cache the new result and save it to user's history
-    await databaseService.cacheAnalysis(cacheKey, analysisResult);
-    await databaseService.saveAnalysisToHistory(userId, cacheKey, analysisResult);
+    await databaseService.cacheAnalysis(cacheKey, analysisRecord);
+    await databaseService.saveAnalysisToHistory(userId, cacheKey, analysisRecord);
 
-    return NextResponse.json(analysisResult);
+    return NextResponse.json(analysisRecord);
 
   } catch (error) {
     console.error(`[API Analysis Error] for user ${userId}:`, error);
