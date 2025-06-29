@@ -1,5 +1,6 @@
 // src/app/api/analyze/route.js
 import { NextResponse } from 'next/server';
+import { checkFirebaseRateLimit } from '@/lib/rate-limiter-firebase';
 import databaseService from '@/services/database'; 
 import requestTracker from '@/services/requestTracker';
 import { verifyIdToken } from '@/lib/firebase-admin';
@@ -17,6 +18,14 @@ import {
 } from '@/services/apiHelpers';
 
 export async function GET(request) {
+  // --- RATE LIMIT CHECK (Firebase) ---
+  const ip = request.ip ?? '127.0.0.1';
+  const { success, message } = await checkFirebaseRateLimit(`analyze_ip_${ip}`, 10);
+  if (!success) {
+    return NextResponse.json({ message }, { status: 429 });
+  }
+  // --- END RATE LIMIT CHECK ---
+
   const { searchParams } = new URL(request.url);
   const brandName = searchParams.get('brandName')?.toLowerCase().trim();
   const category = searchParams.get('category') || 'general'; // Default to 'general' if not provided

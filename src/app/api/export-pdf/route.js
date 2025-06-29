@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
+import { checkFirebaseRateLimit } from '@/lib/rate-limiter-firebase';
 import { verifyIdToken } from '@/lib/firebase-admin';
 import databaseService from '@/services/database';
 import axios from 'axios';
 
 export async function POST(request) {
+  // --- RATE LIMIT CHECK (Firebase) ---
+  const ip = request.ip ?? '127.0.0.1';
+  const { success, message } = await checkFirebaseRateLimit(`exportpdf_ip_${ip}`, 30);
+  if (!success) {
+    return NextResponse.json({ message }, { status: 429 });
+  }
+  // --- END RATE LIMIT CHECK ---
+
   // 1. Authenticate and check credits
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
   if (!token) return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
