@@ -147,9 +147,13 @@ export default function AnalysisPage() {
   
   const handleCompetitorSelectionProceed = (selectedCompetitors) => {
     setShowCompetitorSelection(false);
-    setIsDeepScanning(true);
-    const competitorUrls = selectedCompetitors.map(comp => comp.link);
-    setDeepScanParams({ brandName, category, competitorUrls });
+    if (Array.isArray(selectedCompetitors) && selectedCompetitors.length > 0) {
+      setIsDeepScanning(true);
+      const competitorUrls = selectedCompetitors.map(comp => comp.link);
+      setDeepScanParams({ brandName, category, competitorUrls });
+    } else {
+      console.warn('Deep scan was initiated without any selected competitors.');
+    }
   };
 
   const handleCompetitorSelectionCancel = () => {
