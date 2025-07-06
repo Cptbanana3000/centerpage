@@ -196,12 +196,12 @@ export default function AnalysisPage() {
                     </StyledCard>
                     <StyledCard id="google-competitors" ref={el => sectionsRef.current['google-competitors'] = el} className="p-8">
                          <h2 className="text-3xl font-bold mb-4 text-gray-900">Google Competitors</h2>
-                         <GoogleCompetitorsList results={analysis.detailedAnalysis.googleCompetition?.topResults || []} brandName={brandName} />
+                         <GoogleCompetitorsList results={analysis.detailedAnalysis?.googleCompetition?.topResults || []} brandName={brandName} />
                     </StyledCard>
                     <StyledCard id="domain-availability" ref={el => sectionsRef.current['domain-availability'] = el} className="p-8">
                         <h2 className="text-3xl font-bold mb-4 text-gray-900">Domain Availability</h2>
                         <div className="divide-y divide-gray-200">
-                            {analysis.detailedAnalysis.domainAvailability?.map((domain) => (
+                            {analysis.detailedAnalysis?.domainAvailability?.map((domain) => (
                                 <div key={domain.domain} className="flex items-center justify-between py-4">
                                     <span className="text-lg text-gray-800">{domain.domain}</span>
                                     {domain.isAvailable ? 
@@ -260,7 +260,7 @@ export default function AnalysisPage() {
 
             {showCompetitorSelection && (
               <SmartCompetitorSelection
-                googleCompetitors={analysis.detailedAnalysis.googleCompetition.topResults || []}
+                googleCompetitors={analysis.detailedAnalysis?.googleCompetition?.topResults || []}
                 onProceed={handleCompetitorSelectionProceed}
                 onCancel={handleCompetitorSelectionCancel}
               />
