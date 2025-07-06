@@ -1,84 +1,124 @@
-import { useState } from 'react';
-import useSWRMutation from 'swr/mutation';
+import { useState, useEffect, useCallback } from 'react';
+import useSWR from 'swr';
+import { useAuth } from '@/contexts/AuthContext';
+
+// --- Polling Fetcher for SWR ---
+// This function will be called by SWR every few seconds to check the job status.
+const statusFetcher = async (url, token) => {
+  if (!token) return { state: 'idle' }; // Don't fetch if there's no token.
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || 'Failed to fetch analysis status.');
+  }
+
+  return res.json();
+};
 
 /**
  * Custom hook that performs deep scan flow with built-in credit check.
  * Returns helpers & state: { runDeepScan, data, error, isRunning }
  */
-export default function useDeepScan({ user }) {
+export default function useDeepScan() {
+  const { user, idToken } = useAuth();
+  const [jobId, setJobId] = useState(null);
+  const [status, setStatus] = useState('idle'); // idle, starting, polling, success, error
+  const [progress, setProgress] = useState(0);
+  const [finalData, setFinalData] = useState(null);
   const [error, setError] = useState(null);
 
-  async function deepScanFetcher(url, { arg }) {
-    const { brandName, category, competitorUrls } = arg;
+  // --- SWR Hook for Polling ---
+  // This will automatically poll the status endpoint when a `jobId` is available.
+  const { data: statusData, error: pollingError } = useSWR(
+    jobId ? [`/api/analysis-status/${jobId}`, idToken] : null,
+    ([url, token]) => statusFetcher(url, token),
+    {
+      refreshInterval: 4000, // Poll every 4 seconds
+      revalidateOnFocus: false,
+    }
+  );
+
+  // --- Effect to handle Polling State Machine ---
+  // This useEffect hook watches the data from the polling SWR hook and updates our state accordingly.
+  useEffect(() => {
+    if (pollingError) {
+      setStatus('error');
+      setError(pollingError.message);
+      setJobId(null); // Stop polling on error
+      return;
+    }
+
+    if (statusData) {
+      setProgress(statusData.progress || 0);
+
+      switch (statusData.state) {
+        case 'completed':
+          setStatus('success');
+          setFinalData(statusData.result.data);
+          setJobId(null); // Stop polling on completion
+          break;
+        case 'failed':
+          setStatus('error');
+          setError(statusData.error || 'The analysis job failed.');
+          setJobId(null); // Stop polling on failure
+          break;
+        case 'active':
+        case 'waiting':
+          setStatus('polling');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [statusData, pollingError]);
+
+  // --- Main function to start the Deep Scan ---
+  const runDeepScan = useCallback(async (params) => {
+    if (!idToken) {
+      setError('You must be logged in to perform a deep scan.');
+      setStatus('error');
+      return;
+    }
+
+    setStatus('starting');
     setError(null);
-    if (!user) {
-      throw new Error('Please log in to perform a deep scan.');
+    setProgress(0);
+    setFinalData(null);
+
+    try {
+      const res = await fetch('/api/deep-scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(params),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 202 && data.jobId) {
+        setJobId(data.jobId); // This will trigger the SWR polling to start
+      } else {
+        throw new Error(data.error || 'Failed to initialize the deep scan job.');
+      }
+    } catch (err) {
+      setStatus('error');
+      setError(err.message);
     }
-
-    const token = await user.getIdToken();
-
-    // Pre-flight credit check
-    const creditResp = await fetch('/api/user-credits', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!creditResp.ok) throw new Error('Unable to verify credits.');
-    const credits = await creditResp.json();
-    if ((credits.deepScans || 0) <= 0) {
-      throw new Error('Insufficient Deep Scan credits. Please purchase a credit pack to continue.');
-    }
-
-    // Proceed to deep scan
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ brandName, category, competitorUrls }),
-    });
-
-    const data = await res.json();
-
-    if (res.status === 402 || res.status === 403) {
-      throw new Error(data.message || 'Deep scan failed');
-    }
-    if (!data.success) {
-      throw new Error(data.error || 'Deep scan failed.');
-    }
-
-    return data.data; // success payload
-  }
-
-  async function fetchCached(arg) {
-    const { brandName, category } = arg;
-    if (!user) return null;
-    const token = await user.getIdToken();
-    const res = await fetch(`/api/view-deep-report?brandName=${encodeURIComponent(brandName)}&category=${encodeURIComponent(category)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const j = await res.json();
-      return j.data;
-    }
-    return null;
-  }
-
-  const { trigger, data, error: swrError, isMutating } = useSWRMutation('/api/deep-scan', deepScanFetcher);
-
-  const [localData, setLocalData] = useState(null);
+  }, [idToken]);
 
   return {
-    deepScanData: localData || data || null,
-    deepScanError: error || swrError?.message || null,
-    isDeepScanning: isMutating,
-    runDeepScan: async (params) => {
-      // first attempt cached
-      const cached = await fetchCached(params);
-      if (cached) {
-        setLocalData(cached);
-        return cached;
-      }
-      return trigger(params).then(res=>{setLocalData(res); return res;}).catch((err) => setError(err.message));
-    },
+    runDeepScan,
+    status,        // 'idle', 'starting', 'polling', 'success', 'error'
+    progress,      // 0-100
+    deepScanData: finalData,
+    deepScanError: error,
+    // A consolidated loading state for the UI
+    isDeepScanning: status === 'starting' || status === 'polling',
   };
 } 

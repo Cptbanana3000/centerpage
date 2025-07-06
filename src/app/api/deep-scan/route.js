@@ -31,25 +31,26 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    // 2. THIS IS THE NEW PART: Proxy the request to your new backend
+    // 1. Call the backend to *start* the job.
     const backendResponse = await axios.post(
       `${process.env.EXTERNAL_BACKEND_URL}/deep-scan`,
       body,
       { headers: { 'x-api-key': process.env.EXTERNAL_BACKEND_API_KEY } }
     );
 
-    // 3. Handle the response from the backend
-    if (backendResponse.data.success) {
-      await databaseService.saveDeepScanReport(body.brandName, body.category, backendResponse.data.data);
-      return NextResponse.json(backendResponse.data);
+    // 2. Check for a successful job initiation.
+    if (backendResponse.status === 202 && backendResponse.data.jobId) {
+      // 3. Immediately return the jobId to the frontend with a 202 "Accepted" status.
+      return NextResponse.json({ jobId: backendResponse.data.jobId }, { status: 202 });
     } else {
-      throw new Error(backendResponse.data.message || 'External service failed');
+      // If the backend didn't accept the job, something is wrong.
+      throw new Error(backendResponse.data.message || 'Failed to start analysis job on the backend.');
     }
 
   } catch (error) {
-    // 4. If anything fails, refund the user's credit
+    // If anything fails during the *initiation*, refund the user's credit.
     await databaseService.refundCredit(userId, 'deepScans');
     console.error("PROXY ERROR to /deep-scan:", error.response?.data || error.message);
-    return NextResponse.json({ success: false, error: 'Deep scan failed. Your credit has been refunded.' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Deep scan failed to start. Your credit has been refunded.' }, { status: 500 });
   }
 }

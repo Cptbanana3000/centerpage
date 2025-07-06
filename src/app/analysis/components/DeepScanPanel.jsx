@@ -2,29 +2,14 @@
 
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import {
+  ShieldCheck, Globe, FileText, Heading1, BookText, Cpu, Timer, Link2, ExternalLink, Users, Database, FileSignature, CalendarCheck, Frown, Loader, Crown, Bot, Hourglass, Activity,
+} from 'lucide-react';
+import useDeepScan from '../hooks/useDeepScan';
 
 // Helper component for Icons. Assumes you're using a library like Lucide React,
 // but you can replace this with your own icon implementation (e.g., Font Awesome).
 // Example: npm install lucide-react
-import {
-  ShieldCheck,
-  Globe,
-  FileText,
-  Heading1,
-  BookText,
-  Cpu,
-  Timer,
-  Link2,
-  ExternalLink,
-  Users,
-  Database,
-  FileSignature,
-  CalendarCheck,
-  Frown,
-  Loader,
-  Crown,
-  Bot,
-} from 'lucide-react';
 
 const IconWrapper = ({ icon: Icon, className = '' }) => (
   <div className={`w-12 h-12 flex items-center justify-center rounded-xl ${className}`}>
@@ -148,17 +133,63 @@ const InfoItem = ({ icon: Icon, label, value }) => (
     </div>
 );
 
+// --- Progress Bar Component ---
+const ProgressBar = ({ progress }) => (
+  <div className="w-full bg-gray-200 rounded-full h-2.5 my-4">
+    <div
+      className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+      style={{ width: `${progress}%` }}
+    />
+  </div>
+);
 
-export default function DeepScanPanel({
-  brandName,
-  deepScanData,
-  deepScanError,
-  isDeepScanning,
-  onRetry,
-}) {
-  if (!deepScanData && !deepScanError && !isDeepScanning) {
-    return null;
-  }
+// --- New Status Messages for Polling ---
+const statusMessages = {
+  waiting: 'Job is queued. Starting soon...',
+  active: 'Actively analyzing competitor websites...',
+  completed: 'Analysis complete!',
+  failed: 'An error occurred during analysis.'
+};
+
+export default function DeepScanPanel({ brandName, category, competitorUrls, onAnalysisComplete, deepScanData: initialData }) {
+  // --- Use the new hook ---
+  const {
+    runDeepScan,
+    status,
+    progress,
+    deepScanData,
+    deepScanError,
+    isDeepScanning,
+  } = useDeepScan();
+
+  // --- Automatically run the scan when the component mounts with the right props ---
+  // Note: This is a simplified approach. For more complex scenarios,
+  // you might trigger this from a button click instead.
+  React.useEffect(() => {
+    // --- MODIFICATION ---
+    // If initialData is provided, don't run a new scan.
+    if (initialData) return;
+
+    if (brandName && category && competitorUrls?.length > 0) {
+      runDeepScan({ brandName, category, competitorUrls });
+    }
+  }, [brandName, category, competitorUrls, initialData, runDeepScan]); // Dependency array ensures it runs once per analysis
+
+  // --- Propagate the result to the parent component ---
+  React.useEffect(() => {
+    if (status === 'success' && deepScanData) {
+      onAnalysisComplete?.(deepScanData);
+    }
+  }, [status, deepScanData, onAnalysisComplete]);
+
+  // --- Combine initialData with hook's data ---
+  const finalData = initialData || deepScanData;
+  const currentStatus = initialData ? 'success' : status;
+
+  // This function will be passed to the error card's retry button
+  const handleRetry = () => {
+    runDeepScan({ brandName, category, competitorUrls });
+  };
 
   return (
     <div className="mt-16 sm:mt-24 antialiased">
@@ -191,31 +222,45 @@ export default function DeepScanPanel({
             </p>
         </div>
 
-        {/* Loading State */}
-        {isDeepScanning && (
+        {/* Starting State */}
+        {currentStatus === 'starting' && (
           <PanelCard className="p-8 sm:p-12 text-center flex flex-col items-center" highlight>
             <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-6">
-                 <Loader className="w-8 h-8 animate-spin" />
+                 <Hourglass className="w-8 h-8 animate-pulse" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Performing Deep Scan...</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Initiating Deep Scan...</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              Our AI is analyzing competitor websites. This advanced process may take a moment.
+              Connecting to our analysis engine and preparing the job. This should only take a moment.
             </p>
           </PanelCard>
         )}
 
+        {/* Polling State (replaces old 'isDeepScanning') */}
+        {currentStatus === 'polling' && (
+          <PanelCard className="p-8 sm:p-12 text-center flex flex-col items-center" highlight>
+            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-6">
+                 <Activity className="w-8 h-8 animate-pulse" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Analysis in Progress...</h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              {statusMessages[finalData?.state] || 'Our AI is analyzing competitor websites. This may take a moment.'}
+            </p>
+            <ProgressBar progress={progress} />
+          </PanelCard>
+        )}
+
         {/* Error State */}
-        {deepScanError && (
+        {currentStatus === 'error' && (
           <PanelCard className="p-8 sm:p-12 text-center flex flex-col items-center border-red-500/30">
              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6">
                  <Frown className="w-8 h-8" />
             </div>
             <h3 className="text-2xl font-bold text-red-800 mb-2">Analysis Failed</h3>
             <p className="text-gray-600 max-w-md mx-auto mb-6">
-              An error occurred during the scan. This can happen due to network issues or restricted access to a site.
+              {deepScanError || 'An error occurred. This can happen due to network issues or restricted access to a site.'}
             </p>
             <button
-              onClick={onRetry}
+              onClick={handleRetry}
               className="px-5 py-2.5 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 transition-all"
             >
               Retry Deep Scan
@@ -224,17 +269,17 @@ export default function DeepScanPanel({
         )}
         
         {/* Results */}
-        {deepScanData && (
+        {currentStatus === 'success' && finalData && (
           <div className="space-y-12">
             {/* Overview Section */}
             <section>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center sm:text-left">Scan Overview</h2>
                 <PanelCard className="p-6" highlight>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <StatDisplay label="Competitors" value={deepScanData.competitorsAnalyzed?.length || 0} icon={Users} color="indigo"/>
-                        <StatDisplay label="Data Points" value={(deepScanData.competitorsAnalyzed?.length || 0) * 16} icon={Database} color="purple"/>
-                        <StatDisplay label="Strategic Report" value={deepScanData.comparativeAnalysis ? 'Generated' : 'N/A'} icon={FileSignature} color="green"/>
-                        <StatDisplay label="Date" value={deepScanData.timestamp ? new Date(deepScanData.timestamp).toLocaleDateString() : 'N/A'} icon={CalendarCheck} color="orange"/>
+                        <StatDisplay label="Competitors" value={finalData.competitorsAnalyzed?.length || 0} icon={Users} color="indigo"/>
+                        <StatDisplay label="Data Points" value={(finalData.competitorsAnalyzed?.length || 0) * 16} icon={Database} color="purple"/>
+                        <StatDisplay label="Strategic Report" value={finalData.comparativeAnalysis ? 'Generated' : 'N/A'} icon={FileSignature} color="green"/>
+                        <StatDisplay label="Date" value={finalData.timestamp ? new Date(finalData.timestamp).toLocaleDateString() : 'N/A'} icon={CalendarCheck} color="orange"/>
                     </div>
                 </PanelCard>
             </section>
@@ -243,39 +288,19 @@ export default function DeepScanPanel({
             <section>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center sm:text-left">Competitor Breakdown</h2>
                 <div className="space-y-6">
-                    {deepScanData.competitorsAnalyzed?.map((competitor, index) => (
+                    {finalData.competitorsAnalyzed?.map((competitor, index) => (
                         <CompetitorCard key={index} competitor={competitor} />
                     ))}
                 </div>
             </section>
 
-            {/* AI Strategic Analysis Section */}
-            {deepScanData.comparativeAnalysis && (
-              <section>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center sm:text-left">AI Strategic Battle Plan</h2>
-                    <PanelCard>
-                        <div className="p-6 border-b border-gray-200/80 bg-gray-50/50 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <IconWrapper icon={Bot} className="bg-indigo-100 text-indigo-600" />
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900">AI-Generated Insights</h3>
-                                    <p className="text-gray-600">Actionable recommendations based on comparative data.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-6">
-                            <div className="prose prose-base max-w-none text-gray-700
-                                prose-headings:font-semibold prose-headings:text-gray-800
-                                prose-strong:font-semibold prose-strong:text-gray-900
-                                prose-a:text-indigo-600 prose-a:font-medium hover:prose-a:text-indigo-700
-                                prose-ul:list-disc prose-ul:pl-5
-                                prose-p:leading-relaxed">
-                            <ReactMarkdown>{deepScanData.comparativeAnalysis}</ReactMarkdown>
-                            </div>
-                        </div>
-                    </PanelCard>
-              </section>
-            )}
+            {/* AI Comparative Analysis */}
+            <section>
+                <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center sm:text-left">AI Comparative Analysis</h2>
+                <PanelCard className="p-8 prose prose-indigo max-w-none prose-p:text-gray-700 prose-headings:text-gray-900 prose-strong:text-gray-800 prose-li:text-gray-700">
+                    <ReactMarkdown>{finalData.comparativeAnalysis}</ReactMarkdown>
+                </PanelCard>
+            </section>
           </div>
         )}
       </div>

@@ -12,7 +12,6 @@ import ReactMarkdown from 'react-markdown';
 import ScoreCircle from './components/ScoreCircle';
 import { getScoreColor } from './utils/scoreColors';
 import useBrandAnalysis from './hooks/useBrandAnalysis';
-import useDeepScan from './hooks/useDeepScan';
 import usePdfExport from './hooks/usePdfExport';
 import DeepScanPanel from './components/DeepScanPanel';
 import SmartCompetitorSelection from './components/SmartCompetitorSelection';
@@ -69,8 +68,12 @@ export default function AnalysisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { triggerHistoryRefresh } = useAnalysisHistory();
-  const { deepScanData, deepScanError, isDeepScanning, runDeepScan } = useDeepScan({ user });
   const { exporting: isExporting, exportError, exportPdf } = usePdfExport({ user });
+
+  const [showCompetitorSelection, setShowCompetitorSelection] = useState(false);
+  const [deepScanParams, setDeepScanParams] = useState(null);
+  const [deepScanResult, setDeepScanResult] = useState(null);
+  const [isDeepScanning, setIsDeepScanning] = useState(false);
 
   const [newBrandName, setNewBrandName] = useState('');
   const brandName = searchParams.get('brand');
@@ -80,7 +83,6 @@ export default function AnalysisPage() {
   const [newCategory, setNewCategory] = useState(category);
   const [isSearching, setIsSearching] = useState(false);
   const [activeSection, setActiveSection] = useState('ai-summary');
-  const [showCompetitorSelection, setShowCompetitorSelection] = useState(false);
 
   const loadingStages = useMemo(() => [
     'Initializing analysis...', 'Analyzing domain availability...', 'AI analyzing competitors...',
@@ -141,18 +143,26 @@ export default function AnalysisPage() {
     router.push(`/analysis?brand=${encodeURIComponent(newBrandName.trim())}&category=${encodeURIComponent(newCategory)}`);
   };
   
-  const handleDeepScan = () => setShowCompetitorSelection(true);
+  const handleDeepScanClick = () => setShowCompetitorSelection(true);
   
   const handleCompetitorSelectionProceed = (selectedCompetitors) => {
     setShowCompetitorSelection(false);
+    setIsDeepScanning(true);
     const competitorUrls = selectedCompetitors.map(comp => comp.link);
-    runDeepScan({ brandName, category, competitorUrls });
+    setDeepScanParams({ brandName, category, competitorUrls });
   };
 
   const handleCompetitorSelectionCancel = () => {
     setShowCompetitorSelection(false);
   };
-  const handlePdfExport = () => exportPdf({ analysis, brandName, category, deepScanData });
+
+  const handleAnalysisComplete = (data) => {
+    setDeepScanResult(data);
+    setIsDeepScanning(false);
+  };
+
+  const handlePdfExport = () => exportPdf({ analysis, brandName, category, deepScanData: deepScanResult });
+
   const verdictFromScore = (score) => {
     if (score >= 85) return 'Exceptional Opportunity';
     if (score >= 70) return 'Strong Contender';
@@ -226,11 +236,11 @@ export default function AnalysisPage() {
                     
                     <StyledCard className="p-6">
                          <div className="flex flex-col gap-4">
-                             <Button onClick={handleDeepScan} disabled={isDeepScanning} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-14 font-bold text-lg flex items-center justify-center gap-2">
+                             <Button onClick={handleDeepScanClick} disabled={isDeepScanning} className="w-full bg-gray-800 text-white hover:bg-gray-900 h-14 font-bold text-lg flex items-center justify-center gap-2">
                                  <Microscope className="h-5 w-5" />
-                                 <span>{isDeepScanning ? 'Scanning...' : 'Perform Deep Scan'}</span>
+                                 <span>{isDeepScanning ? 'Scan in Progress...' : 'Perform Deep Scan'}</span>
                              </Button>
-                             <Button onClick={handlePdfExport} disabled={isExporting} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
+                             <Button onClick={handlePdfExport} disabled={isExporting || !deepScanResult} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
                                  <FileText className="h-5 w-5" />
                                  <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
                              </Button>
@@ -250,21 +260,28 @@ export default function AnalysisPage() {
 
             {showCompetitorSelection && (
               <SmartCompetitorSelection
-                competitors={analysis?.detailedAnalysis?.googleCompetition?.topResults || []}
-                brandName={brandName}
-                category={category}
+                googleCompetitors={analysis.detailedAnalysis.googleCompetition.topResults || []}
                 onProceed={handleCompetitorSelectionProceed}
                 onCancel={handleCompetitorSelectionCancel}
               />
             )}
 
-            <DeepScanPanel
-                brandName={brandName}
-                deepScanData={deepScanData}
-                deepScanError={deepScanError}
-                isDeepScanning={isDeepScanning}
-                onRetry={handleDeepScan}
-            />
+            {deepScanParams && (
+              <DeepScanPanel
+                key={JSON.stringify(deepScanParams)}
+                brandName={deepScanParams.brandName}
+                category={deepScanParams.category}
+                competitorUrls={deepScanParams.competitorUrls}
+                onAnalysisComplete={handleAnalysisComplete}
+              />
+            )}
+
+            {analysis?.deepScanData && !deepScanParams && (
+              <DeepScanPanel
+                key="saved-report"
+                deepScanData={analysis.deepScanData}
+              />
+            )}
         </main>
       </div>
       
