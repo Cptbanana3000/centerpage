@@ -16,10 +16,10 @@ export function categorizeCompetitors(brandName, competitors, category) {
 }
 
 function analyzeCompetitor(brandName, competitor, category) {
-  const brandLower = brandName.toLowerCase();
-  const title = competitor.title.toLowerCase();
-  const domain = new URL(competitor.link).hostname.toLowerCase();
-  const snippet = competitor.snippet?.toLowerCase() || '';
+  const brandLower = brandName?.toLowerCase?.() || '';
+  const title = competitor.title?.toLowerCase?.() || '';
+  const domain = competitor.link ? (new URL(competitor.link).hostname.toLowerCase()) : '';
+  const snippet = competitor.snippet?.toLowerCase?.() || '';
   
   const websiteType = classifyWebsiteType(domain, title, snippet);
   const exactMatch = title.includes(brandLower) || domain.includes(brandLower);
