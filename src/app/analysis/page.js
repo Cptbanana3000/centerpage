@@ -268,7 +268,7 @@ export default function AnalysisPage() {
 
             {showCompetitorSelection && (
               <SmartCompetitorSelection
-                googleCompetitors={analysis.detailedAnalysis?.googleCompetition?.topResults || []}
+                competitors={analysis.detailedAnalysis?.googleCompetition?.topResults || []}
                 onProceed={handleCompetitorSelectionProceed}
                 onCancel={handleCompetitorSelectionCancel}
               />
