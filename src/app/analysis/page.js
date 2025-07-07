@@ -203,19 +203,23 @@ export default function AnalysisPage() {
                          <GoogleCompetitorsList results={analysis.detailedAnalysis?.googleCompetition?.topResults || []} brandName={brandName} />
                     </StyledCard>
                     <StyledCard id="domain-availability" ref={el => sectionsRef.current['domain-availability'] = el} className="p-8">
-                        <h2 className="text-3xl font-bold mb-4 text-gray-900">Domain Availability</h2>
-                        <div className="divide-y divide-gray-200">
-                            {analysis.detailedAnalysis?.domainAvailability?.map((domain) => (
-                                <div key={domain.domain} className="flex items-center justify-between py-4">
-                                    <span className="text-lg text-gray-800">{domain.domain}</span>
-                                    {domain.isAvailable ? 
-                                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Available</span> : 
-                                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Taken</span>
-                                    }
-                                </div>
-                            ))}
-                        </div>
-                    </StyledCard>
+    <h2 className="text-3xl font-bold mb-4 text-gray-900">Domain Availability</h2>
+    <div className="divide-y divide-gray-200">
+        {(analysis.detailedAnalysis?.domainAvailability || []).map((domain) => (
+            <div key={domain.domain} className="flex items-center justify-between py-4">
+                <span className="text-lg text-gray-800">{domain.domain}</span>
+                {domain.isAvailable ? 
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Available</span> : 
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Taken</span>
+                }
+            </div>
+        ))}
+        {(!analysis.detailedAnalysis?.domainAvailability || analysis.detailedAnalysis.domainAvailability.length === 0) && (
+            <p className="text-gray-500 italic py-4">No domain availability data available.</p>
+        )}
+    </div>
+</StyledCard>
+                    
                 </div>
 
                 {/* --- Control Panel (Right, Sticky) --- */}
