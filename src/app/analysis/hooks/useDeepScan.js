@@ -2,6 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '@/contexts/AuthContext';
 
+// helper to safely get ID token
+async function getUserToken(user) {
+  try {
+    if (!user) return null;
+    return await user.getIdToken();
+  } catch (e) {
+    console.error('Failed to get ID token', e);
+    return null;
+  }
+}
+
 // --- Polling Fetcher for SWR ---
 // This function will be called by SWR every few seconds to check the job status.
 const statusFetcher = async (url, token) => {
@@ -24,17 +35,18 @@ const statusFetcher = async (url, token) => {
  * Returns helpers & state: { runDeepScan, data, error, isRunning }
  */
 export default function useDeepScan() {
-  const { user, idToken } = useAuth();
+  const { user } = useAuth();
   const [jobId, setJobId] = useState(null);
   const [status, setStatus] = useState('idle'); // idle, starting, polling, success, error
   const [progress, setProgress] = useState(0);
   const [finalData, setFinalData] = useState(null);
   const [error, setError] = useState(null);
+  const [authToken, setAuthToken] = useState(null);
 
   // --- SWR Hook for Polling ---
   // This will automatically poll the status endpoint when a `jobId` is available.
   const { data: statusData, error: pollingError } = useSWR(
-    jobId ? [`/api/analysis-status/${jobId}`, idToken] : null,
+    jobId && authToken ? [`/api/analysis-status/${jobId}`, authToken] : null,
     ([url, token]) => statusFetcher(url, token),
     {
       refreshInterval: 4000, // Poll every 4 seconds
@@ -76,9 +88,18 @@ export default function useDeepScan() {
     }
   }, [statusData, pollingError]);
 
+  // on user change fetch token
+  useEffect(() => {
+    (async () => {
+      const tk = await getUserToken(user);
+      setAuthToken(tk);
+    })();
+  }, [user]);
+
   // --- Main function to start the Deep Scan ---
   const runDeepScan = useCallback(async (params) => {
-    if (!idToken) {
+    const tk = authToken || await getUserToken(user);
+    if (!tk) {
       setError('You must be logged in to perform a deep scan.');
       setStatus('error');
       return;
@@ -94,7 +115,7 @@ export default function useDeepScan() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
+          Authorization: `Bearer ${tk}`,
         },
         body: JSON.stringify(params),
       });
@@ -110,7 +131,7 @@ export default function useDeepScan() {
       setStatus('error');
       setError(err.message);
     }
-  }, [idToken]);
+  }, [authToken, user]);
 
   return {
     runDeepScan,
