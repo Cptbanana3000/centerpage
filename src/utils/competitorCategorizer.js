@@ -154,8 +154,8 @@ function generateReasoning(analysis, brandName, competitor) {
 }
 
 function calculateNameSimilarity(name1, name2) {
-  const words1 = name1.toLowerCase().split(/\s+/);
-  const words2 = name2.toLowerCase().split(/\s+/);
+  const words1 = (name1 || '').toLowerCase().split(/\s+/);
+  const words2 = (name2 || '').toLowerCase().split(/\s+/);
   
   let maxSimilarity = 0;
   words1.forEach(word1 => {
@@ -170,7 +170,7 @@ function calculateNameSimilarity(name1, name2) {
 
 function calculateDomainSimilarity(brandName, domain) {
   const cleanDomain = domain.replace(/^www\./, '').split('.')[0];
-  return getLevenshteinSimilarity(brandName.toLowerCase(), cleanDomain);
+  return getLevenshteinSimilarity((brandName || '').toLowerCase(), cleanDomain);
 }
 
 function detectIndustryMatch(category, snippet) {
@@ -184,16 +184,16 @@ function detectIndustryMatch(category, snippet) {
 
 function detectProductSimilarity(category, snippet, title) {
   const productIndicators = getProductIndicators(category);
-  const text = `${snippet} ${title}`.toLowerCase();
+  const text = `${snippet || ''} ${title || ''}`.toLowerCase();
   
   const matches = productIndicators.filter(indicator => text.includes(indicator));
   return (matches.length / productIndicators.length) * 100;
 }
 
 function isDirectCompetitor(brandName, competitor, category) {
-  const brandLower = brandName.toLowerCase();
-  const title = competitor.title.toLowerCase();
-  const domain = new URL(competitor.link).hostname.toLowerCase();
+  const brandLower = brandName?.toLowerCase?.() || '';
+  const title = competitor.title?.toLowerCase?.() || '';
+  const domain = competitor.link ? (new URL(competitor.link).hostname.toLowerCase()) : '';
   const snippet = competitor.snippet?.toLowerCase() || '';
   
   const exactMatch = title.includes(brandLower) || domain.includes(brandLower);
@@ -241,7 +241,7 @@ function getCategoryKeywords(category) {
     'professional services': ['consulting', 'service', 'professional', 'business', 'agency']
   };
   
-  return keywords[category.toLowerCase()] || ['business', 'service'];
+  return keywords[category?.toLowerCase?.()] || ['business', 'service'];
 }
 
 function getProductIndicators(category) {
@@ -258,7 +258,7 @@ function getProductIndicators(category) {
     'professional services': ['consultation', 'expertise', 'solution', 'strategy']
   };
   
-  return indicators[category.toLowerCase()] || ['service', 'solution'];
+  return indicators[category?.toLowerCase?.()] || ['service', 'solution'];
 }
 
 function getLevenshteinSimilarity(str1, str2) {
