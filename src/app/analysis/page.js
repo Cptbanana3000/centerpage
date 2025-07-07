@@ -229,7 +229,7 @@ export default function AnalysisPage() {
                     <StyledCard className="p-4">
                         <h2 className="text-lg font-bold mb-2 text-gray-900 px-2">Report Sections</h2>
                         <nav className="flex flex-col gap-1">
-                            {reportSections.map(section => (
+                            {reportSections?.map(section => (
                                 <a key={section.id} href={`#${section.id}`} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-base font-medium transition-colors ${activeSection === section.id ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
                                     <section.icon className="h-5 w-5 shrink-0" />
                                     <span>{section.label}</span>
