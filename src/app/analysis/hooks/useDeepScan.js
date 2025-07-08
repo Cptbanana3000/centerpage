@@ -49,8 +49,10 @@ export default function useDeepScan() {
     jobId && authToken ? [`/api/analysis-status/${jobId}`, authToken] : null,
     ([url, token]) => statusFetcher(url, token),
     {
-      refreshInterval: 4000, // Poll every 4 seconds
+      refreshInterval: 8000, // Poll every 8 seconds (reduces risk of 429)
       revalidateOnFocus: false,
+      revalidateIfStale: false,
+      dedupingInterval: 8000,
     }
   );
 
