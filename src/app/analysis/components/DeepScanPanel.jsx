@@ -11,6 +11,18 @@ import useDeepScan from '../hooks/useDeepScan';
 // but you can replace this with your own icon implementation (e.g., Font Awesome).
 // Example: npm install lucide-react
 
+// --- New dynamic messages for the polling state ---
+const engagingMessages = [
+  "Scanning competitors... This is saving you hours of manual research.",
+  "Analyzing SEO signals... We're finding the vulnerabilities you can exploit.",
+  "Deconstructing their content strategy to reveal what wins them traffic.",
+  "Mapping their technology stack so you know the tools they rely on.",
+  "Running performance benchmarks, because in the race for customers, speed is key.",
+  "Our AI is connecting the dots and turning raw data into your new game plan.",
+  "Identifying their top keywords so you'll know exactly what to target.",
+  "Assembling your strategic report... Get ready for some deep insights."
+];
+
 const IconWrapper = ({ icon: Icon, className = '' }) => (
   <div className={`w-12 h-12 flex items-center justify-center rounded-xl ${className}`}>
     <Icon className="w-6 h-6" />
@@ -159,15 +171,17 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
     progress,
     deepScanData,
     deepScanError,
-    isDeepScanning,
   } = useDeepScan();
 
+  // --- State for dynamic UI during polling ---
+  const [displayProgress, setDisplayProgress] = React.useState(0);
+  const [currentMessage, setCurrentMessage] = React.useState(engagingMessages[0]);
+  
+  const finalData = initialData || deepScanData;
+  const currentStatus = initialData ? 'success' : status;
+
   // --- Automatically run the scan when the component mounts with the right props ---
-  // Note: This is a simplified approach. For more complex scenarios,
-  // you might trigger this from a button click instead.
   React.useEffect(() => {
-    // --- MODIFICATION ---
-    // If initialData is provided, don't run a new scan.
     if (initialData) return;
 
     if (brandName && category && competitorUrls?.length > 0) {
@@ -175,16 +189,48 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
     }
   }, [brandName, category, competitorUrls, initialData, runDeepScan]); // Dependency array ensures it runs once per analysis
 
+  // --- Effect for managing the dynamic UI (progress bar and messages) ---
+  React.useEffect(() => {
+    if (currentStatus === 'polling') {
+      const messageInterval = setInterval(() => {
+        setCurrentMessage(prev => engagingMessages[(engagingMessages.indexOf(prev) + 1) % engagingMessages.length]);
+      }, 3500);
+
+      // Start the smooth animation from the current *real* progress.
+      setDisplayProgress(current => Math.max(current, progress));
+      
+      const progressInterval = setInterval(() => {
+        setDisplayProgress(oldProgress => {
+          if (oldProgress >= 95) {
+            clearInterval(progressInterval);
+            return 95;
+          }
+          // Animate towards 95%
+          return oldProgress + (95 - oldProgress) * 0.1;
+        });
+      }, 800);
+
+      return () => {
+        clearInterval(messageInterval);
+        clearInterval(progressInterval);
+      };
+    } else {
+      // For any other state (starting, success, error), sync display progress with real progress.
+      if (currentStatus === 'success') {
+          // A short delay before jumping to 100% feels more satisfying.
+          setTimeout(() => setDisplayProgress(100), 300);
+      } else {
+          setDisplayProgress(progress);
+      }
+    }
+  }, [currentStatus, progress]);
+
   // --- Propagate the result to the parent component ---
   React.useEffect(() => {
     if (status === 'success' && deepScanData) {
       onAnalysisComplete?.(deepScanData);
     }
   }, [status, deepScanData, onAnalysisComplete]);
-
-  // --- Combine initialData with hook's data ---
-  const finalData = initialData || deepScanData;
-  const currentStatus = initialData ? 'success' : status;
 
   // This function will be passed to the error card's retry button
   const handleRetry = () => {
@@ -242,10 +288,10 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
                  <Activity className="w-8 h-8 animate-pulse" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Analysis in Progress...</h3>
-            <p className="text-gray-600 max-w-md mx-auto">
-              {statusMessages[finalData?.state] || 'Our AI is analyzing competitor websites. This may take a moment.'}
+            <p className="text-gray-600 max-w-md mx-auto min-h-[40px] flex items-center justify-center">
+              {currentMessage}
             </p>
-            <ProgressBar progress={progress} />
+            <ProgressBar progress={displayProgress} />
           </PanelCard>
         )}
 
