@@ -72,7 +72,8 @@ export default function useDeepScan() {
       switch (statusData.state) {
         case 'completed':
           setStatus('success');
-          setFinalData(statusData.result.data);
+          // --- MODIFICATION: Point to the new, richer data structure ---
+          setFinalData(statusData.result.returnvalue.data);
           setJobId(null); // Stop polling on completion
           break;
         case 'failed':

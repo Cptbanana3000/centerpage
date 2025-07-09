@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
-  ShieldCheck, Globe, FileText, Heading1, BookText, Cpu, Timer, Link2, ExternalLink, Users, Database, FileSignature, CalendarCheck, Frown, Loader, Crown, Bot, Hourglass, Activity,
+  ShieldCheck, Globe, FileText, Heading1, BookText, Cpu, Timer, Link2, ExternalLink, Users, Database, FileSignature, CalendarCheck, Frown, Loader, Crown, Bot, Hourglass, Activity, Eye,
 } from 'lucide-react';
 import useDeepScan from '../hooks/useDeepScan';
 
@@ -163,6 +163,144 @@ const statusMessages = {
   failed: 'An error occurred during analysis.'
 };
 
+// =================================================================================
+// --- NEW COMPONENTS FOR V3 MULTI-AGENT REPORT ---
+// =================================================================================
+
+// --- 1. Strength & Weakness List ---
+const StrengthWeaknessList = ({ title, items, color }) => {
+  const colorClasses = {
+    green: 'border-l-green-500 bg-green-50 text-green-800',
+    red: 'border-l-red-500 bg-red-50 text-red-800',
+  };
+  return (
+    <div>
+      <h4 className={`text-lg font-bold mb-3 text-${color}-700`}>{title}</h4>
+      <ul className="space-y-2">
+        {items?.map((item, index) => (
+          <li key={index} className={`p-3 rounded-lg border-l-4 ${colorClasses[color]}`}>
+            {item}
+          </li>
+        )) || <li className="text-gray-500 italic">No data available.</li>}
+      </ul>
+    </div>
+  );
+};
+
+
+// --- 2. Agent Report Tabs ---
+const AgentReportTabs = ({ reports }) => {
+  const [activeTab, setActiveTab] = useState('technical');
+  const tabs = [
+    { id: 'technical', label: 'Technical', icon: ShieldCheck },
+    { id: 'content', label: 'Content', icon: BookText },
+    { id: 'visual_ux', label: 'Visual UX', icon: Eye },
+  ];
+  
+  const activeReport = reports[activeTab];
+
+  const TabButton = ({ id, label, icon: Icon }) => (
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`flex-1 px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-t-lg transition-all
+        ${activeTab === id 
+          ? 'bg-white text-indigo-600 border-b-2 border-indigo-600' 
+          : 'bg-gray-100/70 text-gray-600 hover:bg-gray-200/70'
+        }`}
+    >
+      <Icon className="w-5 h-5" />
+      {label}
+    </button>
+  );
+
+  return (
+    <div>
+      <div className="flex border-b border-gray-200 bg-gray-50/50 rounded-t-lg overflow-hidden">
+        {tabs.map(tab => <TabButton key={tab.id} {...tab} />)}
+      </div>
+      <div className="p-6 bg-white rounded-b-lg">
+        {activeReport ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <StrengthWeaknessList title="Strengths" items={activeReport.strengths} color="green" />
+            <StrengthWeaknessList title="Weaknesses" items={activeReport.weaknesses} color="red" />
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Frown className="w-8 h-8 mx-auto mb-2" />
+            <p>Analysis data for this category is not available.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+// --- 3. New Competitor Card (replaces the old one) ---
+const NewCompetitorCard = ({ report }) => {
+  // Handle the partial failure case
+  if (report.error) {
+    return (
+      <PanelCard className="p-6 border-amber-500/40">
+        <div className="flex items-center gap-4">
+          <IconWrapper icon={Globe} className="bg-amber-100 text-amber-600 flex-shrink-0" />
+          <div className="flex-1">
+            <h4 className="text-lg font-bold text-gray-800 break-all">
+                {new URL(report.url).hostname.replace('www.', '')}
+            </h4>
+          </div>
+          <div className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full border border-amber-200/80">
+            Analysis Failed
+          </div>
+        </div>
+        <p className="mt-4 text-center text-amber-700 bg-amber-50/80 p-4 rounded-lg">{report.error}</p>
+      </PanelCard>
+    );
+  }
+
+  const { raw_data_summary: summary, specialist_reports: reports, url } = report;
+
+  return (
+    <PanelCard>
+      {/* Card Header */}
+      <div className="p-5 border-b border-gray-200/80 flex items-center justify-between bg-gray-50/50">
+        <div className="flex items-center gap-4 min-w-0">
+          <IconWrapper icon={Globe} className="bg-gray-100 text-gray-600 flex-shrink-0" />
+          <div className="min-w-0">
+            <h4 className="text-lg font-bold text-gray-800 truncate">
+              <a href={url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 hover:underline transition-colors">
+                {new URL(url).hostname.replace('www.', '')}
+              </a>
+            </h4>
+            <p className="text-gray-500 text-xs truncate">{url}</p>
+          </div>
+        </div>
+        <div className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full border border-green-200/80 flex-shrink-0">
+          Analyzed
+        </div>
+      </div>
+  
+      {/* Main Content Body - Summary Stats */}
+      <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatDisplay label="Word Count" value={summary.wordCount?.toLocaleString() || 'N/A'} icon={FileSignature} color="indigo" />
+        <StatDisplay label="Load Time" value={`${summary.performance?.pageLoadTime || 'N/A'}`} icon={Timer} color="green" />
+        <StatDisplay label="FCP" value={`${summary.performance?.firstContentfulPaint || 'N/A'}`} icon={Activity} color="green" />
+        <StatDisplay label="Tech Stack" value={summary.techStack?.slice(0, 1).join(', ') || 'N/A'} icon={Cpu} color="purple" />
+      </div>
+  
+      {/* Agent Reports (Tabs) */}
+      <div className="px-5 pb-5">
+        <AgentReportTabs reports={reports} />
+      </div>
+    </PanelCard>
+  );
+};
+
+
+// =================================================================================
+// --- MAIN PANEL COMPONENT ---
+// =================================================================================
+
 export default function DeepScanPanel({ brandName, category, competitorUrls, onAnalysisComplete, deepScanData: initialData }) {
   // --- Use the new hook ---
   const {
@@ -314,38 +452,37 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
           </PanelCard>
         )}
         
-        {/* Results */}
+        {/* ================================================================================= */}
+        {/* --- NEW V3 RESULTS VIEW --- */}
+        {/* ================================================================================= */}
         {currentStatus === 'success' && finalData && (
-          <div className="space-y-12">
-            {/* Overview Section */}
+          <div className="space-y-16">
+            {/* Main Report (from Aura) */}
             <section>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center sm:text-left">Scan Overview</h2>
-                <PanelCard className="p-6" highlight>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <StatDisplay label="Competitors" value={finalData.competitorsAnalyzed?.length || 0} icon={Users} color="indigo"/>
-                        <StatDisplay label="Data Points" value={(finalData.competitorsAnalyzed?.length || 0) * 16} icon={Database} color="purple"/>
-                        <StatDisplay label="Strategic Report" value={finalData.comparativeAnalysis ? 'Generated' : 'N/A'} icon={FileSignature} color="green"/>
-                        <StatDisplay label="Date" value={finalData.timestamp ? new Date(finalData.timestamp).toLocaleDateString() : 'N/A'} icon={CalendarCheck} color="orange"/>
-                    </div>
-                </PanelCard>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center mb-4">
+                Strategic Battle Plan
+              </h2>
+              <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                This is the main strategic analysis generated by our lead AI agent, Aura. It provides a high-level overview of the competitive landscape.
+              </p>
+              <PanelCard className="p-8 prose prose-indigo max-w-none prose-p:text-gray-700 prose-headings:text-gray-900 prose-strong:text-gray-800 prose-li:text-gray-700">
+                <ReactMarkdown>{finalData.analysis || "No main analysis was generated."}</ReactMarkdown>
+              </PanelCard>
             </section>
 
-            {/* Competitor Breakdown Section */}
+            {/* Detailed Competitor Breakdown */}
             <section>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center sm:text-left">Competitor Breakdown</h2>
-                <div className="space-y-6">
-                    {finalData.competitorsAnalyzed?.map((competitor, index) => (
-                        <CompetitorCard key={index} competitor={competitor} />
-                    ))}
-                </div>
-            </section>
-
-            {/* AI Comparative Analysis */}
-            <section>
-                <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center sm:text-left">AI Comparative Analysis</h2>
-                <PanelCard className="p-8 prose prose-indigo max-w-none prose-p:text-gray-700 prose-headings:text-gray-900 prose-strong:text-gray-800 prose-li:text-gray-700">
-                    <ReactMarkdown>{finalData.comparativeAnalysis}</ReactMarkdown>
-                </PanelCard>
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center mb-4">
+                Detailed Competitor Breakdown
+              </h2>
+              <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                Here's the granular data from our specialist agents for each competitor. Use the tabs to explore Technical, Content, and Visual UX reports.
+              </p>
+              <div className="space-y-8">
+                {finalData.detailedAgentReports?.map((report, index) => (
+                  <NewCompetitorCard key={report.url || index} report={report} />
+                ))}
+              </div>
             </section>
           </div>
         )}
