@@ -281,15 +281,33 @@ const NewCompetitorCard = ({ report }) => {
       </div>
   
       {/* Main Content Body - Summary Stats */}
-      <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatDisplay label="Word Count" value={summary.wordCount?.toLocaleString() || 'N/A'} icon={FileSignature} color="indigo" />
         <StatDisplay label="Load Time" value={`${summary.performance?.pageLoadTime || 'N/A'}`} icon={Timer} color="green" />
         <StatDisplay label="FCP" value={`${summary.performance?.firstContentfulPaint || 'N/A'}`} icon={Activity} color="green" />
-        <StatDisplay label="Tech Stack" value={summary.techStack?.slice(0, 1).join(', ') || 'N/A'} icon={Cpu} color="purple" />
+      </div>
+
+      {/* --- PREMIUM TECH STACK SECTION --- */}
+      <div className="border-y border-gray-200/80 px-5 py-4 bg-gradient-to-br from-gray-50/50 to-gray-100/50">
+        <div className="flex items-center gap-3 mb-4">
+            <Cpu className="w-5 h-5 text-indigo-600" />
+            <h5 className="text-sm font-bold text-indigo-700 uppercase tracking-wider">Technology Stack</h5>
+        </div>
+        <div className="flex flex-wrap gap-3">
+            {summary.techStack?.length > 0 ? (
+            summary.techStack.map((tech) => (
+                <span key={tech} className="px-4 py-2 bg-white text-gray-800 text-sm font-medium rounded-full border border-gray-200/80 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-default">
+                    {tech}
+                </span>
+            ))
+            ) : (
+            <span className="text-gray-500 text-sm italic">No technologies detected.</span>
+            )}
+        </div>
       </div>
   
       {/* Agent Reports (Tabs) */}
-      <div className="px-5 pb-5">
+      <div className="px-5 pt-5 pb-5">
         <AgentReportTabs reports={reports} />
       </div>
     </PanelCard>
