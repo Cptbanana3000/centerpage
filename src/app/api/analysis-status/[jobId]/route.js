@@ -15,6 +15,8 @@ export async function GET(request, { params }) {
     return NextResponse.json({ message: 'Invalid token' }, { status: 403 });
   }
 
+  const userId = decodedToken.uid; // Extract userId for history updates
+
   // 2. Get the jobId from the dynamic URL parameter.
   const { jobId } = params;
   if (!jobId) {
@@ -28,12 +30,17 @@ export async function GET(request, { params }) {
       { headers: { 'x-api-key': process.env.EXTERNAL_BACKEND_API_KEY } }
     );
 
-    // 4. If the job is complete, save the final report to the database.
+    // 4. If the job is complete, save the final report to the database and update history.
     if (backendResponse.data?.state === 'completed' && backendResponse.data?.result) {
       const { brandName, category, data } = backendResponse.data.result;
       if (brandName && category && data) {
          await databaseService.saveDeepScanReport(brandName, category, data);
+         // Update the user's deep scan history status
+         await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'completed', data);
       }
+    } else if (backendResponse.data?.state === 'failed') {
+      // Update history for failed scans
+      await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'failed');
     }
 
     // 5. Return the entire response from the backend to our frontend.

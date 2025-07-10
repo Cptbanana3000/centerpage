@@ -31,7 +31,7 @@ export function calculateDigitalIdentityStrength(domainData, googleResults, bran
     } else {
         // .com is taken, calculate score based on alternatives
         let premiumTLDs = ['.io', '.co', '.app'];
-        switch (category.toLowerCase()) {
+    switch (category.toLowerCase()) {
             case 'tech & saas': premiumTLDs = ['.io', '.ai', '.tech', '.app', '.co']; break;
             case 'e-commerce & retail': premiumTLDs = ['.shop', '.store', '.co']; break;
             case 'health & wellness': premiumTLDs = ['.health', '.care', '.co', '.io']; break;
@@ -43,9 +43,9 @@ export function calculateDigitalIdentityStrength(domainData, googleResults, bran
             case 'education & e-learning': premiumTLDs = ['.education', '.school', '.academy', '.io']; break;
             case 'professional services': premiumTLDs = ['.pro', '.expert', '.consulting', '.legal']; break;
             default: premiumTLDs = ['.io', '.co', '.app']; break;
-        }
-        
-        const availablePremium = domainData.filter(d => d.available && premiumTLDs.some(tld => d.domain.endsWith(tld))).length;
+    }
+
+    const availablePremium = domainData.filter(d => d.available && premiumTLDs.some(tld => d.domain.endsWith(tld))).length;
         
         if (availablePremium >= 2) {
             score = 65; // Good alternatives exist
@@ -54,7 +54,7 @@ export function calculateDigitalIdentityStrength(domainData, googleResults, bran
         } else {
             // Check for standard TLDs if no premium ones are available
             let standardTLDs = ['.net', '.org', '.info'];
-            const availableStandard = domainData.filter(d => d.available && standardTLDs.some(tld => d.domain.endsWith(tld))).length;
+    const availableStandard = domainData.filter(d => d.available && standardTLDs.some(tld => d.domain.endsWith(tld))).length;
             if (availableStandard >= 2) score = 35;
             else if (availableStandard === 1) score = 25;
             else score = 10; // Very few, weak options

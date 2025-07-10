@@ -40,7 +40,10 @@ export async function POST(request) {
 
     // 2. Check for a successful job initiation.
     if (backendResponse.status === 202 && backendResponse.data.jobId) {
-      // 3. Immediately return the jobId to the frontend with a 202 "Accepted" status.
+      // 3. Save the jobId and scan parameters to user history
+      await databaseService.saveDeepScanToHistory(userId, backendResponse.data.jobId, body);
+      
+      // 4. Return the jobId to the frontend with a 202 "Accepted" status.
       return NextResponse.json({ jobId: backendResponse.data.jobId }, { status: 202 });
     } else {
       // If the backend didn't accept the job, something is wrong.

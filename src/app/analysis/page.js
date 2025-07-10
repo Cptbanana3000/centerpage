@@ -21,7 +21,7 @@ import BrandMetrics from './components/BrandMetrics';
 import { Button } from '@/components/ui/button';
 import { useAnalysis } from '@/hooks/useAnalysis';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Microscope, FileText, BrainCircuit, PieChart, Users, Globe, Plus } from 'lucide-react';
+import { Microscope, FileText, BrainCircuit, PieChart, Users, Globe, Plus, AlertTriangle } from 'lucide-react';
 
 // Make sure you have Font Awesome loaded for icons
 // import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -36,32 +36,6 @@ const StyledCard = React.forwardRef(({ children, className = '', ...props }, ref
   </div>
 ));
 StyledCard.displayName = 'StyledCard';
-
-const LoadingScreen = ({ stageIndex, totalStages, stageLabel, viewMode }) => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="text-center">
-        <div className="relative w-24 h-24 mx-auto mb-8">
-            <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-            <div 
-                className="absolute inset-0 border-4 border-gray-800 rounded-full animate-spin"
-                style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}
-            ></div>
-            <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-800">
-               {viewMode !== 'saved' && `${Math.round(((stageIndex + 1) / totalStages) * 100)}%`}
-            </div>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
-          {viewMode === 'saved' ? 'Loading Your Report...' : stageLabel}
-        </h2>
-        <p className="text-lg text-gray-600 max-w-md mx-auto">
-          {viewMode === 'saved' 
-            ? 'Retrieving your previously saved analysis.' 
-            : 'Our AI is working hard to provide you with comprehensive insights.'
-          }
-        </p>
-      </div>
-    </div>
-);
 
 export default function AnalysisPage() {
   const { user } = useAuth();
@@ -79,6 +53,8 @@ export default function AnalysisPage() {
   const brandName = searchParams.get('brand');
   const category = searchParams.get('category') || CATEGORIES[0].value;
   const viewMode = searchParams.get('view');
+  const isDeepScanLoad = searchParams.get('deepScan') === 'true';
+  const jobId = searchParams.get('jobId');
 
   const [newCategory, setNewCategory] = useState(category);
   const [isSearching, setIsSearching] = useState(false);
@@ -92,6 +68,26 @@ export default function AnalysisPage() {
   const { analysis, loading, error, loadingStage } = useBrandAnalysis({
     brandName, category, viewMode, user, triggerHistoryRefresh, router,
   });
+
+  // Handle deep scan data loaded from dashboard
+  useEffect(() => {
+    if (isDeepScanLoad && jobId) {
+      const storedData = sessionStorage.getItem('deepScanData');
+      if (storedData) {
+        try {
+          const deepScanData = JSON.parse(storedData);
+          setDeepScanResult(deepScanData);
+          // Clear the stored data
+          sessionStorage.removeItem('deepScanData');
+          // Update URL to remove deep scan params
+          const newUrl = `/analysis?deepScanLoaded=true`;
+          router.replace(newUrl, undefined, { shallow: true });
+        } catch (error) {
+          console.error('Error parsing stored deep scan data:', error);
+        }
+      }
+    }
+  }, [isDeepScanLoad, jobId, router]);
 
   // Scroll spy logic
   const sectionsRef = useRef({});
@@ -117,23 +113,117 @@ export default function AnalysisPage() {
     };
   }, [analysis]); // Rerun when analysis data is available
 
-  if (loading || isSearching) {
-    return <LoadingScreen stageIndex={loadingStage ?? 0} stageLabel={loadingStages[loadingStage] || 'Initializing analysis...'} totalStages={loadingStages.length} viewMode={viewMode} />;
+  // Loading State
+  if (loading && !isDeepScanLoad) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{loadingStages[loadingStage]}</h2>
+            <p className="text-gray-600">This usually takes 30-60 seconds...</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
-  if (error || !analysis) {
+  // Error State  
+  if (error && !isDeepScanLoad) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-center p-4">
-        <div>
-            <h2 className="text-3xl font-bold text-red-600 mb-4">Analysis Failed</h2>
-            <p className="text-lg text-gray-600 mb-8">{error || 'No analysis data could be retrieved.'}</p>
-            <Link href="/" passHref>
-              <Button className="bg-gray-900 text-white font-bold hover:bg-gray-800">
-                Start a New Analysis
-              </Button>
-            </Link>
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="w-16 h-16 mx-auto bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Analysis Failed</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={() => router.push('/')} className="bg-gray-900 text-white hover:bg-gray-800">
+              Try Another Brand
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
+    );
+  }
+
+  // Handle deep scan only view (no standard analysis)
+  if (isDeepScanLoad && deepScanResult && !analysis) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 text-gray-800 antialiased pt-16 font-['Inter',_sans-serif]">
+          <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Deep Scan Report</h1>
+              <p className="text-gray-600">Loaded from your analysis history</p>
+            </div>
+            
+            <DeepScanPanel
+              key="dashboard-loaded-report-only"
+              deepScanData={deepScanResult}
+            />
+          </main>
+        </div>
+      </>
+    );
+  }
+
+  if (loading || isSearching) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{loadingStages[loadingStage]}</h2>
+            <p className="text-gray-600">This usually takes 30-60 seconds...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="w-16 h-16 mx-auto bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Analysis Failed</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={() => router.push('/')} className="bg-gray-900 text-white hover:bg-gray-800">
+              Try Another Brand
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (!analysis && !isDeepScanLoad) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="w-16 h-16 mx-auto bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Analysis Data</h2>
+            <p className="text-gray-600 mb-4">No analysis data could be retrieved.</p>
+            <Button onClick={() => router.push('/')} className="bg-gray-900 text-white hover:bg-gray-800">
+              Start New Analysis
+            </Button>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -149,7 +239,7 @@ export default function AnalysisPage() {
     setShowCompetitorSelection(false);
     if (Array.isArray(selectedCompetitors) && selectedCompetitors.length > 0) {
       setIsDeepScanning(true);
-      const competitorUrls = selectedCompetitors.map(comp => comp.link);
+    const competitorUrls = selectedCompetitors.map(comp => comp.link);
       setDeepScanParams({ brandName, category, competitorUrls });
     } else {
       console.warn('Deep scan was initiated without any selected competitors.');
@@ -203,22 +293,22 @@ export default function AnalysisPage() {
                          <GoogleCompetitorsList results={analysis.detailedAnalysis?.googleCompetition?.topResults || []} brandName={brandName} />
                     </StyledCard>
                     <StyledCard id="domain-availability" ref={el => sectionsRef.current['domain-availability'] = el} className="p-8">
-    <h2 className="text-3xl font-bold mb-4 text-gray-900">Domain Availability</h2>
-    <div className="divide-y divide-gray-200">
+                        <h2 className="text-3xl font-bold mb-4 text-gray-900">Domain Availability</h2>
+                        <div className="divide-y divide-gray-200">
         {(analysis.detailedAnalysis?.domainAvailability || []).map((domain) => (
-            <div key={domain.domain} className="flex items-center justify-between py-4">
-                <span className="text-lg text-gray-800">{domain.domain}</span>
-                {domain.isAvailable ? 
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Available</span> : 
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Taken</span>
-                }
-            </div>
-        ))}
+                                <div key={domain.domain} className="flex items-center justify-between py-4">
+                                    <span className="text-lg text-gray-800">{domain.domain}</span>
+                                    {domain.isAvailable ? 
+                                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Available</span> : 
+                                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Taken</span>
+                                    }
+                                </div>
+                            ))}
         {(!analysis.detailedAnalysis?.domainAvailability || analysis.detailedAnalysis.domainAvailability.length === 0) && (
             <p className="text-gray-500 italic py-4">No domain availability data available.</p>
         )}
-    </div>
-</StyledCard>
+                        </div>
+                    </StyledCard>
                     
                 </div>
 
@@ -285,10 +375,18 @@ export default function AnalysisPage() {
             )}
 
             {analysis?.deepScanData && !deepScanParams && (
-              <DeepScanPanel
+            <DeepScanPanel
                 key="saved-report"
                 deepScanData={analysis.deepScanData}
-              />
+            />
+            )}
+
+            {/* Deep scan data loaded from dashboard */}
+            {deepScanResult && !deepScanParams && !analysis?.deepScanData && (
+            <DeepScanPanel
+                key="dashboard-loaded-report"
+                deepScanData={deepScanResult}
+            />
             )}
         </main>
       </div>

@@ -541,6 +541,55 @@ class DatabaseService {
       return null;
     }
   }
+
+  // Save deep scan history entry to user history with jobId
+  async saveDeepScanToHistory(userId, jobId, scanParams) {
+    if (!userId || !jobId) return false;
+    
+    try {
+      const historyRef = doc(db, `users/${userId}/history`, `deepscan_${jobId}`);
+      await setDoc(historyRef, {
+        type: 'deep_scan',
+        jobId: jobId,
+        brandName: scanParams.brandName,
+        category: scanParams.category,
+        competitorUrls: scanParams.competitorUrls,
+        scanState: 'active', // active, completed, failed
+        date: serverTimestamp(),
+        analysisTime: new Date().toISOString(),
+      });
+      console.log(`Deep scan history saved for user ${userId}, jobId: ${jobId}`);
+      return true;
+    } catch (error) {
+      console.error('Failed to save deep scan to user history:', error);
+      return false;
+    }
+  }
+
+  // Update deep scan history entry status
+  async updateDeepScanHistoryStatus(userId, jobId, scanState, reportData = null) {
+    if (!userId || !jobId) return false;
+    
+    try {
+      const historyRef = doc(db, `users/${userId}/history`, `deepscan_${jobId}`);
+      const updateData = {
+        scanState: scanState,
+        lastUpdated: serverTimestamp(),
+      };
+      
+      if (reportData) {
+        updateData.hasReport = true;
+        updateData.completedAt = serverTimestamp();
+      }
+      
+      await updateDoc(historyRef, updateData);
+      console.log(`Deep scan history updated for user ${userId}, jobId: ${jobId}, state: ${scanState}`);
+      return true;
+    } catch (error) {
+      console.error('Failed to update deep scan history status:', error);
+      return false;
+    }
+  }
 }
 
 const databaseService = new DatabaseService();

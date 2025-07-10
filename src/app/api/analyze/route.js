@@ -4,7 +4,7 @@ import { checkFirebaseRateLimit } from '@/lib/rate-limiter-firebase';
 import databaseService from '@/services/database'; 
 import requestTracker from '@/services/requestTracker';
 import { verifyIdToken } from '@/lib/firebase-admin';
-import {
+import { 
     calculateDigitalIdentityStrength,
     calculateCompetitionIntensityAI,
     calculateSeoDifficultyAI,

@@ -10,7 +10,7 @@ import databaseService from '@/services/database';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, BarChart, ChevronRight, Star, Plus, CheckCircle } from 'lucide-react';
+import { Search, BarChart, ChevronRight, Star, Plus, CheckCircle, Microscope, Clock, AlertCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -40,10 +40,16 @@ export default function DashboardPage() {
         const historyData = await databaseService.getUserAnalysisHistory(user.uid);
         const transformedHistory = historyData.map(item => ({
           id: item.id,
+          type: item.type || 'standard_analysis',
           brandName: item.brandName,
           category: item.category,
           overallScore: item.overallScore,
           date: item.date?.toDate?.()?.toISOString() || item.analysisTime || new Date().toISOString(),
+          // Deep scan specific fields
+          jobId: item.jobId,
+          scanState: item.scanState,
+          competitorUrls: item.competitorUrls,
+          hasReport: item.hasReport,
         }));
         setRecentAnalyses(transformedHistory);
       } catch (error) {
@@ -65,15 +71,62 @@ export default function DashboardPage() {
     return 'text-red-600';
   };
 
+  const getScanStateColor = (scanState) => {
+    switch (scanState) {
+      case 'completed': return 'text-green-600';
+      case 'active': return 'text-blue-600';
+      case 'failed': return 'text-red-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getScanStateIcon = (scanState) => {
+    switch (scanState) {
+      case 'completed': return CheckCircle;
+      case 'active': return Clock;
+      case 'failed': return AlertCircle;
+      default: return Clock;
+    }
+  };
+
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const filteredAnalyses = recentAnalyses.filter(analysis => 
     analysis.brandName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalAnalyses = recentAnalyses.length;
-  const averageScore = totalAnalyses > 0 ? Math.round(recentAnalyses.reduce((acc, curr) => acc + curr.overallScore, 0) / totalAnalyses) : 0;
-  const topPicks = recentAnalyses.filter(a => a.overallScore >= 80).length;
+  const standardAnalyses = filteredAnalyses.filter(a => a.type !== 'deep_scan');
+  const totalAnalyses = standardAnalyses.length;
+  const averageScore = totalAnalyses > 0 ? Math.round(standardAnalyses.reduce((acc, curr) => acc + curr.overallScore, 0) / totalAnalyses) : 0;
+  const topPicks = standardAnalyses.filter(a => a.overallScore >= 80).length;
+
+  // Function to load deep scan report
+  const loadDeepScanReport = async (jobId) => {
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/analysis-status/${jobId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const data = await response.json();
+      
+      if (data.state !== 'completed') {
+        alert('Report unavailable or still processing. Try again later.');
+        return;
+      }
+      
+      // Navigate to analysis page with deep scan data
+      const analysisData = data.result?.returnvalue?.data || data.result?.data;
+      if (analysisData) {
+        // Store the deep scan data temporarily and navigate
+        sessionStorage.setItem('deepScanData', JSON.stringify(analysisData));
+        router.push(`/analysis?deepScan=true&jobId=${jobId}`);
+      }
+    } catch (error) {
+      console.error('Error loading deep scan report:', error);
+      alert('Failed to load deep scan report. Please try again.');
+    }
+  };
 
   const StyledCard = ({ children, className = '' }) => (
     <div className={`bg-white border border-gray-200 rounded-xl ${className}`}>
@@ -137,28 +190,70 @@ export default function DashboardPage() {
                       <TableRow>
                         <TableHead className="w-2/5">Brand Name</TableHead>
                         <TableHead className="hidden sm:table-cell">Date</TableHead>
-                        <TableHead className="text-right">Score</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead className="text-right">Score/Status</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredAnalyses.map((analysis) => (
-                        <TableRow 
-                          key={analysis.id} 
-                          className="cursor-pointer group"
-                          onClick={() => router.push(`/analysis?brand=${encodeURIComponent(analysis.brandName)}&category=${encodeURIComponent(analysis.category)}&view=saved`)}
-                        >
-                          <TableCell>
-                            <div className="font-semibold text-base text-gray-800 truncate">{analysis.brandName}</div>
-                            <div className="text-sm text-gray-500">{analysis.category}</div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-gray-500">{formatDate(analysis.date)}</TableCell>
-                          <TableCell className={`text-right text-2xl font-bold ${getScoreColor(analysis.overallScore)}`}>{analysis.overallScore}</TableCell>
-                          <TableCell>
-                            <ChevronRight className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {filteredAnalyses.map((analysis) => {
+                        const isDeepScan = analysis.type === 'deep_scan';
+                        const StateIcon = isDeepScan ? getScanStateIcon(analysis.scanState) : null;
+                        
+                        return (
+                          <TableRow key={analysis.id} className="group">
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {isDeepScan && <Microscope className="w-4 h-4 text-indigo-600" />}
+                                <div>
+                                  <div className="font-semibold text-base text-gray-800 truncate">{analysis.brandName}</div>
+                                  <div className="text-sm text-gray-500 flex items-center gap-1">
+                                    {analysis.category}
+                                    {isDeepScan && <span className="text-indigo-600 font-medium">• Deep Scan</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-gray-500">{formatDate(analysis.date)}</TableCell>
+                            <TableCell className="text-right">
+                              {isDeepScan ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <StateIcon className={`w-4 h-4 ${getScanStateColor(analysis.scanState)}`} />
+                                  <span className={`text-sm font-medium ${getScanStateColor(analysis.scanState)}`}>
+                                    {analysis.scanState === 'completed' ? 'Completed' : 
+                                     analysis.scanState === 'active' ? 'Processing' : 'Failed'}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className={`text-2xl font-bold ${getScoreColor(analysis.overallScore)}`}>
+                                  {analysis.overallScore}
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {isDeepScan && analysis.scanState === 'completed' ? (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => loadDeepScanReport(analysis.jobId)}
+                                    className="text-xs"
+                                  >
+                                    Load Report
+                                  </Button>
+                                ) : !isDeepScan ? (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => router.push(`/analysis?brand=${encodeURIComponent(analysis.brandName)}&category=${encodeURIComponent(analysis.category)}&view=saved`)}
+                                  >
+                                    <ChevronRight className="w-4 h-4" />
+                                  </Button>
+                                ) : null}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 ) : (
