@@ -30,14 +30,10 @@ export async function GET(request, { params }) {
       { headers: { 'x-api-key': process.env.EXTERNAL_BACKEND_API_KEY } }
     );
 
-    // 4. If the job is complete, save the final report to the database and update history.
+    // 4. Update user history status when job completes or fails (lightweight metadata only)
     if (backendResponse.data?.state === 'completed' && backendResponse.data?.result) {
-      const { brandName, category, data } = backendResponse.data.result;
-      if (brandName && category && data) {
-         await databaseService.saveDeepScanReport(brandName, category, data);
-         // Update the user's deep scan history status
-         await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'completed', data);
-      }
+      // Only update history status - report data stays in Firestore
+      await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'completed', true);
     } else if (backendResponse.data?.state === 'failed') {
       // Update history for failed scans
       await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'failed');
