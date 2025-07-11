@@ -253,9 +253,16 @@ export default function AnalysisPage() {
   const handleAnalysisComplete = (data) => {
     setDeepScanResult(data);
     setIsDeepScanning(false);
+    // Clear the deepScanParams to prevent the scanning component from re-rendering
+    setDeepScanParams(null);
   };
 
-  const handlePdfExport = () => exportPdf({ analysis, brandName, category, deepScanData: deepScanResult });
+  const handlePdfExport = () => exportPdf({ 
+    analysis, 
+    brandName, 
+    category, 
+    deepScanData: deepScanResult || analysis?.deepScanData 
+  });
 
   const verdictFromScore = (score) => {
     if (score >= 85) return 'Exceptional Opportunity';
@@ -338,7 +345,7 @@ export default function AnalysisPage() {
                                  <Microscope className="h-5 w-5" />
                                  <span>{isDeepScanning ? 'Scan in Progress...' : 'Perform Deep Scan'}</span>
                              </Button>
-                             <Button onClick={handlePdfExport} disabled={isExporting || !deepScanResult} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
+                             <Button onClick={handlePdfExport} disabled={isExporting || !(deepScanResult || analysis?.deepScanData)} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
                                  <FileText className="h-5 w-5" />
                                  <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
                              </Button>
@@ -374,19 +381,12 @@ export default function AnalysisPage() {
               />
             )}
 
-            {analysis?.deepScanData && !deepScanParams && (
-            <DeepScanPanel
-                key="saved-report"
-                deepScanData={analysis.deepScanData}
-            />
-            )}
-
-            {/* Deep scan data loaded from dashboard */}
-            {deepScanResult && !deepScanParams && !analysis?.deepScanData && (
-            <DeepScanPanel
-                key="dashboard-loaded-report"
-                deepScanData={deepScanResult}
-            />
+            {/* Always show deep scan results when available - prioritize fresh results over saved */}
+            {(deepScanResult || analysis?.deepScanData) && !deepScanParams && (
+              <DeepScanPanel
+                key={deepScanResult ? "fresh-results" : "saved-report"}
+                deepScanData={deepScanResult || analysis.deepScanData}
+              />
             )}
         </main>
       </div>
