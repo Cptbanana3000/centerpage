@@ -100,34 +100,6 @@ export default function DashboardPage() {
   const averageScore = totalAnalyses > 0 ? Math.round(standardAnalyses.reduce((acc, curr) => acc + curr.overallScore, 0) / totalAnalyses) : 0;
   const topPicks = standardAnalyses.filter(a => a.overallScore >= 80).length;
 
-  // Function to load deep scan report
-  const loadDeepScanReport = async (jobId) => {
-    try {
-      const token = await user.getIdToken();
-      const response = await fetch(`/api/analysis-status/${jobId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      const data = await response.json();
-      
-      if (data.state !== 'completed') {
-        alert('Report unavailable or still processing. Try again later.');
-        return;
-      }
-      
-      // Navigate to analysis page with deep scan data
-      const analysisData = data.result?.returnvalue?.data || data.result?.data;
-      if (analysisData) {
-        // Store the deep scan data temporarily and navigate
-        sessionStorage.setItem('deepScanData', JSON.stringify(analysisData));
-        router.push(`/analysis?deepScan=true&jobId=${jobId}`);
-      }
-    } catch (error) {
-      console.error('Error loading deep scan report:', error);
-      alert('Failed to load deep scan report. Please try again.');
-    }
-  };
-
   const StyledCard = ({ children, className = '' }) => (
     <div className={`bg-white border border-gray-200 rounded-xl ${className}`}>
       {children}
@@ -235,10 +207,10 @@ export default function DashboardPage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => loadDeepScanReport(analysis.jobId)}
+                                    onClick={() => router.push(`/analysis?brand=${encodeURIComponent(analysis.brandName)}&category=${encodeURIComponent(analysis.category)}&view=saved`)}
                                     className="text-xs"
                                   >
-                                    Load Report
+                                    View Results
                                   </Button>
                                 ) : !isDeepScan ? (
                                   <Button

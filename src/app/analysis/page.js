@@ -53,8 +53,8 @@ export default function AnalysisPage() {
   const brandName = searchParams.get('brand');
   const category = searchParams.get('category') || CATEGORIES[0].value;
   const viewMode = searchParams.get('view');
-  const isDeepScanLoad = searchParams.get('deepScan') === 'true';
-  const jobId = searchParams.get('jobId');
+  // Note: Deep scan loading is now handled automatically via persistence
+  // No special URL parameters needed
 
   const [newCategory, setNewCategory] = useState(category);
   const [isSearching, setIsSearching] = useState(false);
@@ -69,25 +69,8 @@ export default function AnalysisPage() {
     brandName, category, viewMode, user, triggerHistoryRefresh, router,
   });
 
-  // Handle deep scan data loaded from dashboard
-  useEffect(() => {
-    if (isDeepScanLoad && jobId) {
-      const storedData = sessionStorage.getItem('deepScanData');
-      if (storedData) {
-        try {
-          const deepScanData = JSON.parse(storedData);
-          setDeepScanResult(deepScanData);
-          // Clear the stored data
-          sessionStorage.removeItem('deepScanData');
-          // Update URL to remove deep scan params
-          const newUrl = `/analysis?deepScanLoaded=true`;
-          router.replace(newUrl, undefined, { shallow: true });
-        } catch (error) {
-          console.error('Error parsing stored deep scan data:', error);
-        }
-      }
-    }
-  }, [isDeepScanLoad, jobId, router]);
+  // Note: Deep scan data loading is now handled by the persistence system
+  // No need for sessionStorage - data is automatically loaded from the database
 
   // Scroll spy logic
   const sectionsRef = useRef({});
@@ -114,7 +97,7 @@ export default function AnalysisPage() {
   }, [analysis]); // Rerun when analysis data is available
 
   // Loading State
-  if (loading && !isDeepScanLoad) {
+  if (loading) {
     return (
       <>
         <Navbar />
@@ -130,7 +113,7 @@ export default function AnalysisPage() {
   }
 
   // Error State  
-  if (error && !isDeepScanLoad) {
+  if (error) {
     return (
       <>
         <Navbar />
@@ -150,27 +133,8 @@ export default function AnalysisPage() {
     );
   }
 
-  // Handle deep scan only view (no standard analysis)
-  if (isDeepScanLoad && deepScanResult && !analysis) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-gray-50 text-gray-800 antialiased pt-16 font-['Inter',_sans-serif]">
-          <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Deep Scan Report</h1>
-              <p className="text-gray-600">Loaded from your analysis history</p>
-            </div>
-            
-            <DeepScanPanel
-              key="dashboard-loaded-report-only"
-              deepScanData={deepScanResult}
-            />
-          </main>
-        </div>
-      </>
-    );
-  }
+  // Note: Deep scan reports are now integrated with standard analysis flow
+  // No separate deep scan only view needed
 
   if (loading || isSearching) {
     return (
@@ -207,7 +171,7 @@ export default function AnalysisPage() {
     );
   }
 
-  if (!analysis && !isDeepScanLoad) {
+  if (!analysis) {
     return (
       <>
         <Navbar />
