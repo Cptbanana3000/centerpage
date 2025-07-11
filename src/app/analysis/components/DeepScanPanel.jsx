@@ -215,10 +215,26 @@ const AgentReportTabs = ({ reports }) => {
 
   return (
     <div>
-      <div className="flex border-b border-gray-200 bg-gray-50/50 rounded-t-lg overflow-hidden">
+      {/* Mobile Dropdown */}
+      <div className="md:hidden mb-4">
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-800 font-medium"
+        >
+          {tabs.map(tab => (
+            <option key={tab.id} value={tab.id}>
+              {tab.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      {/* Desktop Tabs */}
+      <div className="hidden md:flex border-b border-gray-200 bg-gray-50/50 rounded-t-lg overflow-x-auto flex-nowrap">
         {tabs.map(tab => <TabButton key={tab.id} {...tab} />)}
       </div>
-      <div className="p-6 bg-white rounded-b-lg">
+      <div className="p-4 md:p-6 bg-white rounded-b-lg overflow-y-auto max-h-[400px] md:max-h-none">
         {activeReport ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <StrengthWeaknessList title="Strengths" items={activeReport.strengths} color="green" />
