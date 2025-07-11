@@ -32,8 +32,29 @@ export async function GET(request, { params }) {
 
     // 4. Update user history status when job completes or fails (lightweight metadata only)
     if (backendResponse.data?.state === 'completed' && backendResponse.data?.result) {
-      // Only update history status - report data stays in Firestore
+      // Update history status - report data stays in Firestore
       await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'completed', true);
+      
+      // Extract deep scan data and save to analysis history for persistence
+      const deepScanData = backendResponse.data.result?.returnvalue?.data || 
+                          backendResponse.data.result?.data || 
+                          backendResponse.data.result;
+      
+      if (deepScanData) {
+        // Get deep scan metadata to extract brandName and category
+        const userHistory = await databaseService.getUserAnalysisHistory(userId);
+        const deepScanEntry = userHistory.find(item => item.jobId === jobId);
+        
+        if (deepScanEntry) {
+          await databaseService.saveCompletedDeepScanToHistory(
+            userId, 
+            jobId, 
+            deepScanEntry.brandName, 
+            deepScanEntry.category, 
+            deepScanData
+          );
+        }
+      }
     } else if (backendResponse.data?.state === 'failed') {
       // Update history for failed scans
       await databaseService.updateDeepScanHistoryStatus(userId, jobId, 'failed');

@@ -1,19 +1,19 @@
 import { db } from './firebase';
 import { 
-  collection, 
   doc, 
-  getDoc, 
   setDoc, 
-  addDoc, 
+  getDoc,
+  updateDoc, 
+  deleteDoc, 
+  collection, 
   query, 
   where, 
   orderBy, 
-  limit, 
-  getDocs,
-  serverTimestamp,
-  increment,
-  updateDoc,
-  runTransaction
+  getDocs, 
+  addDoc, 
+  serverTimestamp, 
+  limit,
+  increment 
 } from 'firebase/firestore';
 
 class DatabaseService {
@@ -551,6 +551,50 @@ class DatabaseService {
       return true;
     } catch (error) {
       console.error('Failed to update deep scan history status:', error);
+      return false;
+    }
+  }
+
+  // Save completed deep scan results to user's analysis history
+  async saveCompletedDeepScanToHistory(userId, jobId, brandName, category, deepScanData) {
+    if (!userId || !jobId || !deepScanData) return false;
+    
+    try {
+      // Create a cache key for the analysis (same format as standard analyses)
+      const cacheKey = `${brandName.toLowerCase().trim()}_${category.toLowerCase().replace(/\s+/g, '_')}`;
+      
+      // Get existing analysis data if it exists
+      const historyRef = doc(db, `users/${userId}/history`, cacheKey);
+      const existingDoc = await getDoc(historyRef);
+      
+      let analysisData = {};
+      if (existingDoc.exists()) {
+        analysisData = existingDoc.data();
+      }
+      
+      // Add deep scan data to the analysis record
+      const updatedAnalysisData = {
+        ...analysisData,
+        brandName: brandName,
+        category: category,
+        deepScanData: deepScanData,
+        deepScanJobId: jobId,
+        deepScanCompletedAt: serverTimestamp(),
+        lastUpdated: serverTimestamp(),
+      };
+      
+      // If this is a new record, add required fields
+      if (!existingDoc.exists()) {
+        updatedAnalysisData.date = serverTimestamp();
+        updatedAnalysisData.analysisTime = new Date().toISOString();
+        updatedAnalysisData.type = 'analysis_with_deep_scan';
+      }
+      
+      await setDoc(historyRef, updatedAnalysisData, { merge: true });
+      console.log(`Deep scan results saved to analysis history for user ${userId}, brand: ${brandName}`);
+      return true;
+    } catch (error) {
+      console.error('Failed to save deep scan results to history:', error);
       return false;
     }
   }
