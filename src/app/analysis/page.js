@@ -248,6 +248,15 @@ export default function AnalysisPage() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 text-gray-800 antialiased pt-16 font-['Inter',_sans-serif]">
         <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+            {/* Mobile Score Card - Show at top on mobile only */}
+            <div className="lg:hidden mb-8">
+                <StyledCard className="p-6 flex flex-col items-center justify-center text-center">
+                    <p className="font-semibold text-lg text-gray-600">Overall Score for <span className="text-gray-900">&ldquo;{brandName}&rdquo;</span></p>
+                    <ScoreCircle score={analysis.overallScore} size={140} />
+                    <p className={`mt-4 text-xl font-bold ${getScoreColor(analysis.overallScore)}`}>{analysis.verdict}</p>
+                </StyledCard>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* --- Main Report Feed (Left, Scrollable) --- */}
                 <div className="lg:col-span-2 flex flex-col gap-8">
@@ -285,7 +294,8 @@ export default function AnalysisPage() {
 
                 {/* --- Control Panel (Right, Sticky) --- */}
                 <aside className="lg:col-span-1 lg:sticky lg:top-24 h-fit flex flex-col gap-8">
-                    <StyledCard className="p-8 flex flex-col items-center justify-center text-center">
+                    {/* Desktop Score Card - Hidden on mobile */}
+                    <StyledCard className="hidden lg:flex p-8 flex-col items-center justify-center text-center">
                         <p className="font-semibold text-lg text-gray-600">Overall Score for <span className="text-gray-900">&ldquo;{brandName}&rdquo;</span></p>
                         <ScoreCircle score={analysis.overallScore} size={160} />
                         <p className={`mt-4 text-2xl font-bold ${getScoreColor(analysis.overallScore)}`}>{analysis.verdict}</p>
