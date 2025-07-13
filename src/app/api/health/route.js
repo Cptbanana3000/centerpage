@@ -8,6 +8,8 @@ export async function GET() {
     PADDLE_API_KEY: !!process.env.PADDLE_API_KEY,
     PADDLE_WEBHOOK_SECRET: !!process.env.PADDLE_WEBHOOK_SECRET,
     FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY: !!process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY,
+    EXTERNAL_BACKEND_URL: !!process.env.EXTERNAL_BACKEND_URL,
+    EXTERNAL_BACKEND_API_KEY: !!process.env.EXTERNAL_BACKEND_API_KEY,
   };
 
   const allPresent = Object.values(envStatus).every(Boolean);
