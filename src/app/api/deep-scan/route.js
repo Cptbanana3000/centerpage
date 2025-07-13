@@ -37,7 +37,7 @@ export async function POST(request) {
     
     // 1. Call the backend to *start* the job.
     const backendResponse = await axios.post(
-      `${process.env.EXTERNAL_BACKEND_URL}/deep-scan`,
+      `${process.env.EXTERNAL_BACKEND_URL}/api/deep-scan`,
       body,
       { headers: { 'x-api-key': process.env.EXTERNAL_BACKEND_API_KEY } }
     );
