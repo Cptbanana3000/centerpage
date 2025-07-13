@@ -5,6 +5,8 @@ import { verifyIdToken } from '@/lib/firebase-admin';
 import axios from 'axios';
 
 export async function POST(request) {
+  let decodedToken; // <-- FIX: Declare decodedToken here!
+
   try {
     // --- RATE LIMIT CHECK (Firebase) ---
     const ip = request.ip ?? '127.0.0.1';
@@ -14,11 +16,11 @@ export async function POST(request) {
     }
     // --- END RATE LIMIT CHECK ---
 
-    // 1. Authenticate the user and check credits (this logic stays here)
+    // 1. Authenticate the user and check credits
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token) return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
 
-    const decodedToken = await verifyIdToken(token);
+    decodedToken = await verifyIdToken(token); // Assign the value here
     if (!decodedToken || !decodedToken.email_verified) {
       return NextResponse.json({ message: 'Invalid or unverified token' }, { status: 403 });
     }
