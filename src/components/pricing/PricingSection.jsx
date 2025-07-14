@@ -26,14 +26,29 @@ export function PricingSection() {
       buttonVariant: 'outline',
     },
     {
+      name: 'Basic Pack',
+      priceId: 'pri_01k04w0g2avm0xwk71hxyergcw', // TODO: Replace with your actual price ID from Paddle
+      price: '$7.99',
+      originalPrice: '$12.99',
+      description: 'For basic analysis and scoring of brand names.',
+      features: [
+        { text: '15 Standard Analyses', included: true },
+        { text: 'Deep Scan AI Report', included: false, note: '(Locked)' },
+        { text: 'Export PDF', included: false, note: '(Locked)' },
+      ],
+      isBestValue: false,
+      buttonText: 'Buy Basic Pack',
+      buttonVariant: 'default',
+    },
+    {
       name: 'Starter Pack',
       priceId: 'pri_01jypm11t9pdaeqdeygkg132at', // TODO: Replace with your actual price ID from Paddle
-      price: '$4.99',
-      originalPrice: '$7.99',
+      price: '$19.99',
+      originalPrice: '$24.99',
       description: 'For a focused brainstorming session to find a great name.',
       features: [
-        { text: '25 Standard Analyses', included: true },
-        { text: '10 Deep Scan Reports', included: true },
+        { text: '15 Standard Analyses', included: true },
+        { text: '7 Deep Scan Reports', included: true },
       ],
       isBestValue: false,
       buttonText: 'Buy Starter Pack',
@@ -42,12 +57,12 @@ export function PricingSection() {
     {
       name: 'Pro Pack',
       priceId: 'pri_01jypnx15gmrp3csr9wtvrrykq', // TODO: Replace with your actual price ID from Paddle
-      price: '$9.99',
-      originalPrice: '$14.99',
+      price: '$49.99',
+      originalPrice: '$54.99',
       description: 'For comprehensive research on one or more projects.',
       features: [
-        { text: '75 Standard Analyses', included: true },
-        { text: '35 Deep Scan Reports', included: true },
+        { text: '30 Standard Analyses', included: true },
+        { text: '15 Deep Scan Reports', included: true },
       ],
       isBestValue: true,
       buttonText: 'Buy Pro Pack',

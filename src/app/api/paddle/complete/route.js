@@ -7,13 +7,17 @@ const paddle = new Paddle(process.env.PADDLE_API_KEY);
 
 // Define credit packs based on their Price IDs
 const CREDIT_PACKS = {
-  'pri_01jypnx15gmrp3csr9wtvrrykq': { // Pro Pack ($9.99)
-    standardAnalyses: 75,
-    deepScans: 35,
+  'pri_01jypnx15gmrp3csr9wtvrrykq': { // Pro Pack ($49.99)
+    standardAnalyses: 30,
+    deepScans: 15,
   },
-  'pri_01jypm11t9pdaeqdeygkg132at': { // Starter Pack ($5.99)
-    standardAnalyses: 25,
-    deepScans: 10,
+  'pri_01jypm11t9pdaeqdeygkg132at': { // Starter Pack ($19.99)
+    standardAnalyses: 15,
+    deepScans: 7,
+  },
+  'pri_01k04w0g2avm0xwk71hxyergcw': { // Basic Pack ($7.99)
+    standardAnalyses: 15,
+    deepScans: 0,
   },
 };
 
