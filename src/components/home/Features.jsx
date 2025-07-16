@@ -26,7 +26,7 @@ export function Features() {
   ];
 
   return (
-    <section className="py-24 sm:py-32 bg-white text-gray-800">
+    <section id="Features" className="py-24 sm:py-32 bg-white text-gray-800">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           

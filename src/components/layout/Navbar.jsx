@@ -75,7 +75,7 @@ export function Navbar() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-black text-gray-900">CenterPage</span>
+              <img src="/logo.png" alt="CenterPage" className="h-20 w-auto" />
             </Link>
           </div>
 

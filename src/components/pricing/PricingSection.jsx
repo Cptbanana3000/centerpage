@@ -12,27 +12,33 @@ export function PricingSection() {
   const router = useRouter();
 
   const plans = [
-    {
-      name: 'Explorer',
-      price: '$0',
-      description: 'Experience the core power of the tool, on us.',
-      features: [
-        { text: '5 Free Standard Analyses', included: true, note: '(one-time)' },
-        { text: 'Full Standard Report Access', included: true },
-        { text: 'Deep Scan AI Report', included: false, note: '(Locked)' },
-      ],
-      isFree: true,
-      buttonText: 'Start for Free',
-      buttonVariant: 'outline',
-    },
+    // {
+    //   name: 'Explorer',
+    //   price: '$0',
+    //   description: 'Experience the core power of the tool, on us.',
+    //   features: [
+    //     { text: '5 Free Standard Analyses', included: true, note: '(one-time)' },
+    //     { text: 'Full Standard Report Access', included: true },
+    //     { text: 'Deep Scan AI Report', included: false, note: '(Locked)' },
+    //   ],
+    //   isFree: true,
+    //   buttonText: 'Start for Free',
+    //   buttonVariant: 'outline',
+    // },
     {
       name: 'Basic Pack',
       priceId: 'pri_01k04w0g2avm0xwk71hxyergcw', // TODO: Replace with your actual price ID from Paddle
       price: '$7.99',
-      originalPrice: '$12.99',
+      originalPrice: '$19.99',
       description: 'For basic analysis and scoring of brand names.',
       features: [
-        { text: '15 Standard Analyses', included: true },
+        { text: '10 Standard Analyses', included: true },
+        { text: 'Full Standard Report Access', included: true },
+        { text: 'Domain Availability Check', included: true },
+        { text: 'Google Search Competitions', included: true },
+        { text: 'SEO Difficulty Analysis', included: true },
+        { text: 'Tech-Stack identification', included: false },
+        
         { text: 'Deep Scan AI Report', included: false, note: '(Locked)' },
         { text: 'Export PDF', included: false, note: '(Locked)' },
       ],
@@ -44,28 +50,47 @@ export function PricingSection() {
       name: 'Starter Pack',
       priceId: 'pri_01jypm11t9pdaeqdeygkg132at', // TODO: Replace with your actual price ID from Paddle
       price: '$19.99',
-      originalPrice: '$24.99',
+      originalPrice: '$29.99',
       description: 'For a focused brainstorming session to find a great name.',
       features: [
         { text: '15 Standard Analyses', included: true },
         { text: '7 Deep Scan Reports', included: true },
+        { text: 'Domain Availability Check', included: true },
+        { text: 'Google Search Competitions', included: true },
+        { text: 'SEO Difficulty Analysis', included: true },
+        { text: 'Export PDF', included: true },
+        { text: 'Tech-Stack identification', included: true },
+        { text: 'Technical Analysis', included: true },
+        { text: 'Content & SEO Analysis', included: true },
+        { text: 'Visual & UX Analysis', included: true },
+        { text: 'Priority Support', included: false },
       ],
       isBestValue: false,
+      isPopular: true,
       buttonText: 'Buy Starter Pack',
       buttonVariant: 'default',
     },
     {
-      name: 'Pro Pack',
+      name: 'Founders Pack',
       priceId: 'pri_01jypnx15gmrp3csr9wtvrrykq', // TODO: Replace with your actual price ID from Paddle
-      price: '$49.99',
-      originalPrice: '$54.99',
+      price: '$39.99',
+      originalPrice: '$49.99',
       description: 'For comprehensive research on one or more projects.',
       features: [
         { text: '30 Standard Analyses', included: true },
-        { text: '15 Deep Scan Reports', included: true },
+        { text: '14 Deep Scan Reports', included: true },
+        { text: 'Domain Availability Check', included: true },
+        { text: 'Google Search Competitions', included: true },
+        { text: 'SEO Difficulty Analysis', included: true },
+        { text: 'Export PDF', included: true },
+        { text: 'Tech-Stack identification', included: true },
+        { text: 'Technical Analysis', included: true },
+        { text: 'Content & SEO Analysis', included: true },
+        { text: 'Visual & UX Analysis', included: true },
+        { text: 'Priority Support', included: true },
       ],
       isBestValue: true,
-      buttonText: 'Buy Pro Pack',
+      buttonText: 'Buy Founders Pack',
       buttonVariant: 'default',
     },
   ];
@@ -106,14 +131,14 @@ export function PricingSection() {
     }
   };
 
-  const CheckIcon = () => (
-    <svg className="w-5 h-5 text-gray-900 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  const CheckIcon = ({ isDark = false }) => (
+    <svg className={`w-5 h-5 mr-3 flex-shrink-0 ${isDark ? 'text-white' : 'text-gray-900'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
     </svg>
   );
 
-  const CrossIcon = () => (
-    <svg className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  const CrossIcon = ({ isDark = false }) => (
+    <svg className={`w-5 h-5 mr-3 flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
     </svg>
   );
@@ -149,6 +174,11 @@ export function PricingSection() {
                   BEST VALUE
                 </div>
               )}
+              {plan.isPopular && (
+                <div className="absolute top-0 left-8 -mt-4 bg-blue-500 text-white text-sm font-bold px-4 py-1 rounded-full">
+                  POPULAR
+                </div>
+              )}
 
               <div className="flex-grow">
                 <h3 className={`text-2xl font-bold mb-2 ${plan.isBestValue ? 'text-white' : 'text-gray-900'}`}>
@@ -166,7 +196,7 @@ export function PricingSection() {
                 <ul className="space-y-4">
                   {plan.features.map((feature) => (
                     <li key={feature.text} className="flex items-start">
-                      {feature.included ? <CheckIcon /> : <CrossIcon />}
+                      {feature.included ? <CheckIcon isDark={plan.isBestValue} /> : <CrossIcon isDark={plan.isBestValue} />}
                       <span className={`${plan.isBestValue ? 'text-gray-200' : 'text-gray-700'}`}>
                         <span className="font-semibold">{feature.text}</span>
                         {feature.note && <span className={`${plan.isBestValue ? 'text-gray-400' : 'text-gray-500'} ml-1`}>{feature.note}</span>}

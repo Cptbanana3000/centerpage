@@ -10,10 +10,10 @@ export default function AboutPage() {
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-900">
-            We help you <span className="bg-yellow-300 px-4">get it right</span>.
+            CenterPage helps you <span className="bg-yellow-300 px-4">get it right</span>.
           </h1>
           <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            CenterPage was born from a simple, painful truth: a bad brand name can kill a great business. We&apos;ve seen it happen. We built CenterPage to stop it from happening to you. Our mission is to give every founder the power to build a strong, resonant, and legally sound brand from day one.
+            CenterPage was born from a simple, painful truth: a bad brand name can kill a great business. The platform was built to stop this from happening to founders. The mission is to give every entrepreneur the power to build a strong, resonant, and legally sound brand from day one.
           </p>
         </div>
 
@@ -25,20 +25,20 @@ export default function AboutPage() {
             </div>
             <div className="md:col-span-2 space-y-8 text-gray-700 text-base md:text-lg">
               <p>
-                Choosing a name shouldn&apos;t feel like a gamble. It should be a strategic decision, backed by data. We believe in moving past subjective &quot;what sounds good&quot; conversations and into objective, data-driven analysis.
+                Choosing a name shouldn&apos;t feel like a gamble. It should be a strategic decision, backed by data. CenterPage moves past subjective &quot;what sounds good&quot; conversations and into objective, data-driven analysis.
               </p>
               <p>
-                Our platform is built on three core principles:
+                The platform is built on three core principles:
               </p>
               <ul className="space-y-4 list-disc list-outside pl-5">
                 <li>
-                  <span className="font-semibold">Comprehensive Analysis:</span> We go beyond a simple domain check. We analyze your name against SEO landscapes and potential competitor conflicts to give you a 360-degree view.
+                  <span className="font-semibold">Comprehensive Analysis:</span> The platform goes beyond a simple domain check. It analyzes brand names against SEO landscapes and potential competitor conflicts to provide a 360-degree view.
                 </li>
                 <li>
-                  <span className="font-semibold">Actionable Insights:</span> We don&apos;t just dump data on you. We provide clear scores, strategic recommendations, and competitive intelligence that you can actually use to make a decision.
+                  <span className="font-semibold">Actionable Insights:</span> CenterPage doesn&apos;t just dump data on users. It provides clear scores, strategic recommendations, and competitive intelligence that can actually be used to make informed decisions.
                 </li>
                 <li>
-                  <span className="font-semibold">Founder Focused:</span> We&apos;re built for the speed and constraints of early-stage ventures. Get the insights you need in minutes, not weeks, and avoid costly legal fees or rebranding disasters down the line.
+                  <span className="font-semibold">Founder Focused:</span> The platform is built for the speed and constraints of early-stage ventures. Founders get the insights they need in minutes, not weeks, and avoid costly legal fees or rebranding disasters down the line.
                 </li>
               </ul>
             </div>

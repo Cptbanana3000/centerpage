@@ -43,7 +43,7 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section className="bg-white py-24 sm:py-32">
+    <section id="whyChooseUs" className="bg-white py-24 sm:py-32">
       <div className="container mx-auto px-4">
 
         {/* Header Section */}

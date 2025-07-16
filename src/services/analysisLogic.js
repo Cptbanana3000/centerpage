@@ -284,7 +284,14 @@ export async function generateAISummary(scores, brandName, category) {
     }
 
     // Step-2: craft final summary ensuring verdict consistency
-    const synthesisPrompt = `You are \"Aura\", an expert Brand Strategist.\nVerdict: ${verdict}\nFacts:\n- ${interpreted.domain}\n- ${interpreted.competition}\n- ${interpreted.seo}\nWrite a concise 2–3 sentence summary that JUSTIFIES the verdict. Do NOT alter the verdict or mention numeric scores. Return ONLY the summary sentence(s).`;
+    const synthesisPrompt = `You are "Aura", an expert Brand Strategist.
+Verdict: ${verdict}
+Facts:
+- ${interpreted.domain}
+- ${interpreted.competition}
+- ${interpreted.seo}
+
+Write a concise 2–3 sentence summary that JUSTIFIES the verdict. If the competition score is low (meaning high competition) because of brand confusion with major existing companies, state that clearly as the primary reason for the challenging score. Do NOT alter the verdict or mention numeric scores. Return ONLY the summary sentence(s).`;
 
     let summary;
     try {

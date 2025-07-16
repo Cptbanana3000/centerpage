@@ -6,6 +6,7 @@ import { PaddleProvider } from '@/components/pricing/PaddleProvider';
 // import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner"
+import CookieBanner from "@/components/CookieBanner";
 
 
 const inter = Inter({ subsets: ['latin'] });
@@ -13,6 +14,11 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'CenterPage',
   description: 'The new standard for brand validation',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export const viewport = {
@@ -33,6 +39,7 @@ export default function RootLayout({ children }) {
               {children}
               <Toaster />
               <Footer />
+              <CookieBanner />
             </PaddleProvider>
           </AnalysisHistoryProvider>
         </AuthProvider>

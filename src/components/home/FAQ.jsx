@@ -29,13 +29,45 @@ const faqData = [
   },
   {
     question: 'What payment methods do you accept?',
-    answer: 'We partner with Stripe, a globally trusted payment provider, to securely process payments. We accept all major credit and debit cards, as well as Apple Pay and Google Pay.',
+    answer: 'We partner with Paddle, a globally trusted payment provider, to securely process payments. We accept all major credit and debit cards, as well as Apple Pay and Google Pay.',
   },
+  {
+    question: 'How do I get started?',
+    answer: 'Simply sign up for an account, purchase a credit pack, and start analyzing names. You can also check out our "How to" guide for a quick overview.',
+  },
+  {
+    question: 'Can i purchase domains through CenterPage?',
+    answer: 'No, we do not sell domains at the moment but we are working on it and soon you will be able to purchase domains through CenterPage.',
+  },
+  {
+    question: 'Can i purchase deepscan credits as a standalone product?',
+    answer: 'No, we do not sell deepscan credits as a standalone product ',
+  },
+  {
+    question: 'how accurate are the scores and how are they calculated?',
+    answer: 'Scores are based on real-time data and AI analysis to give you the most accurate assessment possible.Overall Score (0-100): We combine three key factors: 1. Domain availability (40%) - Can you get the .com and good alternatives?. 2. Market competition (40%) - How crowded is your space? 3.SEO difficulty (20%) - How hard will it be to rank in search?, Real-time data - We check domain availability and Google results live,AI-powered analysis - Uses advanced AI to understand market context,Industry-specific - Considers your specific business category,Multiple data sources - Combines domain checks, search results, and competitor analysis',
+  },
+  {
+    question: 'Is tech stack identification a standalone service?',
+    answer: 'No,it is included in the deepscan itself as part of the premium plan'
+  },
+  {
+    question: 'Why did my brand name get a low score even though the domain is available?',
+    answer: 'This is a great question and highlights the core value of CenterPage. Our analysis goes much deeper than a simple domain check. A low score, despite domain availability, is often a warning sign of future problems. It typically happens for one of two reasons: 1) High Competition: The name is similar to major, established brands, making it very difficult and expensive to rank in search results. 2) Brand Confusion: The name is a common word or is phonetically similar to other brands, which can confuse customers and even lead to legal trademark issues down the road. Our goal is to save you from these costly mistakes, helping you choose a name that is not just available, but strong and defensible.',
+  },
+  {
+    question: 'Is my data and my brand ideas safe and private?',
+    answer: 'Absolutely. Your privacy is paramount. We do not share your brand analysis data with anyone. All analyses are stored securely in your private account history. We use industry-standard encryption and security practices to protect your data.',
+}
+
+  
+  
+  
 ];
 
 export function Faq() {
   return (
-    <section className="bg-slate-50 py-24 sm:py-32">
+    <section id="faq" className="bg-slate-50 py-24 sm:py-32">
       <div className="container mx-auto px-4">
 
         {/* Section Header */}
