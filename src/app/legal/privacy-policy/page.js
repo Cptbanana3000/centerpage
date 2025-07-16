@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
         <div className="max-w-4xl mx-auto prose prose-lg prose-gray">
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">1. Introduction</h2>
           <p className="text-gray-700 mb-6">
-            Welcome to CenterPage ("we", "us", "our"). We are committed to protecting your privacy and handling your data in an open and transparent manner. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
+            Welcome to CenterPage (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). We are committed to protecting your privacy and handling your data in an open and transparent manner. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
           </p>
           <p className="text-gray-700 mb-6">
             By using our service, you agree to the collection and use of information in accordance with this policy.
@@ -112,14 +112,14 @@ export default function PrivacyPolicyPage() {
             We use administrative, technical, and physical security measures, including data encryption and secure hosting with Firebase, to help protect your personal information. While we have taken reasonable steps to secure your data, please be aware that no security measures are perfect or impenetrable.
           </p>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">7. Children's Privacy</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">7. Children&apos;s Privacy</h2>
           <p className="text-gray-700 mb-6">
             Our service is not intended for use by anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">8. Changes to This Privacy Policy</h2>
           <p className="text-gray-700 mb-6">
-            We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+            We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">9. Contact Us</h2>

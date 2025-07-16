@@ -29,7 +29,7 @@ export default function CookiePolicyPage() {
         <div className="max-w-4xl mx-auto prose prose-lg prose-gray">
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">What Are Cookies?</h2>
           <p className="text-gray-700 mb-6">
-            As is common practice with almost all professional websites, this site uses cookies, which are tiny files that are downloaded to your computer to improve your experience. This page describes what information they gather, how we use it, and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored; however, this may downgrade or 'break' certain elements of the site's functionality.
+            As is common practice with almost all professional websites, this site uses cookies, which are tiny files that are downloaded to your computer to improve your experience. This page describes what information they gather, how we use it, and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored; however, this may downgrade or &apos;break&apos; certain elements of the site&apos;s functionality.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">How We Use Cookies</h2>
@@ -39,7 +39,7 @@ export default function CookiePolicyPage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Disabling Cookies</h2>
           <p className="text-gray-700 mb-6">
-            You can prevent the setting of cookies by adjusting the settings on your browser (see your browser's "Help" section for how to do this). Be aware that disabling cookies will affect the functionality of this and many other websites that you visit. Disabling cookies will usually result in also disabling certain functionality and features of this site. Therefore, it is recommended that you do not disable cookies.
+            You can prevent the setting of cookies by adjusting the settings on your browser (see your browser&apos;s &quot;Help&quot; section for how to do this). Be aware that disabling cookies will affect the functionality of this and many other websites that you visit. Disabling cookies will usually result in also disabling certain functionality and features of this site. Therefore, it is recommended that you do not disable cookies.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">The Cookies We Set</h2>
@@ -77,7 +77,7 @@ export default function CookiePolicyPage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">More Information</h2>
           <p className="text-gray-700 mb-4">
-            Hopefully, that has clarified things for you. As was previously mentioned, if there is something that you aren't sure whether you need or not, it's usually safer to leave cookies enabled in case it does interact with one of the features you use on our site.
+            Hopefully, that has clarified things for you. As was previously mentioned, if there is something that you aren&apos;t sure whether you need or not, it&apos;s usually safer to leave cookies enabled in case it does interact with one of the features you use on our site.
           </p>
           <p className="text-gray-700 mb-6">
             If you are still looking for more information, you can contact us through our preferred contact method:

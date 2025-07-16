@@ -37,7 +37,7 @@ export default function RefundPolicyPage() {
           </p>
           <ul className="list-disc pl-6 mb-6 text-gray-700">
             <li className="mb-2">The refund request must be made within 7 days of the original purchase date.</li>
-            <li className="mb-2">This guarantee applies only to completely unused credit packs. If any credits (either "Standard Analysis" or "Deep Scan") from the pack have been used, the purchase is no longer eligible for a refund.</li>
+            <li className="mb-2">This guarantee applies only to completely unused credit packs. If any credits (either &quot;Standard Analysis&quot; or &quot;Deep Scan&quot;) from the pack have been used, the purchase is no longer eligible for a refund.</li>
           </ul>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Used Credits</h2>
@@ -63,7 +63,7 @@ export default function RefundPolicyPage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Contact Us</h2>
           <p className="text-gray-700 mb-6">
-            If you have any questions about our Refund Policy, please don't hesitate to contact us at <a href="mailto:support@getcenterpage.com" className="text-blue-600 hover:text-blue-800 underline">support@centerpage.com</a>.
+            If you have any questions about our Refund Policy, please don&apos;t hesitate to contact us at <a href="mailto:support@getcenterpage.com" className="text-blue-600 hover:text-blue-800 underline">support@centerpage.com</a>.
           </p>
         </div>
       </main>

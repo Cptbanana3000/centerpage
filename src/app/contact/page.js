@@ -23,7 +23,7 @@ export default function ContactPage() {
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Contact Us</h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Have a question or need help? We're here to assist you with any inquiries about CenterPage.
+              Have a question or need help? We&apos;re here to assist you with any inquiries about CenterPage.
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
             </div>
             <p className="text-gray-700 mb-6">
-              Before reaching out, you might find the answer to your question in our comprehensive FAQ section. We've covered the most common questions about our service.
+              Before reaching out, you might find the answer to your question in our comprehensive FAQ section. We&apos;ve covered the most common questions about our service.
             </p>
             <Link href="/#faq" scroll={true}>
               <Button className="bg-green-600 hover:bg-green-700 text-white">

@@ -28,12 +28,12 @@ export default function TermsOfServicePage() {
         {/* Content */}
         <div className="max-w-4xl mx-auto prose prose-lg prose-gray">
           <p className="text-lg text-gray-700 mb-8">
-            Welcome to CenterPage! These Terms of Service ("Terms") govern your use of our website and the services we provide. By accessing or using our service, you agree to be bound by these Terms.
+            Welcome to CenterPage! These Terms of Service (&quot;Terms&quot;) govern your use of our website and the services we provide. By accessing or using our service, you agree to be bound by these Terms.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">1. Description of Service</h2>
           <p className="text-gray-700 mb-4">
-            CenterPage ("we", "us", "our") provides a brand name analysis tool that includes:
+            CenterPage (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) provides a brand name analysis tool that includes:
           </p>
           <ul className="list-disc pl-6 mb-6 text-gray-700">
             <li className="mb-2">
@@ -60,10 +60,10 @@ export default function TermsOfServicePage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">3. Purchases and Credits</h2>
           <p className="text-gray-700 mb-4">
-            <strong>Credit System:</strong> Our services are purchased via "Standard Analysis" and "Deep Scan" credits, which are sold in one-time packs.
+            <strong>Credit System:</strong> Our services are purchased via &quot;Standard Analysis&quot; and &quot;Deep Scan&quot; credits, which are sold in one-time packs.
           </p>
           <p className="text-gray-700 mb-4">
-            <strong>Payments:</strong> We use Paddle as our third-party payment processor. By making a purchase, you agree to Paddle's terms and policies. We do not store your credit card details.
+            <strong>Payments:</strong> We use Paddle as our third-party payment processor. By making a purchase, you agree to Paddle&apos;s terms and policies. We do not store your credit card details.
           </p>
           <p className="text-gray-700 mb-4">
             <strong>No Expiration:</strong> Purchased credits do not expire and will remain in your account until they are used.
@@ -88,7 +88,7 @@ export default function TermsOfServicePage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">5. Disclaimer of Warranties</h2>
           <p className="text-gray-700 mb-6">
-            The CenterPage service is provided on an "as is" and "as available" basis. We make no warranties, express or implied, that the service will be uninterrupted, error-free, or completely accurate. The AI-powered analysis is a tool to guide your decision-making and is not a guarantee of future success or a substitute for professional legal or business advice.
+            The CenterPage service is provided on an &quot;as is&quot; and &quot;as available&quot; basis. We make no warranties, express or implied, that the service will be uninterrupted, error-free, or completely accurate. The AI-powered analysis is a tool to guide your decision-making and is not a guarantee of future success or a substitute for professional legal or business advice.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">6. Limitation of Liability</h2>
@@ -98,7 +98,7 @@ export default function TermsOfServicePage() {
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">7. Changes to Terms</h2>
           <p className="text-gray-700 mb-6">
-            We may modify these Terms at any time. We will notify you of any changes by posting the new Terms on this page and updating the "Last Updated" date. Your continued use of the service after any such changes constitutes your acceptance of the new Terms.
+            We may modify these Terms at any time. We will notify you of any changes by posting the new Terms on this page and updating the &quot;Last Updated&quot; date. Your continued use of the service after any such changes constitutes your acceptance of the new Terms.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">8. Contact Us</h2>
