@@ -63,7 +63,7 @@ export default function CookieBanner() {
               variant="outline"
               size="sm"
               onClick={handleDecline}
-              className="text-xs px-3 py-1.5 h-auto"
+              className="text-xs px-3 py-1.5 h-auto text-black border-gray-300 hover:bg-gray-50"
             >
               Decline
             </Button>

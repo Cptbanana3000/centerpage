@@ -9,9 +9,9 @@ import {
   query, 
   where, 
   orderBy, 
-  getDocs, 
+  getDocs,
   addDoc, 
-  serverTimestamp, 
+  serverTimestamp,
   limit,
   increment,
   runTransaction

@@ -341,8 +341,8 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
     runDeepScan,
     status,
     progress,
-    deepScanData,
-    deepScanError,
+  deepScanData,
+  deepScanError,
   } = useDeepScan();
 
   // --- State for dynamic UI during polling ---
@@ -501,7 +501,7 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
               </p>
               <PanelCard className="p-8 prose prose-indigo max-w-none prose-p:text-gray-700 prose-headings:text-gray-900 prose-strong:text-gray-800 prose-li:text-gray-700">
                 <ReactMarkdown>{finalData.analysis || "No main analysis was generated."}</ReactMarkdown>
-              </PanelCard>
+                </PanelCard>
             </section>
 
             {/* Detailed Competitor Breakdown */}
@@ -515,8 +515,8 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
               <div className="space-y-8">
                 {finalData.detailedAgentReports?.map((report, index) => (
                   <NewCompetitorCard key={report.url || index} report={report} />
-                ))}
-              </div>
+                    ))}
+                </div>
             </section>
           </div>
         )}

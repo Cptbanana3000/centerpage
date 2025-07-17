@@ -10,6 +10,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  updatePassword,
   reload,
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
@@ -115,6 +118,22 @@ export function AuthProvider({ children }) {
     await sendEmailVerification(auth.currentUser);
   }
 
+  async function handlePasswordResetEmail(email) {
+    const trimmedEmail = email.trim().toLowerCase();
+    await sendPasswordResetEmail(auth, trimmedEmail);
+  }
+
+  async function confirmPasswordReset(code, newPassword) {
+    await confirmPasswordReset(auth, code, newPassword);
+  }
+
+  async function updateUserPassword(newPassword) {
+    if (!auth.currentUser) {
+      throw new Error("No user is currently signed in.");
+    }
+    await updatePassword(auth.currentUser, newPassword);
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -162,6 +181,9 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     logOut,
     resendVerificationEmail,
+    sendPasswordResetEmail: handlePasswordResetEmail,
+    confirmPasswordReset,
+    updateUserPassword,
     refreshUser,
   };
 

@@ -68,9 +68,13 @@ export default function TermsOfServicePage() {
           <p className="text-gray-700 mb-4">
             <strong>No Expiration:</strong> Purchased credits do not expire and will remain in your account until they are used.
           </p>
-          <p className="text-gray-700 mb-6">
-            <strong>Refunds:</strong> All purchases are final and non-refundable. If a service fails to render due to a technical error on our part, the credit used for that service will be automatically refunded to your account.
+          <p className="text-gray-700 mb-4">
+            <strong>Refunds:</strong> We offer a 7-day money-back guarantee on all credit pack purchases, subject to the following condition:
           </p>
+          <ul className="list-disc pl-6 mb-6 text-gray-700">
+            <li className="mb-2">The refund request must be made within 7 days of the original purchase date.</li>
+            <li className="mb-2">This guarantee applies only to completely unused credit packs. If any credits (either &quot;Standard Analysis&quot; or &quot;Deep Scan&quot;) from the pack have been used, the purchase is no longer eligible for a refund.</li>
+          </ul>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">4. Acceptable Use</h2>
           <p className="text-gray-700 mb-4">

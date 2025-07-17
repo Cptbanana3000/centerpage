@@ -173,19 +173,19 @@ export default function DashboardPage() {
                         
                         return (
                           <TableRow key={analysis.id} className="group">
-                            <TableCell>
+                          <TableCell>
                               <div className="flex items-center gap-3">
                                 {isDeepScan && <Microscope className="w-4 h-4 text-indigo-600" />}
                                 <div>
-                                  <div className="font-semibold text-base text-gray-800 truncate">{analysis.brandName}</div>
+                            <div className="font-semibold text-base text-gray-800 truncate">{analysis.brandName}</div>
                                   <div className="text-sm text-gray-500 flex items-center gap-1">
                                     {analysis.category}
                                     {isDeepScan && <span className="text-indigo-600 font-medium">• Deep Scan</span>}
                                   </div>
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-gray-500">{formatDate(analysis.date)}</TableCell>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-gray-500">{formatDate(analysis.date)}</TableCell>
                             <TableCell className="text-right">
                               {isDeepScan ? (
                                 <div className="flex items-center justify-end gap-2">
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                                 </span>
                               )}
                             </TableCell>
-                            <TableCell>
+                          <TableCell>
                               <div className="flex items-center gap-2">
                                 {isDeepScan && analysis.scanState === 'completed' ? (
                                   <Button
@@ -222,8 +222,8 @@ export default function DashboardPage() {
                                   </Button>
                                 ) : null}
                               </div>
-                            </TableCell>
-                          </TableRow>
+                          </TableCell>
+                        </TableRow>
                         );
                       })}
                     </TableBody>

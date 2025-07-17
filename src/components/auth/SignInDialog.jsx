@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { ForgotPasswordDialog } from './ForgotPasswordDialog';
 
 export function SignInDialog() {
   const [email, setEmail] = useState('');
@@ -94,6 +95,9 @@ export function SignInDialog() {
                 placeholder="Enter your password"
                 required
               />
+              <div className="flex justify-end">
+                <ForgotPasswordDialog />
+              </div>
             </div>
             {error && (
               <p className="text-sm text-red-500">{error}</p>
