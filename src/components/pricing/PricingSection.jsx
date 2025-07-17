@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { SignUpDialog } from '@/components/auth/SignUpDialog';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { PaymentSuccessModal } from './PaymentSuccessModal';
 
 export function PricingSection() {
@@ -13,24 +13,26 @@ export function PricingSection() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [purchasedPack, setPurchasedPack] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   // Check for payment success on component mount
   useEffect(() => {
-    const paymentSuccess = searchParams.get('payment_success');
-    const pack = searchParams.get('pack');
-    
-    if (paymentSuccess === 'true' && pack) {
-      setPurchasedPack(decodeURIComponent(pack));
-      setShowSuccessModal(true);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentSuccess = urlParams.get('payment_success');
+      const pack = urlParams.get('pack');
       
-      // Clean up URL parameters
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.delete('payment_success');
-      newUrl.searchParams.delete('pack');
-      window.history.replaceState({}, '', newUrl);
+      if (paymentSuccess === 'true' && pack) {
+        setPurchasedPack(decodeURIComponent(pack));
+        setShowSuccessModal(true);
+        
+        // Clean up URL parameters
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete('payment_success');
+        newUrl.searchParams.delete('pack');
+        window.history.replaceState({}, '', newUrl);
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   const plans = [
     // {
