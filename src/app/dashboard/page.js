@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [recentAnalyses, setRecentAnalyses] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!user) {

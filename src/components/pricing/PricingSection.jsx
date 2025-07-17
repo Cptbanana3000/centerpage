@@ -1,15 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { SignUpDialog } from '@/components/auth/SignUpDialog';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { PaymentSuccessModal } from './PaymentSuccessModal';
 
 export function PricingSection() {
   const { user } = useAuth();
   const [loading, setLoading] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [purchasedPack, setPurchasedPack] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check for payment success on component mount
+  useEffect(() => {
+    const paymentSuccess = searchParams.get('payment_success');
+    const pack = searchParams.get('pack');
+    
+    if (paymentSuccess === 'true' && pack) {
+      setPurchasedPack(decodeURIComponent(pack));
+      setShowSuccessModal(true);
+      
+      // Clean up URL parameters
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.delete('payment_success');
+      newUrl.searchParams.delete('pack');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [searchParams]);
 
   const plans = [
     // {
@@ -111,9 +132,12 @@ export function PricingSection() {
     setLoading(plan.name);
 
     try {
+      // Store the purchased pack name for the success modal
+      setPurchasedPack(plan.name);
+      
       window.Paddle.Checkout.open({
         settings: {
-          successUrl: `${window.location.origin}/dashboard`,
+          successUrl: `${window.location.origin}?payment_success=true&pack=${encodeURIComponent(plan.name)}`,
         },
         items: [{ priceId: plan.priceId, quantity: 1 }],
         customer: {
@@ -224,6 +248,13 @@ export function PricingSection() {
           ))}
         </div>
       </div>
+      
+      {/* Payment Success Modal */}
+      <PaymentSuccessModal 
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        purchasedPack={purchasedPack}
+      />
     </section>
   );
 }
