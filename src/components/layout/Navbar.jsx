@@ -11,6 +11,7 @@ import { CreditDisplay } from '@/components/ui/CreditDisplay';
 const navLinks = [
   { href: '/#Features', label: 'Features' },
   { href: '/#pricing', label: 'Pricing' },
+  { href: '/how-to', label: 'How to' },
   { href: '/#whyChooseUs', label: 'Why Us' },
 ];
 
