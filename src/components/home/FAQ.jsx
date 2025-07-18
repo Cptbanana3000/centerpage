@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import Link from "next/link"
 
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -53,12 +54,32 @@ const faqData = [
   },
   {
     question: 'Why did my brand name get a low score even though the domain is available?',
-    answer: 'This is a great question and highlights the core value of CenterPage. Our analysis goes much deeper than a simple domain check. A low score, despite domain availability, is often a warning sign of future problems. It typically happens for one of two reasons: 1) High Competition: The name is similar to major, established brands, making it very difficult and expensive to rank in search results. 2) Brand Confusion: The name is a common word or is phonetically similar to other brands, which can confuse customers and even lead to legal trademark issues down the road. Our goal is to save you from these costly mistakes, helping you choose a name that is not just available, but strong and defensible.',
+    answer: 'Our analysis goes much deeper than a simple domain check. A low score, despite domain availability, is often a warning sign of future problems. It typically happens for one of two reasons: 1) High Competition: The name is similar to major, established brands, making it very difficult and expensive to rank in search results. 2) Brand Confusion: The name is a common word or is phonetically similar to other brands, which can confuse customers and even lead to legal trademark issues down the road. Our goal is to save you from these costly mistakes, helping you choose a name that is not just available, but strong and defensible.',
   },
   {
     question: 'Is my data and my brand ideas safe and private?',
     answer: 'Absolutely. Your privacy is paramount. We do not share your brand analysis data with anyone. All analyses are stored securely in your private account history. We use industry-standard encryption and security practices to protect your data.',
-}
+  },
+  {
+    question: "I'm unable to buy a credit pack",
+    answer: 'If you are unable to purchase a credit pack, please check if you are logged in. And please make sure to verify your email address. If you are still unable to purchase a credit pack, please contact us at support@getcenterpage.com'
+  },
+  {
+    question: 'My Payment was successful but I did not receive the credits',
+    answer: 'Sometimes it just takes a few minutes for the credits to appear in your account. If you have not received the credits after 10 minutes, please contact us at support@getcenterpage.com ,Mail use the screenshot of the payment and the email address you used to purchase the credits.'
+  },
+  {
+    question: 'Do you have a refund policy?',
+    answer: (
+      <>
+        Yes we have a 7 days refund policy. Please refer to our{' '}
+        <Link href="/legal/refund-policy" className="text-blue-600 hover:text-blue-800 underline font-medium">
+          Refund Policy
+        </Link>{' '}
+        for more details.
+      </>
+    )
+  }
 
   
   

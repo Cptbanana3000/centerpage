@@ -5,8 +5,8 @@ import { Twitter, Linkedin, Mail, Shield, FileText, CreditCard, Cookie } from 'l
 const Footer = () => {
   const socialLinks = [
     { href: 'https://twitter.com/centerpage', icon: Twitter, label: 'Twitter' },
-    { href: 'https://linkedin.com/company/centerpage', icon: Linkedin, label: 'LinkedIn' },
-    { href: 'mailto:support@centerpage.com', icon: Mail, label: 'Email' },
+    // { href: 'https://linkedin.com/company/centerpage', icon: Linkedin, label: 'LinkedIn' },
+    { href: 'mailto:support@getcenterpage.com', icon: Mail, label: 'Email' },
   ];
 
   const productLinks = [
@@ -43,7 +43,7 @@ const Footer = () => {
               <img src="/logo.png" alt="CenterPage" className="h-20 w-auto" />
             </Link>
             <p className="mt-4 max-w-xs leading-relaxed text-gray-600">
-              Empowering entrepreneurs with comprehensive brand name analysis and domain insights. Make confident branding decisions with data-driven intelligence.
+              Empowering entrepreneurs,founders,hobbyists with comprehensive brand name analysis and domain insights. Make confident branding decisions with data-driven intelligence.
             </p>
             <div className="mt-6 flex space-x-4">
               {socialLinks.map((link) => (
