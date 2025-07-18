@@ -230,15 +230,19 @@ function getPriority(threatLevel) {
 function getCategoryKeywords(category) {
   const keywords = {
     'tech & saas': ['software', 'saas', 'platform', 'app', 'tech', 'api'],
+    'ai & machine learning': ['ai', 'artificial intelligence', 'machine learning', 'ml', 'llm', 'data science'],
     'e-commerce & retail': ['store', 'shop', 'retail', 'buy', 'sell', 'commerce'],
     'health & wellness': ['health', 'wellness', 'medical', 'fitness', 'care'],
     'creative & design': ['design', 'creative', 'art', 'studio', 'agency'],
+    'creator & influencer': ['creator', 'influencer', 'merch', 'brand', 'community', 'youtube', 'tiktok'],
     'games & entertainment': ['game', 'gaming', 'entertainment', 'media', 'content'],
     'finance & fintech': ['finance', 'banking', 'payment', 'money', 'fintech'],
+    'web3 & blockchain': ['web3', 'crypto', 'blockchain', 'nft', 'dao', 'defi', 'dapp'],
     'food & beverage': ['food', 'restaurant', 'beverage', 'recipe', 'cooking'],
     'travel & hospitality': ['travel', 'hotel', 'booking', 'tourism', 'hospitality'],
     'education & e-learning': ['education', 'learning', 'course', 'training', 'school'],
-    'professional services': ['consulting', 'service', 'professional', 'business', 'agency']
+    'professional services': ['consulting', 'service', 'professional', 'business', 'agency'],
+    'real estate & proptech': ['real estate', 'proptech', 'property', 'realty', 'housing', 'listings']
   };
   
   return keywords[category?.toLowerCase?.()] || ['business', 'service'];
@@ -247,15 +251,19 @@ function getCategoryKeywords(category) {
 function getProductIndicators(category) {
   const indicators = {
     'tech & saas': ['dashboard', 'analytics', 'integration', 'automation'],
+    'ai & machine learning': ['model', 'algorithm', 'prediction', 'analysis', 'automation'],
     'e-commerce & retail': ['checkout', 'cart', 'inventory', 'shipping'],
     'health & wellness': ['treatment', 'therapy', 'supplement', 'exercise'],
     'creative & design': ['portfolio', 'creative', 'branding', 'visual'],
+    'creator & influencer': ['subscribe', 'join', 'community', 'merch', 'exclusive content'],
     'games & entertainment': ['multiplayer', 'streaming', 'content', 'media'],
     'finance & fintech': ['payment', 'transaction', 'investment', 'banking'],
+    'web3 & blockchain': ['connect wallet', 'mint', 'stake', 'dapp', 'protocol', 'whitepaper'],
     'food & beverage': ['menu', 'recipe', 'ingredient', 'cooking'],
     'travel & hospitality': ['booking', 'reservation', 'accommodation', 'trip'],
     'education & e-learning': ['course', 'lesson', 'curriculum', 'certification'],
-    'professional services': ['consultation', 'expertise', 'solution', 'strategy']
+    'professional services': ['consultation', 'expertise', 'solution', 'strategy'],
+    'real estate & proptech': ['view listings', 'schedule a tour', 'for sale', 'for rent', 'find an agent']
   };
   
   return indicators[category?.toLowerCase?.()] || ['service', 'solution'];
