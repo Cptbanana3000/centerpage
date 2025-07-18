@@ -9,62 +9,62 @@ export default function HowToPage() {
         <div className="max-w-4xl mx-auto bg-white p-8 sm:p-10 rounded-xl shadow-lg">
           <h1 className="text-4xl font-bold text-gray-900 mb-6">How to Use CenterPage</h1>
           <p className="text-lg text-gray-600 mb-10">
-            Welcome to CenterPage! Our tool is designed to be straightforward and  give you a comprehensive analysis of your brand name, helping you understand its strength and positioning in the market. Here’s a step-by-step guide to get you started.
+            Welcome to CenterPage! Our platform is designed to take you from an initial idea to a validated brand name with a clear strategic advantage. Here’s how to get the most out of our tools.
           </p>
 
           <div className="space-y-12">
             {/* Step 1 */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 1: Enter Your Brand Name</h2>
-              <p className="text-gray-700">
-                Start by typing your brand name, product name, or startup idea into the main search box on the homepage. This is the name we will analyze.
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 1: Enter Your Brand Name and Category</h2>
+              <p className="text-gray-700 mb-2">
+                On the homepage, enter the brand name, product name, or startup idea you want to validate. Then, select the industry category from the dropdown menu that best fits your project.
+              </p>
+              <p className="text-gray-700 italic">
+                <strong>Why is the category important?</strong> Our AI tailors its analysis based on the industry, giving you much more relevant insights into the competitive landscape and SEO viability.
               </p>
             </div>
 
             {/* Step 2 */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 2: Select Your Industry Category</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 2: Review Your Standard Analysis Report</h2>
               <p className="text-gray-700">
-                Next, choose the category that best represents your brand's industry from the dropdown menu. Selecting the right category is crucial as it helps our AI provide a more accurate and relevant analysis of your competitors and market landscape.
+                After clicking 'Search', you will be taken to your comprehensive analysis dashboard. This initial report, which consumes one Standard Analysis Credit, gives you the complete picture of your brand's viability. You will see:
               </p>
+              <ul className="list-disc list-inside text-gray-700 mt-4 space-y-2">
+                <li><span className="font-semibold">Overall Viability Score:</span> A single, clear score from 0-100 that tells you how strong your brand name is at a glance.</li>
+                <li><span className="font-semibold">AI Strategic Summary:</span> An AI-generated verdict and summary that explains the score and gives you a top-level recommendation.</li>
+                <li><span className="font-semibold">Brand Metrics:</span> Detailed scores for Domain Strength, Competition Intensity, and SEO Difficulty.</li>
+                <li><span className="font-semibold">Domain Availability:</span> A list of key domain TLDs (.com, .io, etc.) and whether they are available or taken.</li>
+                <li><span className="font-semibold">Google Competitors:</span> A list of the top current results on Google for your brand name, giving you a clear view of your immediate competition.</li>
+              </ul>
             </div>
 
             {/* Step 3 */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 3: Review Your Initial Analysis</h2>
-              <p className="text-gray-700">
-                After clicking 'Search', you'll be taken to the results page. Here, you'll see an initial analysis that includes:
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 3: Perform a Deep Scan for a Strategic Edge</h2>
+              <p className="text-gray-700 mb-2">
+                For the most promising brand names, you can go deeper. Click the "Perform Deep Scan" button on your analysis page. This will open a modal where you can select the most relevant competitors to analyze further.
               </p>
-              <ul className="list-disc list-inside text-gray-700 mt-4 space-y-2">
-                <li><span className="font-semibold">Domain & Social Handle Availability:</span> Check if the name is available as a .com domain and on major social media platforms.</li>
-                <li><span className="font-semibold">Initial Competitor Scan:</span> A quick look at potential direct and indirect competitors based on a preliminary search.</li>
-              </ul>
+              <p className="text-gray-700">
+                This advanced feature uses one Deep Scan Credit and provides a "Strategic Battle Plan," including an in-depth AI analysis of your competitors' strengths, weaknesses, and the technology they use.
+              </p>
             </div>
 
             {/* Step 4 */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 4: Go Deeper with the Deep Scan</h2>
-              <p className="text-gray-700">
-                For a more thorough analysis, click the 'Start Deep Scan' button. This advanced feature uses one <span className="font-semibold">Deep Scan Credit</span> and takes a few minutes to complete. It provides a much more detailed report, including a larger set of competitors, their threat levels, and the reasoning behind their categorization.
-              </p>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 4: Managing Your Account & Credits</h2>
+              <ul className="list-disc list-inside text-gray-700 mt-4 space-y-2">
+                <li><span className="font-semibold">Free Credits:</span> Every new account comes with 5 free Standard Analyses credits to help you get started.</li>
+                <li><span className="font-semibold">Checking Your Balance:</span> You can see your current credit balance at any time on your dashboard.</li>
+                <li><span className="font-semibold">Getting More Credits:</span> If you run out, you can purchase more one-time credit packs from the pricing section on the homepage.</li>
+              </ul>
             </div>
 
-            {/* Step 5: Managing Credits */}
+            {/* Step 5 */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 5: Managing Your Account & Credits</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 5: Export and Save Your Results</h2>
               <p className="text-gray-700">
-                Every new account comes with a few free Deep Scan Credits to get you started. You can check your current credit balance at any time in the top right corner of your dashboard.
-              </p>
-              <p className="text-gray-700 mt-2">
-                If you run out, you can purchase more from the pricing section in the home page. You can also get there quickly by clicking the <span className="font-semibold">plus icon (+)</span> next to your credit balance on the dashboard.
-              </p>
-            </div>
-
-            {/* Step 6 */}
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Step 6: Export and Save Your Results</h2>
-              <p className="text-gray-700">
-                Once the deep scan is complete, you can export your full analysis as a PDF. This is perfect for sharing with your team, investors, or for keeping a record of your brand research.
+                After a Deep Scan is complete, you can use one Deep Scan Credit to export your full, professional analysis as a PDF. This is perfect for sharing with your team, investors, or for your own records.
               </p>
             </div>
           </div>
