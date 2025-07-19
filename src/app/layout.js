@@ -15,10 +15,13 @@ export const metadata = {
   title: 'CenterPage',
   description: 'The new standard for brand validation',
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    other: [
+      { rel: 'icon', url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { rel: 'icon', url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+  }
 };
 
 export const viewport = {

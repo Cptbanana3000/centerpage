@@ -1,5 +1,6 @@
 'use client';
 
+import Head from 'next/head';
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -56,7 +57,13 @@ export default function DashboardLayout({ children }) {
 
 
   return (
-    <AuthGuard>
+    <> 
+      <Head>
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        </Head>
+      <AuthGuard>
       <div className="min-h-screen bg-gray-50">
         {/* Top Navigation Bar */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
@@ -113,5 +120,6 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </AuthGuard>
+    </>
   );
 }
