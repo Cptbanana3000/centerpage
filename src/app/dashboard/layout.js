@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }) {
                     {/* Left Side: Logo & Nav Links */}
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
-                                          <img src="/logo.png" alt="CenterPage Logo" className="h-20 w-auto" />
+                                          <img src="/logo.png" alt="CenterPage Logo" className="h-15 w-auto" />
                 {/* <span className="font-bold text-xl text-gray-800">CenterPage</span> */}
                         </Link>
                         
