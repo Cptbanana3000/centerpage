@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Cookie } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// Removed Button import for brutalism design
 
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -35,55 +35,55 @@ export default function CookieBanner() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-black text-white border-t-8 border-yellow-400 shadow-2xl">
+      <div className="w-full px-8 py-8">
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
           {/* Content */}
-          <div className="flex items-start gap-3 flex-1">
-            <Cookie className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-gray-700">
-              <p className="mb-1">
+          <div className="flex items-start gap-4 flex-1">
+            <Cookie className="h-8 w-8 text-yellow-400 mt-1 flex-shrink-0" />
+            <div className="text-white">
+              <p className="text-lg font-bold mb-3 uppercase tracking-wide">
+                COOKIE NOTICE
+              </p>
+              <p className="text-base mb-2 font-medium">
                 We use cookies to enhance your experience and analyze site usage. By continuing to use our site, you consent to our use of cookies.
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-300">
                 Learn more in our{' '}
                 <Link 
                   href="/legal/cookie-policy" 
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-yellow-400 hover:text-yellow-300 underline font-bold"
                 >
-                  Cookie Policy
+                  COOKIE POLICY
                 </Link>
               </p>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-shrink-0 min-w-fit">
+            <button
               onClick={handleDecline}
-              className="text-xs px-3 py-1.5 h-auto text-black border-gray-300 hover:bg-gray-50"
+              className="px-6 py-3 bg-white text-black font-bold text-sm uppercase tracking-wide border-4 border-white hover:bg-gray-200 transition-colors"
             >
-              Decline
-            </Button>
-            <Button
-              size="sm"
+              DECLINE
+            </button>
+            <button
               onClick={handleAccept}
-              className="text-xs px-3 py-1.5 h-auto bg-blue-600 hover:bg-blue-700"
+              className="px-6 py-3 bg-yellow-400 text-black font-bold text-sm uppercase tracking-wide border-4 border-yellow-400 hover:bg-yellow-300 transition-colors"
             >
-              Accept All
-            </Button>
+              ACCEPT ALL
+            </button>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+              className="text-white hover:text-yellow-400 transition-colors p-2 border-2 border-white hover:border-yellow-400"
               aria-label="Close cookie banner"
             >
-              <X className="h-4 w-4" />
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}
