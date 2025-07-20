@@ -30,7 +30,7 @@ export default function useBrandAnalysis({
 
   // internal refs for timer / duplicate requests
   const intervalRef = useRef(null);
-  const requestIdRef = useRef(null);
+  const isSubmittingRef = useRef(false);
 
   const loadingStages = useMemo(
     () => [
@@ -46,11 +46,11 @@ export default function useBrandAnalysis({
 
   useEffect(() => {
     async function loadReport() {
-      if (requestIdRef.current) {
+      if (isSubmittingRef.current) {
         console.log('Duplicate analysis request prevented');
         return;
       }
-      requestIdRef.current = `${brandName}_${category}_${Date.now()}`;
+
       if (!brandName) {
         setError('No brand name provided');
         setLoading(false);
@@ -122,14 +122,7 @@ export default function useBrandAnalysis({
       }
 
       // fresh analysis path
-      const currentRequestId = `${brandName}_${category}_${Date.now()}_${Math.random()
-        .toString(36)
-        .substr(2, 9)}`;
-      if (requestIdRef.current) {
-        console.log('Duplicate analysis request prevented');
-        return;
-      }
-      requestIdRef.current = currentRequestId;
+      isSubmittingRef.current = true;
 
       intervalRef.current = setInterval(() => {
         setLoadingStage((prev) => (prev < loadingStages.length - 1 ? prev + 1 : prev));
@@ -165,7 +158,7 @@ export default function useBrandAnalysis({
         setError(err.message || 'Failed to analyze brand name. Please try again.');
       } finally {
         if (intervalRef.current) clearInterval(intervalRef.current);
-        requestIdRef.current = null;
+        isSubmittingRef.current = false;
         setLoading(false);
       }
     }
@@ -176,9 +169,10 @@ export default function useBrandAnalysis({
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      requestIdRef.current = null;
+      // The lock is now managed within the try/finally block, 
+      // so we don't need to reset it on unmount.
     };
   }, [brandName, category, user, viewMode, router, triggerHistoryRefresh, loadingStages.length]);
 
   return { analysis, loading, error, loadingStage };
-} 
+}
