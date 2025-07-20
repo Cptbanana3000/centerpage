@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -106,7 +106,14 @@ export default function useDeepScan() {
   }, [user]);
 
   // --- Main function to start the Deep Scan ---
+  // --- Ref lock to prevent duplicate submissions (StrictMode mounts twice)
+  const isSubmittingRef = useRef(false);
+
   const runDeepScan = useCallback(async (params) => {
+    // If a submission is already in-flight, exit immediately
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     const tk = authToken || await getUserToken(user);
     if (!tk) {
       setError('You must be logged in to perform a deep scan.');
@@ -139,6 +146,9 @@ export default function useDeepScan() {
     } catch (err) {
       setStatus('error');
       setError(err.message);
+    } finally {
+      // unlock regardless of outcome
+      isSubmittingRef.current = false;
     }
   }, [authToken, user]);
 
