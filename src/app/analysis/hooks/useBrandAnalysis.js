@@ -46,6 +46,11 @@ export default function useBrandAnalysis({
 
   useEffect(() => {
     async function loadReport() {
+      if (requestIdRef.current) {
+        console.log('Duplicate analysis request prevented');
+        return;
+      }
+      requestIdRef.current = `${brandName}_${category}_${Date.now()}`;
       if (!brandName) {
         setError('No brand name provided');
         setLoading(false);
