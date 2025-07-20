@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import {
   getAuth,
   onAuthStateChanged,
@@ -31,57 +31,44 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
-  // Function to refresh the current user's data from Firebase
-  async function refreshUser() {
-    if (auth.currentUser) {
-      try {
-        await reload(auth.currentUser);
-        // If email is now verified, force refresh ID token to propagate claim
-        if (auth.currentUser.emailVerified) {
-          await auth.currentUser.getIdToken(true);
-        }
-        // Force update the user state with fresh data
-        setUser({ ...auth.currentUser });
-      } catch (error) {
-        console.error('Error refreshing user:', error);
+  const refreshUser = useCallback(async () => {
+    if (!auth.currentUser) return;
+    try {
+      await reload(auth.currentUser);
+      if (auth.currentUser.emailVerified) {
+        await auth.currentUser.getIdToken(true);
       }
+      setUser({ ...auth.currentUser });
+    } catch (error) {
+      console.error('Error refreshing user:', error);
     }
-  }
+  }, []);
 
-  async function signUp(email, password) {
+  const signUp = useCallback(async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-
     await sendEmailVerification(user);
-
     const userDocRef = doc(db, "users", user.uid);
     await setDoc(userDocRef, {
       uid: user.uid,
       email: user.email,
       createdAt: serverTimestamp(),
-      credits: {
-        standardAnalyses: 5,
-        deepScans: 0
-      }
+      credits: { standardAnalyses: 5, deepScans: 0 },
     });
-
     return userCredential;
-  }
+  }, []);
 
-  function signIn(email, password) {
+  const signIn = useCallback((email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
-  }
+  }, []);
 
-  async function signInWithGoogle() {
+  const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-
     const userDocRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userDocRef);
-
     if (!userDoc.exists()) {
       await setDoc(userDocRef, {
         uid: user.uid,
@@ -89,50 +76,40 @@ export function AuthProvider({ children }) {
         displayName: user.displayName,
         photoURL: user.photoURL,
         createdAt: serverTimestamp(),
-        credits: {
-          standardAnalyses: 5,
-          deepScans: 0
-        }
+        credits: { standardAnalyses: 5, deepScans: 0 },
       });
     }
-
     return result;
-  }
+  }, []);
 
-  async function logOut() {
+  const logOut = useCallback(async () => {
     try {
-      console.log('Attempting to sign out...'); // Debug log
       await signOut(auth);
-      console.log('Sign out successful'); // Debug log
-      setUser(null); // Explicitly set user to null
+      setUser(null);
     } catch (error) {
       console.error('Error signing out:', error);
-      throw error; // Re-throw so calling components can handle it
+      throw error;
     }
-  }
+  }, []);
 
-  async function resendVerificationEmail() {
-    if (!auth.currentUser) {
-      throw new Error("No user is currently signed in.");
-    }
+  const resendVerificationEmail = useCallback(async () => {
+    if (!auth.currentUser) throw new Error("No user is currently signed in.");
     await sendEmailVerification(auth.currentUser);
-  }
+  }, []);
 
-  async function handlePasswordResetEmail(email) {
+  const handlePasswordResetEmail = useCallback(async (email) => {
     const trimmedEmail = email.trim().toLowerCase();
     await sendPasswordResetEmail(auth, trimmedEmail);
-  }
+  }, []);
 
-  async function confirmPasswordReset(code, newPassword) {
+  const confirmPasswordReset = useCallback(async (code, newPassword) => {
     await confirmPasswordReset(auth, code, newPassword);
-  }
+  }, []);
 
-  async function updateUserPassword(newPassword) {
-    if (!auth.currentUser) {
-      throw new Error("No user is currently signed in.");
-    }
+  const updateUserPassword = useCallback(async (newPassword) => {
+    if (!auth.currentUser) throw new Error("No user is currently signed in.");
     await updatePassword(auth.currentUser, newPassword);
-  }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -142,38 +119,20 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  // Periodically check for email verification when user is not verified
   useEffect(() => {
-    let interval;
-    
     if (user && !user.emailVerified) {
-      interval = setInterval(async () => {
-        await refreshUser();
-      }, 3000); // Check every 3 seconds
+      const interval = setInterval(() => refreshUser(), 3000);
+      return () => clearInterval(interval);
     }
+  }, [user, refreshUser]);
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [user]);
-
-  // Force refresh ID token once when email becomes verified to ensure backend sees it
   useEffect(() => {
-    const refreshTokenIfVerified = async () => {
-      if (user && user.emailVerified) {
-        try {
-          await user.getIdToken(true);
-        } catch (e) {
-          console.error('Error refreshing ID token after verification:', e);
-        }
-      }
-    };
-    refreshTokenIfVerified();
+    if (user && user.emailVerified) {
+      user.getIdToken(true).catch(e => console.error('Error refreshing ID token:', e));
+    }
   }, [user]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     signUp,
@@ -185,7 +144,7 @@ export function AuthProvider({ children }) {
     confirmPasswordReset,
     updateUserPassword,
     refreshUser,
-  };
+  }), [user, loading, signUp, signIn, signInWithGoogle, logOut, resendVerificationEmail, handlePasswordResetEmail, confirmPasswordReset, updateUserPassword, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>
