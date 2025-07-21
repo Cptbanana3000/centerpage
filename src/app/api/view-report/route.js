@@ -26,8 +26,7 @@ export async function GET(request) {
 
   try {
     // Create cache key using same normalization as analyze route
-    const normalizedBrandName = brandName.toLowerCase().trim();
-    const cacheKey = `${normalizedBrandName}_${category.toLowerCase().replace(/\s+/g, '_')}`;
+    const cacheKey = `${brandName.toLowerCase().trim().replace(/[^a-z0-9]/g, '_')}_${category.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
     
     // Try to get from user's history first
     const userHistory = await databaseService.getUserAnalysisHistory(userId);

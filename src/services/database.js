@@ -31,9 +31,8 @@ class DatabaseService {
   }
 
   // Check if cached result exists and is still valid
-  async getCachedAnalysis(brandName) {
+  async getCachedAnalysis(cacheKey) {
     try {
-      const cacheKey = this.generateCacheKey(brandName);
       const docRef = doc(db, this.analysisCollection, cacheKey);
       const docSnap = await getDoc(docRef);
 
@@ -69,23 +68,22 @@ class DatabaseService {
   }
 
   // Store analysis result in cache
-  async cacheAnalysis(brandName, analysisResult) {
+  async cacheAnalysis(cacheKey, analysisResult) {
     try {
-      const cacheKey = this.generateCacheKey(brandName);
       const docRef = doc(db, this.analysisCollection, cacheKey);
 
       const cacheData = {
-        brandName: brandName,
+        brandName: analysisResult.brandName || 'unknown',
         analysis: analysisResult,
         timestamp: serverTimestamp(),
         hitCount: 1
       };
 
       await setDoc(docRef, cacheData);
-      console.log(`Cached analysis for brand: ${brandName}`);
+      console.log(`Cached analysis with key: ${cacheKey}`);
 
       // Track cache store for analytics
-      await this.updateAnalytics('analysis_cached', brandName);
+      await this.updateAnalytics('analysis_cached', analysisResult.brandName || 'unknown');
 
       return true;
     } catch (error) {
@@ -192,9 +190,8 @@ class DatabaseService {
   }
 
   // Update hit count for existing cached analysis
-  async updateHitCount(brandName) {
+  async updateHitCount(cacheKey) {
     try {
-      const cacheKey = this.generateCacheKey(brandName);
       const docRef = doc(db, this.analysisCollection, cacheKey);
       
       await setDoc(docRef, {

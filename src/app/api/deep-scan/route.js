@@ -8,14 +8,6 @@ export async function POST(request) {
   let decodedToken; // <-- FIX: Declare decodedToken here!
 
   try {
-    // --- RATE LIMIT CHECK (Firebase) ---
-    const ip = request.ip ?? '127.0.0.1';
-    const { success, message } = await checkFirebaseRateLimit(`deepscan_ip_${ip}`, 30);
-    if (!success) {
-      return NextResponse.json({ message }, { status: 429 });
-    }
-    // --- END RATE LIMIT CHECK ---
-
     // 1. Authenticate the user and check credits
     const token = request.headers.get('Authorization')?.split('Bearer ')[1];
     if (!token) return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
@@ -26,6 +18,13 @@ export async function POST(request) {
     }
 
     const userId = decodedToken.uid;
+
+    // --- RATE LIMIT CHECK (Firebase) - USER-BASED ---
+    const { success, message } = await checkFirebaseRateLimit(`deepscan_user_${userId}`, 30);
+    if (!success) {
+      return NextResponse.json({ message }, { status: 429 });
+    }
+    // --- END RATE LIMIT CHECK ---
     const hasCredits = await databaseService.checkAndDeductCredits(userId, 'deepScans');
     if (!hasCredits) {
       return NextResponse.json({ message: 'Insufficient Deep Scan credits.' }, { status: 402 });

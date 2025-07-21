@@ -2,6 +2,7 @@
 class RequestTracker {
   constructor() {
     this.requestMap = new Map();
+    this.activeAnalysisMap = new Map(); // Track active analyses to prevent concurrent processing
   }
 
   isRecentDuplicateRequest(userId, brandName, category, windowMs = 5000) {
@@ -33,6 +34,24 @@ class RequestTracker {
   clearRequest(userId, brandName, category) {
     const requestKey = `${userId}_${brandName}_${category}`;
     this.requestMap.delete(requestKey);
+  }
+
+  // Check if an analysis is currently in progress for this brand/category
+  isAnalysisInProgress(brandName, category) {
+    const analysisKey = `${brandName}_${category}`;
+    return this.activeAnalysisMap.has(analysisKey);
+  }
+
+  // Start tracking an analysis
+  startAnalysis(brandName, category) {
+    const analysisKey = `${brandName}_${category}`;
+    this.activeAnalysisMap.set(analysisKey, Date.now());
+  }
+
+  // End tracking an analysis
+  endAnalysis(brandName, category) {
+    const analysisKey = `${brandName}_${category}`;
+    this.activeAnalysisMap.delete(analysisKey);
   }
 }
 

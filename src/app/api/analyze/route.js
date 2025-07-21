@@ -18,14 +18,6 @@ import {
 } from '@/services/apiHelpers';
 
 export async function GET(request) {
-  // --- RATE LIMIT CHECK (Firebase) ---
-  const ip = request.ip ?? '127.0.0.1';
-  const { success, message } = await checkFirebaseRateLimit(`analyze_ip_${ip}`, 10);
-  if (!success) {
-    return NextResponse.json({ message }, { status: 429 });
-  }
-  // --- END RATE LIMIT CHECK ---
-
   const { searchParams } = new URL(request.url);
   const brandName = searchParams.get('brandName')?.toLowerCase().trim();
   const category = searchParams.get('category') || 'general'; // Default to 'general' if not provided
@@ -54,9 +46,16 @@ export async function GET(request) {
   
   const userId = decodedToken.uid;
 
+  // --- RATE LIMIT CHECK (Firebase) - USER-BASED ---
+  const { success, message } = await checkFirebaseRateLimit(`analyze_user_${userId}`, 10);
+  if (!success) {
+    return NextResponse.json({ message }, { status: 429 });
+  }
+  // --- END RATE LIMIT CHECK ---
+
   try {
     // Include category in cache key for category-specific caching
-    const cacheKey = `${brandName}_${category.toLowerCase().replace(/\s+/g, '_')}`;
+    const cacheKey = `${brandName.toLowerCase().trim().replace(/[^a-z0-9]/g, '_')}_${category.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
     
     // Check for recent duplicate requests before any credit operations
     const isDuplicate = requestTracker.isRecentDuplicateRequest(userId, brandName, category);
@@ -66,6 +65,8 @@ export async function GET(request) {
         code: 'DUPLICATE_REQUEST'
       }, { status: 429 }); // 429 Too Many Requests
     }
+
+
     
     // IMPORTANT: Check cache BEFORE deducting credits to avoid charging for cached results
     const cachedResult = await databaseService.getCachedAnalysis(cacheKey);
@@ -84,6 +85,8 @@ export async function GET(request) {
         code: 'INSUFFICIENT_CREDITS'
       }, { status: 402 }); // 402 Payment Required
     }
+    
+
     
     await databaseService.updateAnalytics('fresh_analysis_started', brandName, { category, userId });
 

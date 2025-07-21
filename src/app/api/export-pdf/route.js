@@ -5,14 +5,6 @@ import databaseService from '@/services/database';
 import axios from 'axios';
 
 export async function POST(request) {
-  // --- RATE LIMIT CHECK (Firebase) ---
-  const ip = request.ip ?? '127.0.0.1';
-  const { success, message } = await checkFirebaseRateLimit(`exportpdf_ip_${ip}`, 30);
-  if (!success) {
-    return NextResponse.json({ message }, { status: 429 });
-  }
-  // --- END RATE LIMIT CHECK ---
-
   // 1. Authenticate and check credits
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
   if (!token) return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
@@ -21,6 +13,13 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Invalid token' }, { status: 403 });
   }
   const userId = decodedToken.uid;
+
+  // --- RATE LIMIT CHECK (Firebase) - USER-BASED ---
+  const { success, message } = await checkFirebaseRateLimit(`exportpdf_user_${userId}`, 30);
+  if (!success) {
+    return NextResponse.json({ message }, { status: 429 });
+  }
+  // --- END RATE LIMIT CHECK ---
   const hasCredits = await databaseService.checkAndDeductCredits(userId, 'deepScans');
   if (!hasCredits) {
     return NextResponse.json({ message: 'Insufficient credits for PDF export.' }, { status: 402 });
