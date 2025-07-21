@@ -117,8 +117,17 @@ export default function useBrandAnalysis({
           }
           return;
         }
+        // Gracefully handle 404 for new searches (expected behavior)
+        if (cachedRes.status === 404) {
+          // This is expected for new searches, no need to log or handle as error
+          // Just continue to fresh analysis
+        }
       } catch (err) {
         // ignore cache lookup errors and continue to fresh analysis
+        // Only log unexpected errors, not 404s
+        if (err.message && !err.message.includes('404')) {
+          console.error('Unexpected cache lookup error:', err);
+        }
       }
 
       // fresh analysis path
