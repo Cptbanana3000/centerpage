@@ -74,11 +74,18 @@ export default function useDeepScan() {
           setStatus('success');
           // --- SAFER DATA EXTRACTION WITH OPTIONAL CHAINING ---
           const extractedData =
-            statusData?.result?.returnvalue?.data ??
-            statusData?.result?.data ??
+            statusData?.result ??
             statusData?.returnvalue?.data ??
             statusData?.data ??
             null;
+          
+          // Debug logging to verify data extraction
+          console.log('🔍 [Deep Scan] Status Data:', statusData);
+          console.log('🔍 [Deep Scan] Extracted Data:', extractedData);
+          console.log('🔍 [Deep Scan] Analysis exists:', !!extractedData?.analysis);
+          console.log('🔍 [Deep Scan] Analysis length:', extractedData?.analysis?.length);
+          console.log('🔍 [Deep Scan] Reports count:', extractedData?.detailedAgentReports?.length);
+          
           setFinalData(extractedData);
           setJobId(null); // Stop polling on completion
           break;

@@ -490,6 +490,15 @@ export default function DeepScanPanel({ brandName, category, competitorUrls, onA
         {/* --- NEW V3 RESULTS VIEW --- */}
         {/* ================================================================================= */}
         {currentStatus === 'success' && finalData && (
+          // Debug logging to verify data in component
+          (() => {
+            console.log('🔍 [DeepScanPanel] Final Data:', finalData);
+            console.log('🔍 [DeepScanPanel] Analysis exists:', !!finalData.analysis);
+            console.log('🔍 [DeepScanPanel] Analysis length:', finalData.analysis?.length);
+            console.log('🔍 [DeepScanPanel] Reports count:', finalData.detailedAgentReports?.length);
+            return null;
+          })()
+        ) && (
           <div className="space-y-16">
             {/* Main Report (from Aura) */}
             <section>
