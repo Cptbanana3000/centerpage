@@ -43,7 +43,7 @@ export default function DashboardPage() {
           type: item.type || 'standard_analysis',
           brandName: item.brandName,
           category: item.category,
-          overallScore: item.overallScore,
+          overallScore: item.overallScore || 0,
           date: item.date?.toDate?.()?.toISOString() || item.analysisTime || new Date().toISOString(),
           // Deep scan specific fields
           jobId: item.jobId,
@@ -97,8 +97,8 @@ export default function DashboardPage() {
 
   const standardAnalyses = filteredAnalyses.filter(a => a.type !== 'deep_scan');
   const totalAnalyses = standardAnalyses.length;
-  const averageScore = totalAnalyses > 0 ? Math.round(standardAnalyses.reduce((acc, curr) => acc + curr.overallScore, 0) / totalAnalyses) : 0;
-  const topPicks = standardAnalyses.filter(a => a.overallScore >= 80).length;
+  const averageScore = totalAnalyses > 0 ? Math.round(standardAnalyses.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) / totalAnalyses) : 0;
+  const topPicks = standardAnalyses.filter(a => (a.overallScore || 0) >= 80).length;
 
   const StyledCard = ({ children, className = '' }) => (
     <div className={`bg-white border border-gray-200 rounded-xl ${className}`}>

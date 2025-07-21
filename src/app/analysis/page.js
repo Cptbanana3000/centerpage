@@ -19,7 +19,7 @@ import { CATEGORIES } from './utils/categories';
 import GoogleCompetitorsList from './components/GoogleCompetitorsList';
 import BrandMetrics from './components/BrandMetrics';
 import { Button } from '@/components/ui/button';
-import { useAnalysis } from '@/hooks/useAnalysis';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { Microscope, FileText, BrainCircuit, PieChart, Users, Globe, Plus, AlertTriangle } from 'lucide-react';
 

@@ -559,7 +559,7 @@ class DatabaseService {
     
     try {
       // Create a cache key for the analysis (same format as standard analyses)
-      const cacheKey = `${brandName.toLowerCase().trim()}_${category.toLowerCase().replace(/\s+/g, '_')}`;
+      const cacheKey = `${brandName.toLowerCase().trim().replace(/[^a-z0-9]/g, '_')}_${category.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
       
       // Get existing analysis data if it exists
       const historyRef = doc(db, `users/${userId}/history`, cacheKey);
