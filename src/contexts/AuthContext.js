@@ -14,6 +14,7 @@ import {
   confirmPasswordReset,
   updatePassword,
   reload,
+  GithubAuthProvider,
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { app } from '@/services/firebase';
@@ -54,7 +55,7 @@ export function AuthProvider({ children }) {
       uid: user.uid,
       email: user.email,
       createdAt: serverTimestamp(),
-      credits: { standardAnalyses: 5, deepScans: 0 },
+      credits: { standardAnalyses: 3, deepScans: 0 },
     });
     return userCredential;
   }, []);
@@ -76,11 +77,33 @@ export function AuthProvider({ children }) {
         displayName: user.displayName,
         photoURL: user.photoURL,
         createdAt: serverTimestamp(),
-        credits: { standardAnalyses: 5, deepScans: 0 },
+        credits: { standardAnalyses: 3, deepScans: 0 },
       });
     }
     return result;
   }, []);
+
+  // --- GITHUB SOCIAL LOGIN ---
+  const signInWithGitHub = useCallback(async () => {
+    const provider = new GithubAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: serverTimestamp(),
+        credits: { standardAnalyses: 3, deepScans: 0 },
+      });
+    }
+    return result;
+  }, []);
+  // --- END GITHUB SOCIAL LOGIN ---
+  
 
   const logOut = useCallback(async () => {
     try {
@@ -138,13 +161,14 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithGitHub, // <-- Export GitHub login
     logOut,
     resendVerificationEmail,
     sendPasswordResetEmail: handlePasswordResetEmail,
     confirmPasswordReset,
     updateUserPassword,
     refreshUser,
-  }), [user, loading, signUp, signIn, signInWithGoogle, logOut, resendVerificationEmail, handlePasswordResetEmail, confirmPasswordReset, updateUserPassword, refreshUser]);
+  }), [user, loading, signUp, signIn, signInWithGoogle, signInWithGitHub, logOut, resendVerificationEmail, handlePasswordResetEmail, confirmPasswordReset, updateUserPassword, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -79,6 +79,22 @@ const faqData = [
         for more details.
       </>
     )
+  },
+  {
+    question: 'Is the analysis a guarantee that my brand name will be successful?',
+    answer: 'Our service provides a powerful, data driven analysis to guide your decision-making, but it is not a guarantee of future success. The reports are for informational purposes only and do not constitute legal or financial advice. We empower you with intelligence, but the final decision is always yours.'
+  },
+  {
+    question: 'My analysis is taking a long time. Is something wrong?',
+    answer: 'A standard analysis typically takes between 30 and 60 seconds, while a Deep Scan can take a few minutes to complete. This is because we are gathering live, real-time data. If an analysis seems to be stuck for longer than that, please try refreshing the page or contact us at support@getcenterpage.com'
+  },
+  {
+    question: " I'm not receiving my email verification or password reset emails.",
+    answer: "Please check your spam, junk, or promotions folder in your email client. If you still can't find it after a few minutes, you can request to resend the email from the login page. If you continue to have trouble, please reach out to our support team."
+  },
+  {
+    question: ' Do you offer an API for developers?',
+    answer: 'An API is definitely on our long-term roadmap! We plan to offer programmatic access to our analysis engine for businesses and developers who want to integrate our technology into their own services. If this is something you\'re interested in, we\'d love to hear from you.'
   }
 
   

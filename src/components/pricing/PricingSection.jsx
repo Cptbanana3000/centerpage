@@ -179,7 +179,7 @@ export function PricingSection() {
             Simple, Value-Driven Pricing
           </h2>
           <p className="text-lg lg:text-2xl text-gray-600 leading-relaxed">
-            Our one-time packs align with your process. Explore freely, then get deep validation for your best ideas—no subscription needed.
+            Our one-time packs align with your process. Explore freely, then get deep validation for your best ideas. No subscription needed.
           </p>
         </div>
 
