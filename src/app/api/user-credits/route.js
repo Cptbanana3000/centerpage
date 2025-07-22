@@ -23,11 +23,21 @@ export async function GET(request) {
     const userDoc = await userDocRef.get();
     
     if (!userDoc.exists) {
-      console.error(`User document not found for uid: ${userId}`);
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      // Create user document with default credits for new users
+      console.log(`Creating user document for new user: ${userId}`);
+      const defaultCredits = { standardAnalyses: 3, deepScans: 0 };
+      
+      await userDocRef.set({
+        uid: userId,
+        email: decodedToken.email,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        credits: defaultCredits
+      });
+      
+      return NextResponse.json(defaultCredits);
     }
     
-    const credits = userDoc.data().credits || {};
+    const credits = userDoc.data().credits || { standardAnalyses: 3, deepScans: 0 };
     
     return NextResponse.json({
       standardAnalyses: credits.standardAnalyses || 0,

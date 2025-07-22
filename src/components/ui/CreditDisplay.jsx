@@ -18,32 +18,50 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
         return;
       }
 
-      try {
-        const token = await user.getIdToken();
-        const response = await fetch('/api/user-credits', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+      // Add a small delay to ensure user is fully authenticated
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-        if (response.ok) {
-          const data = await response.json();
-          setCredits(data);
-        } else if (response.status === 404) {
-          // Gracefully handle missing user doc (new user race condition)
-          setCredits({ standardAnalyses: 0, deepScans: 0 });
-        } else {
-          // Only log unexpected errors
-          // console.error('Failed to fetch credits');
-          setCredits({ standardAnalyses: 0, deepScans: 0 });
+      const maxAttempts = 3;
+      let attempts = 0;
+
+      const fetchCreditsWithRetry = async () => {
+        try {
+          const token = await user.getIdToken();
+          const response = await fetch('/api/user-credits', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setCredits(data);
+          } else {
+            // Gracefully handle any error by setting default credits
+            console.log('Credits fetch failed, using defaults');
+            setCredits({ standardAnalyses: 3, deepScans: 0 });
+          }
+        } catch (error) {
+          // Gracefully handle any error by setting default credits
+          console.log('Credits fetch error, using defaults:', error.message);
+          setCredits({ standardAnalyses: 3, deepScans: 0 });
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        // Only log unexpected errors
-        // console.error('Error fetching credits:', error);
-        setCredits({ standardAnalyses: 0, deepScans: 0 });
-      } finally {
-        setLoading(false);
-      }
+      };
+
+      const retryFetchCredits = async () => {
+        attempts++;
+        if (attempts < maxAttempts) {
+          await fetchCreditsWithRetry();
+        } else {
+          console.log('Max attempts reached, using defaults');
+          setCredits({ standardAnalyses: 3, deepScans: 0 });
+          setLoading(false);
+        }
+      };
+
+      retryFetchCredits();
     };
 
     fetchCredits();

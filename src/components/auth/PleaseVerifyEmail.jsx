@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { getAuth } from 'firebase/auth';
 
 export function PleaseVerifyEmail() {
   const { user, resendVerificationEmail, logOut, refreshUser } = useAuth();
@@ -32,15 +33,29 @@ export function PleaseVerifyEmail() {
     setIsChecking(true);
     setMessage('');
     setError('');
+    
     try {
+      // Refresh the user state first
       await refreshUser();
-      if (user?.emailVerified) {
-        setMessage('Email verification confirmed! Redirecting...');
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1200);
+      
+      // Get the current auth state directly from Firebase
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      
+      if (currentUser) {
+        // Force reload the user to get the latest verification status
+        await currentUser.reload();
+        
+        if (currentUser.emailVerified) {
+          setMessage('Email verification confirmed! Redirecting...');
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1000);
+        } else {
+          setMessage('Email not yet verified. Please check your inbox and click the verification link.');
+        }
       } else {
-        setMessage('Email not yet verified. Please check your inbox and click the verification link.');
+        setError('No user found. Please try logging in again.');
       }
     } catch (err) {
       setError('Failed to check verification status. Please try again.');
