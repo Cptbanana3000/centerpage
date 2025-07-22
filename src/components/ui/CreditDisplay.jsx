@@ -29,11 +29,18 @@ export function CreditDisplay({ variant = 'full', showRefill = true }) {
         if (response.ok) {
           const data = await response.json();
           setCredits(data);
+        } else if (response.status === 404) {
+          // Gracefully handle missing user doc (new user race condition)
+          setCredits({ standardAnalyses: 0, deepScans: 0 });
         } else {
-          console.error('Failed to fetch credits');
+          // Only log unexpected errors
+          // console.error('Failed to fetch credits');
+          setCredits({ standardAnalyses: 0, deepScans: 0 });
         }
       } catch (error) {
-        console.error('Error fetching credits:', error);
+        // Only log unexpected errors
+        // console.error('Error fetching credits:', error);
+        setCredits({ standardAnalyses: 0, deepScans: 0 });
       } finally {
         setLoading(false);
       }

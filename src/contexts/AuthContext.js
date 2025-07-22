@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
       if (auth.currentUser.emailVerified) {
         await auth.currentUser.getIdToken(true);
       }
-      setUser({ ...auth.currentUser });
+      setUser(auth.currentUser);
     } catch (error) {
       console.error('Error refreshing user:', error);
     }

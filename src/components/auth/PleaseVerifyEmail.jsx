@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export function PleaseVerifyEmail() {
   const { user, resendVerificationEmail, logOut, refreshUser } = useAuth();
@@ -10,6 +11,7 @@ export function PleaseVerifyEmail() {
   const [error, setError] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const router = useRouter();
 
   const handleResendEmail = async () => {
     setIsResending(true);
@@ -34,6 +36,9 @@ export function PleaseVerifyEmail() {
       await refreshUser();
       if (user?.emailVerified) {
         setMessage('Email verification confirmed! Redirecting...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1200);
       } else {
         setMessage('Email not yet verified. Please check your inbox and click the verification link.');
       }
