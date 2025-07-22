@@ -78,7 +78,7 @@ export function SignInDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-slate-600 hover:text-purple-600 cursor-pointer">
+        <Button variant="ghost" className="bg-white text-black border border-black hover:bg-black hover:text-white font-bold transition-colors cursor-pointer">
           Sign In
         </Button>
       </DialogTrigger>

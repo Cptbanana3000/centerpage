@@ -37,7 +37,7 @@ export function Navbar() {
       <SignInDialog>
         <Button
           variant="ghost"
-          className={`w-full text-gray-600 hover:text-gray-900 ${mobile ? 'justify-start p-2' : 'p-2'} cursor-pointer`}
+          className={`w-full bg-white text-black border border-black hover:bg-black hover:text-white font-bold transition-colors ${mobile ? 'justify-start p-2' : 'p-2'} cursor-pointer`}
           onClick={mobile ? handleMobileClose : undefined}
         >
           Sign In
@@ -45,10 +45,10 @@ export function Navbar() {
       </SignInDialog>
       <SignUpDialog>
         <Button
-          className={`w-full bg-gray-900 text-white hover:bg-gray-800 font-bold ${mobile ? 'p-2' : 'py-2 px-4'} cursor-pointer`}
+          className={`w-full bg-white text-black border border-black hover:bg-black hover:text-white font-bold ${mobile ? 'p-2' : 'py-2 px-4'} cursor-pointer transition-colors`}
           onClick={mobile ? handleMobileClose : undefined}
         >
-          Get Started
+          Sign Up
         </Button>
       </SignUpDialog>
     </div>
@@ -90,10 +90,10 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-4">
                 <CreditDisplay variant="compact" showRefill={false} />
-                <Link href="/dashboard" className="px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/dashboard" className="px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-black hover:bg-gray-100 transition-colors">
                   Dashboard
                 </Link>
-                <Button variant="ghost" onClick={handleSignOut} className="text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" onClick={handleSignOut} className="text-black bg-white border border-black hover:bg-black hover:text-white transition-colors">
                   Sign Out
                 </Button>
               </div>
