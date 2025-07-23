@@ -35,17 +35,12 @@ export function PleaseVerifyEmail() {
     setError('');
     
     try {
-      // Refresh the user state first
       await refreshUser();
-      
-      // Get the current auth state directly from Firebase
       const auth = getAuth();
       const currentUser = auth.currentUser;
       
       if (currentUser) {
-        // Force reload the user to get the latest verification status
         await currentUser.reload();
-        
         if (currentUser.emailVerified) {
           setMessage('Email verification confirmed! Redirecting...');
           setTimeout(() => {
@@ -66,52 +61,68 @@ export function PleaseVerifyEmail() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <div className="w-full max-w-md text-center bg-[#212121]/80 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-xl">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-blue-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 border-2 border-black rounded-full flex items-center justify-center mb-8">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
+          </div>
+          
+          <h1 className="text-3xl font-light text-black mb-4">
+            Verify Your Email
+          </h1>
+          
+          <p className="text-gray-600 text-sm leading-relaxed mb-8">
+            A verification link has been sent to <span className="font-medium text-black">{user?.email}</span>. 
+            Please click the link to activate your account.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold mb-2">Verify Your Email</h1>
-        <p className="text-gray-300 mb-6">
-          We've sent a verification link to{' '}
-          <strong className="text-purple-400">{user?.email}</strong>. Please
-          click the link in the email to activate your account and access your dashboard.
-        </p>
 
-        {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
-        {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+        {message && (
+          <div className="text-sm text-gray-700 bg-gray-50 p-3 border border-gray-200 rounded">
+            {message}
+          </div>
+        )}
         
-        <div className="flex flex-col space-y-3">
-            <Button
-              onClick={handleCheckVerification}
-              disabled={isChecking}
-              className="w-full h-12 bg-green-600 text-white rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#212121] focus:ring-green-600 disabled:opacity-50"
-            >
-              {isChecking ? 'Checking...' : 'I\'ve Verified - Check Status'}
-            </Button>
-            <Button
-              onClick={handleResendEmail}
-              disabled={isResending}
-              variant="outline"
-              className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#212121] focus:ring-[#667eea] disabled:opacity-50"
-            >
-              {isResending ? 'Sending...' : 'Resend Verification Email'}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={logOut}
-              className="text-gray-400 hover:bg-white/10 hover:text-white"
-            >
-              Log Out
-            </Button>
+        {error && (
+          <div className="text-sm text-gray-700 bg-gray-50 p-3 border border-gray-300 rounded">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <Button
+            onClick={handleCheckVerification}
+            disabled={isChecking}
+            className="w-full h-12 bg-black text-white font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isChecking ? 'Checking...' : 'I\'ve Verified'}
+          </Button>
+          
+          <Button
+            onClick={handleResendEmail}
+            disabled={isResending}
+            variant="outline"
+            className="w-full h-12 border border-gray-300 bg-white text-black hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isResending ? 'Sending...' : 'Resend Email'}
+          </Button>
+          
+          <Button
+            onClick={logOut}
+            variant="ghost"
+            className="w-full h-12 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Log Out
+          </Button>
         </div>
 
-        <p className="mt-6 text-xs text-gray-500">
-            Can't find the email? Check your spam folder or promotions tab.
+        <p className="text-center text-xs text-gray-400 mt-8">
+          Check your spam folder if you don't see the email.
         </p>
       </div>
     </div>
   );
-} 
+}

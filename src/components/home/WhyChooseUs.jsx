@@ -1,6 +1,6 @@
 'use client';
 
-import { Layers, Rocket, PieChart, BrainCircuit, Receipt, HandCoins } from 'lucide-react';
+import { Clock, Users, Layers, Rocket, PieChart, BrainCircuit, Receipt, HandCoins } from 'lucide-react';
 
 // Make sure you have Font Awesome loaded in your project for the icons to appear.
 // For example, in your layout.js or _app.js: import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -8,38 +8,49 @@ import { Layers, Rocket, PieChart, BrainCircuit, Receipt, HandCoins } from 'luci
 export function WhyChooseUs() {
   const points = [
     {
-      title: "A Seamless Workflow, Not a Dozen Open Tabs",
+      title: "4 AI Experts in 2 Minutes, Not Hours of Research",
       oldWay: {
-        description: "Juggling your domain registrar, multiple Google searches, and an SEO tool, trying to connect the dots yourself in a spreadsheet.",
+        description: "Spending 3-5 hours juggling domain registrars, Google searches, Ahrefs, and Wappalyzer to manually piece together competitor insights.",
+        icon: Clock,
+      },
+      centerPageWay: {
+        description: "Our AI team (SEO Strategist, Tech Analyst, Brand Consultant, Strategic Advisor) works simultaneously to deliver professional grade analysis in minutes. Like having a $2000/day consulting team.",
+        icon: Users,
+      },
+    },
+    {
+      title: "Real-Time Intelligence, Not Outdated Databases", 
+      oldWay: {
+        description: "Getting stale data from expensive tools that charge $200+/month for information that might be weeks or months old.",
         icon: Layers,
       },
       centerPageWay: {
-        description: "One search bar, one category, one unified dashboard. We combine domain availability checks with deep Google search analysis to give you a clear picture of the competitive landscape.",
+        description: "Live web scraping with 95% tech stack accuracy. We analyze competitors in real time, not from cached databases. Fresh insights every single search.",
         icon: Rocket,
-      }
+      },
     },
     {
       title: "Strategic Insights, Not Just Data Dumps",
       oldWay: {
-        description: "Endless charts and data tables from enterprise-grade tools that leave you to figure out what it all means.",
+        description: "Endless charts and technical metrics from enterprise tools that leave you to figure out what it all means for your specific situation.",
         icon: PieChart,
       },
       centerPageWay: {
-        description: "Our AI doesn't just show you numbers; it gives you a clear verdict and a 'Strategic Battle Plan.' It's like having an experienced marketing strategist on your team.",
+        description: "Our AI doesn't just show you numbers; it synthesizes findings into plain-English recommendations and actionable strategic battle plans. No SEO expertise required.",
         icon: BrainCircuit,
-      }
+      },
     },
     {
-      title: "Value-Driven Packs, Not Predatory Subscriptions",
+      title: "Pay-Per-Use Credits, Not Predatory Subscriptions",
       oldWay: {
-        description: "Getting locked into a costly monthly subscription for a massive toolkit where you only use 5% of the features.",
+        description: "Getting locked into $129-299/month subscriptions for massive toolkits where you only need name validation occasionally, not daily.",
         icon: Receipt,
       },
       centerPageWay: {
-        description: "Our one-time credit packs give you access to powerful, professional-grade analysis without the long-term commitment. Solve your problem and get back to building.",
+        description: "One-time credit packs that combine domain checks + SEO analysis + competitor intelligence + tech detection. Get $500+ consultant-level insights without the commitment.",
         icon: HandCoins,
-      }
-    }
+      },
+    },
   ];
 
   return (
@@ -48,7 +59,7 @@ export function WhyChooseUs() {
 
         {/* Header Section */}
         <div className="text-center mb-20 max-w-3xl mx-auto">
-          <h2 className="text-6xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-6xl font-bold text-gray-900 lg:text-7xl tracking-tight">
             A Founder's Focus, Not an Enterprise Maze
           </h2>
           <p className="text-lg lg:text-2xl text-gray-600 leading-relaxed">
@@ -89,6 +100,15 @@ export function WhyChooseUs() {
               </div>
             </div>
           ))}
+
+            <div className="mt-16 text-center">
+              <div className="bg-white border-2 border-gray-900 rounded-xl p-8 h-full shadow-2xl group transition-transform transform hover:scale-105 hover:shadow-2xl">
+                <p className="text-gray-700 text-lg">
+                  <strong>Stop wasting time,spending hours and hundreds or dollars on tools that don't deliver</strong><br />
+                  Get enterprise-grade insights with our AI expert team.Check our pricing Section to get started.
+                </p>
+              </div>
+            </div>
         </div>
 
       </div>

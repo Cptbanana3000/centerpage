@@ -121,7 +121,7 @@ const Footer = () => {
               © {new Date().getFullYear()} CenterPage. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <span>Made with ❤️ for entrepreneurs</span>
+              <span>Made with tears ,blood and sweat for everyone(maybe a bit of love too)</span>
               <span>•</span>
               <span>Version 1.0.0</span>
             </div>

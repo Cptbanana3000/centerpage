@@ -71,9 +71,9 @@ export function PricingSection() {
     },
     {
       name: 'Starter Pack',
-      priceId: 'pri_01jypm11t9pdaeqdeygkg132at', // TODO: Replace with your actual price ID from Paddle
-      price: '$19.99',
-      originalPrice: '$29.99',
+      priceId: 'pri_01k0ve17dkeyngtaaxxq7z8kwh', // TODO: Replace with your actual price ID from Paddle
+      price: '$1.00', // TEST PRICING
+      originalPrice: '$19.99',
       description: 'For a focused brainstorming session to find a great name.',
       features: [
         { text: '15 Standard Analyses', included: true },
@@ -95,9 +95,9 @@ export function PricingSection() {
     },
     {
       name: 'Founders Pack',
-      priceId: 'pri_01jypnx15gmrp3csr9wtvrrykq', // TODO: Replace with your actual price ID from Paddle
-      price: '$39.99',
-      originalPrice: '$49.99',
+      priceId: 'pri_01k0ve2teb9v06hja453btj2kv', // TODO: Replace with your actual price ID from Paddle
+      price: '$1.00', // TEST PRICING
+      originalPrice: '$39.99',
       description: 'For comprehensive research on one or more projects.',
       features: [
         { text: '30 Standard Analyses', included: true },
