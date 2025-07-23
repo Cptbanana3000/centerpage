@@ -7,18 +7,16 @@ const paddle = new Paddle(process.env.PADDLE_API_KEY);
 
 // Define credit packs based on their Price IDs
 const CREDIT_PACKS = {
-  'pri_01jypnx15gmrp3csr9wtvrrykq': { // Pro Pack ($39.99)
+  'pri_01k0ve2teb9v06hja453btj2kv': { // Founders Pack ($39.99)
     standardAnalyses: 30,
-    deepScans: 14, // Fixed: Match frontend display
+    deepScans: 14,
   },
   'pri_01k0ve17dkeyngtaaxxq7z8kwh': { // Starter Pack ($19.99)
     standardAnalyses: 15,
     deepScans: 7,
   },
-  'pri_01k0ve2teb9v06hja453btj2kv': { // Basic Pack ($7.99)
-    standardAnalyses: 15,
-    deepScans: 0,
-  },
+  // Note: The 'pri_01jypnx15gmrp3csr9wtvrrykq' and 'pri_01k04w0g2avm0xwk71hxyergcw' are old and can be removed
+  // if they are no longer in use in Paddle to keep this clean.
 };
 
 export async function POST(req) {
