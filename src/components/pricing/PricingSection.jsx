@@ -50,7 +50,7 @@ export function PricingSection() {
     // },
     {
       name: 'Basic Pack',
-      priceId: 'pri_01k04w0g2avm0xwk71hxyergcw', // TODO: Replace with your actual price ID from Paddle
+      priceId: 'pri_01k0vm1yfrvn3v59fxk3dgskvm', // LIVE Basic Pack
       price: '$7.99',
       originalPrice: '$19.99',
       description: 'For basic analysis and scoring of brand names.',
@@ -71,8 +71,8 @@ export function PricingSection() {
     },
     {
       name: 'Starter Pack',
-      priceId: 'pri_01k0ve17dkeyngtaaxxq7z8kwh', // TODO: Replace with your actual price ID from Paddle
-      price: '$1.00', // TEST PRICING
+      priceId: 'pri_01k0ve17dkeyngtaaxxq7z8kwh', // LIVE Starter Pack
+      price: '$19.99',
       originalPrice: '$19.99',
       description: 'For a focused brainstorming session to find a great name.',
       features: [
@@ -95,8 +95,8 @@ export function PricingSection() {
     },
     {
       name: 'Founders Pack',
-      priceId: 'pri_01k0ve2teb9v06hja453btj2kv', // TODO: Replace with your actual price ID from Paddle
-      price: '$1.00', // TEST PRICING
+      priceId: 'pri_01k0ve2teb9v06hja453btj2kv', // LIVE Founders Pack
+      price: '$39.99',
       originalPrice: '$39.99',
       description: 'For comprehensive research on one or more projects.',
       features: [

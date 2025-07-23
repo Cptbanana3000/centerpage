@@ -15,6 +15,10 @@ const CREDIT_PACKS = {
     standardAnalyses: 15,
     deepScans: 7,
   },
+  'pri_01k0vm1yfrvn3v59fxk3dgskvm': { // Basic Pack ($7.99)
+    standardAnalyses: 10,
+    deepScans: 0,
+  },
   // Note: The 'pri_01jypnx15gmrp3csr9wtvrrykq' and 'pri_01k04w0g2avm0xwk71hxyergcw' are old and can be removed
   // if they are no longer in use in Paddle to keep this clean.
 };
