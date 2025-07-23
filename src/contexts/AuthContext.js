@@ -109,6 +109,10 @@ export function AuthProvider({ children }) {
     try {
       await signOut(auth);
       setUser(null);
+      // Redirect to homepage with full refresh
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;

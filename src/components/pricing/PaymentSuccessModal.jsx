@@ -67,13 +67,13 @@ export function PaymentSuccessModal({ isOpen, onClose, purchasedPack }) {
               Start Analyzing
             </Button>
             
-            <Button 
+            {/* <Button 
               onClick={handleClose}
               variant="outline"
               className="w-full border border-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:border-gray-400"
             >
               Continue
-            </Button>
+            </Button> */}
           </div>
 
           {/* Footer */}
