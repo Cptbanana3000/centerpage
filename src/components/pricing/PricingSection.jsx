@@ -73,7 +73,7 @@ export function PricingSection() {
       name: 'Starter Pack',
       priceId: 'pri_01k0ve17dkeyngtaaxxq7z8kwh', // LIVE Starter Pack
       price: '$19.99',
-      originalPrice: '$19.99',
+      originalPrice: '$39.99',
       description: 'For a focused brainstorming session to find a great name.',
       features: [
         { text: '15 Standard Analyses', included: true },
@@ -97,7 +97,7 @@ export function PricingSection() {
       name: 'Founders Pack',
       priceId: 'pri_01k0ve2teb9v06hja453btj2kv', // LIVE Founders Pack
       price: '$39.99',
-      originalPrice: '$39.99',
+      originalPrice: '$79.99',
       description: 'For comprehensive research on one or more projects.',
       features: [
         { text: '30 Standard Analyses', included: true },
