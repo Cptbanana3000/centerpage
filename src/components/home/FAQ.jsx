@@ -30,7 +30,7 @@ const faqData = [
   },
   {
     question: 'What payment methods do you accept?',
-    answer: 'We partner with Paddle, a globally trusted payment provider, to securely process payments. We accept all major credit and debit cards, as well as Apple Pay and Google Pay.',
+    answer: 'We partner with Paddle, a globally trusted payment provider, to securely process payments. We accept all major credit and debit cards, as well as Apple Pay, Google Pay, and paypal.',
   },
   {
     question: 'How do I get started?',
