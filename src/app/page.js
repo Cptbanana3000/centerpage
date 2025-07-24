@@ -12,6 +12,7 @@ import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { PricingSection } from '@/components/pricing/PricingSection';
 import { Faq } from '@/components/home/FAQ';
 import ReactMarkdown from 'react-markdown';
+import StructuredData from '@/components/seo/StructuredData';
 
 // --- Reusable UI Sub-Components (A Best Practice in React) ---
 // const MetricCircle = ({ score, label }) => {
@@ -75,8 +76,13 @@ import ReactMarkdown from 'react-markdown';
 
 // --- Main Page Component ---
 export default function Home() {
+  const [isSignInOpen, setSignInOpen] = useState(false);
+  const [isSignUpOpen, setSignUpOpen] = useState(false);
+  const pricingRef = useRef(null);
+
   return (
     <>
+      <StructuredData />
       <Navbar />
       <main className="min-h-screen">
         <Hero />
