@@ -16,8 +16,8 @@ export default function StructuredData() {
         "description": "AI-powered brand name validation and viability checker helping businesses make data-driven branding decisions.",
         "foundingDate": "2024",
         "sameAs": [
-          "https://twitter.com/centerpage",
-          "https://linkedin.com/company/centerpage"
+          "https://twitter.com/getcenterpage",
+          "https://linkedin.com/company/getcenterpage"
         ]
       },
       {

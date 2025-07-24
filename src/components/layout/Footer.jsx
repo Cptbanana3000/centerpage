@@ -4,8 +4,8 @@ import { Twitter, Linkedin, Mail, Shield, FileText, CreditCard, Cookie } from 'l
 
 const Footer = () => {
   const socialLinks = [
-    { href: 'https://twitter.com/centerpage', icon: Twitter, label: 'Twitter' },
-    // { href: 'https://linkedin.com/company/centerpage', icon: Linkedin, label: 'LinkedIn' },
+    { href: 'https://twitter.com/getcenterpage', icon: Twitter, label: 'Twitter' },
+    { href: 'https://linkedin.com/company/getcenterpage', icon: Linkedin, label: 'LinkedIn' },
     { href: 'mailto:support@getcenterpage.com', icon: Mail, label: 'Email' },
   ];
 
