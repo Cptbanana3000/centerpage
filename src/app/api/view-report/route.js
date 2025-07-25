@@ -51,11 +51,8 @@ export async function GET(request) {
       });
     }
     
-    // If no saved report exists, return 404
-    return NextResponse.json({
-      message: 'No saved report found for this brand and category',
-      code: 'REPORT_NOT_FOUND'
-    }, { status: 404 });
+    // If no saved report exists, return 204 No Content to avoid unnecessary console errors
+    return new NextResponse(null, { status: 204 });
 
   } catch (error) {
     console.error(`[View Report Error] for user ${userId}:`, error);

@@ -76,7 +76,9 @@ export default function useBrandAnalysis({
             }
           );
 
-          if (res.status === 404) {
+          if (res.status === 204) {
+            // No saved report yet; fall through to fresh analysis
+          } else if (res.status === 404) {
             setError('Saved report not found. It may have been deleted or expired.');
             setLoading(false);
             return;
@@ -104,7 +106,9 @@ export default function useBrandAnalysis({
           )}`,
           { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
         );
-        if (cachedRes.ok) {
+        if (cachedRes.status === 204) {
+          // No cached report; proceed to fresh analysis
+        } else if (cachedRes.ok) {
           const cachedData = await cachedRes.json();
           setAnalysis(cachedData);
           setLoading(false);
