@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,34 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 
-export function SignUpDialog() {
+export function SignUpDialog({ isOpen: externalOpen, onOpenChange }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(externalOpen ?? false);
+
+  // Listen for global event to open dialog
+  useEffect(() => {
+    const openHandler = () => handleOpenChange(true);
+    window.addEventListener('open-signup', openHandler);
+    return () => window.removeEventListener('open-signup', openHandler);
+  }, []);
+
+  // Sync with external control
+  useEffect(() => {
+    if (externalOpen !== undefined) {
+      setOpen(externalOpen);
+    }
+  }, [externalOpen]);
+
+  const handleOpenChange = (v) => {
+    if (externalOpen !== undefined) {
+      onOpenChange?.(v);
+    }
+    setOpen(v);
+  };
   const { signUp, signInWithGoogle, signInWithGitHub } = useAuth();
   const router = useRouter();
 
@@ -30,7 +51,7 @@ export function SignUpDialog() {
     setIsLoading(true);
     try {
       await signUp(email, password);
-      setOpen(false);
+      handleOpenChange(false);
       router.push('/dashboard');
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {
@@ -51,7 +72,7 @@ export function SignUpDialog() {
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      setOpen(false);
+      handleOpenChange(false);
       router.push('/dashboard');
     } catch (err) {
       setError('Failed to sign in with Google. Please try again.');
@@ -66,7 +87,7 @@ export function SignUpDialog() {
     setIsLoading(true);
     try {
       await signInWithGitHub();
-      setOpen(false);
+      handleOpenChange(false);
       router.push('/dashboard');
     } catch (err) {
       setError('Failed to sign up with GitHub. Please try again.');
@@ -77,7 +98,7 @@ export function SignUpDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="bg-white text-black border border-black hover:bg-black hover:text-white font-bold transition-colors cursor-pointer">
           Sign Up

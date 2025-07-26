@@ -1,9 +1,10 @@
 'use client'; // This is required for components that use React Hooks
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { SignInDialog } from '@/components/auth/SignInDialog';
 import { SignUpDialog } from '@/components/auth/SignUpDialog';
-import { Navbar } from '@/components/layout/Navbar';
+import Navbar from '@/components/layout/Navbar';
 // import Footer from '@/components/layout/Footer';
 import { Hero } from '@/components/home/Hero';
 import { Features } from '@/components/home/Features';
@@ -13,6 +14,7 @@ import { PricingSection } from '@/components/pricing/PricingSection';
 import { Faq } from '@/components/home/FAQ';
 import ReactMarkdown from 'react-markdown';
 import StructuredData from '@/components/seo/StructuredData';
+import WelcomeModal from '@/components/modals/WelcomeModal';
 
 // --- Reusable UI Sub-Components (A Best Practice in React) ---
 // const MetricCircle = ({ score, label }) => {
@@ -74,16 +76,52 @@ import StructuredData from '@/components/seo/StructuredData';
 // };
 
 
+
+
 // --- Main Page Component ---
 export default function Home() {
+  const { user } = useAuth();
   const [isSignInOpen, setSignInOpen] = useState(false);
   const [isSignUpOpen, setSignUpOpen] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const pricingRef = useRef(null);
+
+  // Welcome modal logic
+  useEffect(() => {
+    // Only show for non-authenticated users
+    if (user) return;
+
+    // Check if modal was already shown
+    const hasSeenWelcome = localStorage.getItem('centerpage_welcome_shown');
+    if (hasSeenWelcome) return;
+
+    // Show modal after 4 seconds
+    const timer = setTimeout(() => {
+      setShowWelcomeModal(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [user]);
+
+  const handleWelcomeClose = () => {
+    setShowWelcomeModal(false);
+    localStorage.setItem('centerpage_welcome_shown', 'true');
+  };
+
+  const handleWelcomeSignUp = () => {
+    console.log('Welcome signup clicked');
+    setShowWelcomeModal(false);
+    localStorage.setItem('centerpage_welcome_shown', 'true');
+    
+    // Open signup dialog via shared state
+    setSignUpOpen(true);
+  };
+  
 
   return (
     <>
       <StructuredData />
-      <Navbar />
+      <Navbar isSignUpOpen={isSignUpOpen} setSignUpOpen={setSignUpOpen} />
       <main className="min-h-screen">
         <Hero />
         <Features />
@@ -93,6 +131,17 @@ export default function Home() {
         <Faq />
       </main>
       {/* <Footer /> */}
+      
+      {/* Auth Dialogs */}
+      {/* <SignInDialog isOpen={isSignInOpen} onClose={() => setSignInOpen(false)} />
+      <SignUpDialog isOpen={isSignUpOpen} onOpenChange={setSignUpOpen} /> */}
+      
+      {/* Welcome Modal */}
+      <WelcomeModal 
+        isOpen={showWelcomeModal} 
+        onClose={handleWelcomeClose}
+        onSignUp={handleWelcomeSignUp}
+      />
     </>
   );
 }

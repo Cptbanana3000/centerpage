@@ -15,7 +15,7 @@ const navLinks = [
   { href: '/#whyChooseUs', label: 'Why Us' },
 ];
 
-export function Navbar() {
+export default function Navbar({ isSignUpOpen, setSignUpOpen }) {
   const { user, logOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -43,10 +43,11 @@ export function Navbar() {
           Sign In
         </Button>
       </SignInDialog>
-      <SignUpDialog>
+      <SignUpDialog isOpen={isSignUpOpen} onOpenChange={setSignUpOpen}>
         <Button
           className={`w-full bg-white text-black border border-black hover:bg-black hover:text-white font-bold ${mobile ? 'p-2' : 'py-2 px-4'} cursor-pointer transition-colors`}
           onClick={mobile ? handleMobileClose : undefined}
+
         >
           Sign Up
         </Button>
