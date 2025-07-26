@@ -322,7 +322,9 @@ export default function AnalysisPage() {
                              <Button onClick={handlePdfExport} disabled={isExporting || !(deepScanResult || analysis?.deepScanData)} className="w-full bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 h-14 font-bold text-lg flex items-center justify-center gap-2">
                                  <FileText className="h-5 w-5" />
                                  <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
+                                 
                              </Button>
+                             <p>IMPORTANT! The pdf export might not include the deepscan results for now,im working on it.</p>
                          </div>
                          {exportError && <p className="text-red-600 text-sm mt-4">{exportError}</p>}
                     </StyledCard>
