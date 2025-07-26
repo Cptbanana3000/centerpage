@@ -15,7 +15,7 @@ const navLinks = [
   { href: '/#whyChooseUs', label: 'Why Us' },
 ];
 
-export default function Navbar({ isSignUpOpen, setSignUpOpen }) {
+function Navbar({ isSignUpOpen, setSignUpOpen }) {
   const { user, logOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -148,3 +148,6 @@ export default function Navbar({ isSignUpOpen, setSignUpOpen }) {
     </nav>
   );
 }
+
+export default Navbar;
+export { Navbar };
