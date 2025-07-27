@@ -7,6 +7,8 @@ import { PaddleProvider } from '@/components/pricing/PaddleProvider';
 import Footer from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner"
 import CookieBanner from "@/components/CookieBanner";
+import { GA_ID } from '@/lib/gtag';
+import Script from 'next/script';
 
 
 const inter = Inter({ subsets: ['latin'] });
@@ -84,8 +86,27 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
-      <head />
+      <head>
+        {/* Google Analytics */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+              `}
+            </Script>
+          </>
+        )}
+      </head>
       <body className={inter.className}>
+        
         <AuthProvider>
           <AnalysisHistoryProvider>
             <PaddleProvider>
