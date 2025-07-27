@@ -36,7 +36,7 @@ export default function GoogleCompetitorsList({ results = [], brandName }) {
   // Main list rendering with a clean, separated layout
   return (
     <div className="divide-y divide-gray-200">
-      {results.slice(0, 5).map((result, idx) => {
+      {results.slice(0, 10).map((result, idx) => {
         const rootDomain = extractRootDomain(result.link);
         const isDirect = rootDomain?.toLowerCase() === brandName.toLowerCase();
         return <GoogleCompetitorCard key={idx} result={result} isDirect={isDirect} />;

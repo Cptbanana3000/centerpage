@@ -97,7 +97,7 @@ export function calculateDigitalIdentityStrength(domainData, googleResults, bran
 export async function calculateCompetitionIntensityAI(googleResults, brandName, category) {
     if (!googleResults || googleResults.length === 0) return 100;
 
-    const topResults = googleResults.slice(0, 5).map(r => ({ title: r.title, snippet: r.snippet, link: r.link }));
+    const topResults = googleResults.slice(0, 10).map(r => ({ title: r.title, snippet: r.snippet, link: r.link }));
 
     const prompt = `
       You are a Brand Analyst AI specializing in the "${category}" industry. Your task is to determine the market competition for a new brand name based on the top 5 Google search results. A high score means low competition (good), a low score means high competition (bad).
@@ -158,7 +158,7 @@ export async function calculateCompetitionIntensityAI(googleResults, brandName, 
 export async function calculateSeoDifficultyAI(googleResults, category) {
     if (!googleResults || googleResults.length === 0) return 100;
 
-    const topResults = googleResults.slice(0, 5).map(r => ({ title: r.title, snippet: r.snippet, link: r.link }));
+    const topResults = googleResults.slice(0, 10).map(r => ({ title: r.title, snippet: r.snippet, link: r.link }));
 
     const prompt = `
       You are an SEO Analyst AI. Based on the top 5 Google search results, determine the SEO difficulty to rank for this term within the "${category}" industry. A high score means easy SEO, a low score means difficult SEO.
@@ -199,7 +199,7 @@ export async function calculateSeoDifficultyAI(googleResults, category) {
 export async function getBrandUniquenessAI(googleResults, brandName, category) {
     if (!googleResults || googleResults.length === 0) return 10; // If no results, it's unique by default.
 
-    const topResults = googleResults.slice(0, 5).map(r => ({ title: r.title, snippet: r.snippet }));
+    const topResults = googleResults.slice(0, 10).map(r => ({ title: r.title, snippet: r.snippet }));
 
     const prompt = `
       You are a Brand Identity Analyst. Your task is to determine if the brand name "${brandName}" is a unique, invented term or a generic word/phrase with other meanings, based on the top Google search results for it within the "${category}" industry.

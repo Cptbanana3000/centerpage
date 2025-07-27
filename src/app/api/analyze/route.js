@@ -157,7 +157,7 @@ export async function GET(request) {
       scores,
       detailedAnalysis: {
         domainAvailability: domainData.map(d => ({ domain: d.domain, isAvailable: d.available })),
-        googleCompetition: { topResults: uniqueResults.slice(0, 5) }
+        googleCompetition: { topResults: uniqueResults.slice(0, 10) }
       },
       cached: false,
       analysisTime: new Date().toISOString()
