@@ -1,23 +1,31 @@
 // src/services/apiHelpers.js
 import axios from 'axios';
 
-const GODADDY_API_KEY = process.env.GODADDY_API_KEY;
-const GODADDY_API_SECRET = process.env.GODADDY_API_SECRET;
+
 const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY;
 const GOOGLE_SEARCH_CX = process.env.GOOGLE_SEARCH_CX;
-const GODADDY_BASE_URL = 'https://api.godaddy.com';
+import { WhoisJson } from '@whoisjson/whoisjson';
 
-// This function is correct and remains unchanged.
+
+// Initialize the client with your new API key
+const whois = new WhoisJson({
+  apiKey: process.env.WHOISJSON_API_KEY 
+});
+
+/**
+ * Checks the availability of multiple domains using the WhoisJSON API.
+ * @param {string[]} domains - An array of domain names to check.
+ * @returns {Promise<object[]>} - A promise that resolves to an array of availability results.
+ */
 export async function getDomainAvailability(domains) {
   const results = [];
   for (const domain of domains) {
     try {
-            const url = `${GODADDY_BASE_URL}/v1/domains/available?domain=${domain}`;
-      const response = await axios.get(url, { headers: { 'Authorization': `sso-key ${GODADDY_API_KEY}:${GODADDY_API_SECRET}` } });
-      results.push(response.data);
+      const availabilityInfo = await whois.checkDomainAvailability(domain);
+      results.push(availabilityInfo);
     } catch (error) {
-      console.error(`Failed to check domain ${domain}:`, error.response?.data || error.message);
-      results.push({ domain, available: false, error: true });
+      console.error(`Failed to check domain ${domain}:`, error.message);
+      results.push({ domain, available: false, error: true, message: error.message });
     }
   }
   return results;
