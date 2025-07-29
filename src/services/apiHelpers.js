@@ -5,7 +5,7 @@ const GODADDY_API_KEY = process.env.GODADDY_API_KEY;
 const GODADDY_API_SECRET = process.env.GODADDY_API_SECRET;
 const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY;
 const GOOGLE_SEARCH_CX = process.env.GOOGLE_SEARCH_CX;
-const GODADDY_BASE_URL = process.env.GODADDY_ENV === 'PRODUCTION' ? 'https://api.godaddy.com' : 'https://api.ote-godaddy.com';
+const GODADDY_BASE_URL = 'https://api.godaddy.com';
 
 // This function is correct and remains unchanged.
 export async function getDomainAvailability(domains) {
@@ -13,9 +13,6 @@ export async function getDomainAvailability(domains) {
   for (const domain of domains) {
     try {
             const url = `${GODADDY_BASE_URL}/v1/domains/available?domain=${domain}`;
-      console.log(`[GoDaddy API] Checking domain: ${domain}`);
-      console.log(`[GoDaddy API] Request URL: ${url}`);
-      console.log(`[GoDaddy API] Using Key: ${GODADDY_API_KEY ? GODADDY_API_KEY.substring(0, 5) + '...' : 'Not Found'}`);
       const response = await axios.get(url, { headers: { 'Authorization': `sso-key ${GODADDY_API_KEY}:${GODADDY_API_SECRET}` } });
       results.push(response.data);
     } catch (error) {
