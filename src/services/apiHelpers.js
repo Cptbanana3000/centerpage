@@ -12,7 +12,10 @@ export async function getDomainAvailability(domains) {
   const results = [];
   for (const domain of domains) {
     try {
-      const url = `${GODADDY_BASE_URL}/v1/domains/available?domain=${domain}`;
+            const url = `${GODADDY_BASE_URL}/v1/domains/available?domain=${domain}`;
+      console.log(`[GoDaddy API] Checking domain: ${domain}`);
+      console.log(`[GoDaddy API] Request URL: ${url}`);
+      console.log(`[GoDaddy API] Using Key: ${GODADDY_API_KEY ? GODADDY_API_KEY.substring(0, 5) + '...' : 'Not Found'}`);
       const response = await axios.get(url, { headers: { 'Authorization': `sso-key ${GODADDY_API_KEY}:${GODADDY_API_SECRET}` } });
       results.push(response.data);
     } catch (error) {
